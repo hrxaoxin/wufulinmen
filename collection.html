@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>我的福卡 - 集五福活动</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f5f5f5;
+            background-image: linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%);
+            overflow-x: hidden;
+        }
+        
+        /* 粒子背景容器 */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .collection-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .collection-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #ee5a6f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+        }
+        
+        .collection-summary {
+            background: linear-gradient(135deg, #4ecdc4 0%, #45b7aa 100%);
+            border-radius: 16px;
+            color: white;
+        }
+        
+        .fu-card-item {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .fu-card-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div id="particles-js"></div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar fixed bottom-0 left-0 right-0 z-10">
+        <div class="flex justify-around items-center py-2 px-4">
+            <a href="index.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏠&nbsp;</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">首页</span>
+            </a>
+            <a href="mint.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🃏</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">铸造</span>
+            </a>
+            <a href="collection.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🎁</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">我的福卡</span>
+            </a>
+            <a href="rewards.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏆</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">奖励</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 pt-6 pb-24">
+        <!-- 页面标题 -->
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center mr-3">
+                <span class="text-white text-2xl font-bold">福</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">我的福卡</h1>
+        </div>
+
+        <!-- 收集说明 -->
+        <p class="text-lg text-gray-600 mb-8">收集五福，合成五福临门</p>
+
+        <!-- 福卡区域框 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <!-- 收集进度 -->
+            <div class="flex items-center mb-6">
+                <div class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center mr-3">
+                    <i class="text-white text-sm">📊</i>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-800">收集进度</h2>
+            </div>
+
+            <!-- 福卡网格 -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <!-- 爱国福 -->
+                <div class="bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg p-4 flex flex-col items-center">
+                    <div class="w-24 h-24 mb-2">
+                        <img src="images/fu-cards/aiguo.png" alt="爱国福" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-1">爱国福</h3>
+                    <p class="text-sm font-medium text-gray-700">x0</p>
+                </div>
+
+                <!-- 富强福 -->
+                <div class="bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg p-4 flex flex-col items-center">
+                    <div class="w-24 h-24 mb-2">
+                        <img src="images/fu-cards/fuqiang.png" alt="富强福" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-1">富强福</h3>
+                    <p class="text-sm font-medium text-gray-700">x0</p>
+                </div>
+
+                <!-- 和谐福 -->
+                <div class="bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg p-4 flex flex-col items-center">
+                    <div class="w-24 h-24 mb-2">
+                        <img src="images/fu-cards/hexie.png" alt="和谐福" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-1">和谐福</h3>
+                    <p class="text-sm font-medium text-gray-700">x0</p>
+                </div>
+
+                <!-- 友善福 -->
+                <div class="bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg p-4 flex flex-col items-center">
+                    <div class="w-24 h-24 mb-2">
+                        <img src="images/fu-cards/youshan.png" alt="友善福" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-1">友善福</h3>
+                    <p class="text-sm font-medium text-gray-700">x0</p>
+                </div>
+
+                <!-- 敬业福 -->
+                <div class="bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg p-4 flex flex-col items-center">
+                    <div class="w-24 h-24 mb-2">
+                        <img src="images/fu-cards/jingye.png" alt="敬业福" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-1">敬业福</h3>
+                    <p class="text-sm font-medium text-gray-700">x0</p>
+                </div>
+
+                <!-- 万能福 -->
+                <div class="bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg p-4 flex flex-col items-center">
+                    <div class="w-24 h-24 mb-2">
+                        <img src="images/fu-cards/wanneng.png" alt="万能福" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-1">万能福</h3>
+                    <p class="text-sm font-medium text-gray-700">x0</p>
+                </div>
+            </div>
+
+            <!-- 合成按钮 -->
+            <div class="flex justify-center mt-6">
+                <button id="synthesizeBtn" class="btn-primary px-8 py-3 text-lg font-semibold">
+                    合成五福临门
+                </button>
+            </div>
+        </div>
+
+        <!-- 五福临门区域 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8" id="wufuLinMenSection">
+            <!-- 五福临门标题 -->
+            <div class="flex items-center mb-6">
+                <div class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center mr-3">
+                    <span class="text-white text-sm font-bold">福</span>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-800">我的五福临门</h2>
+            </div>
+
+            <!-- 五福临门福卡 -->
+            <div id="wufuLinMenCard" class="hidden">
+                <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl p-6 text-center">
+                    <div class="w-32 h-32 mb-4 mx-auto">
+                        <img src="images/fu-cards/wufulinmen.png" alt="五福临门" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">五福临门</h3>
+                    <p class="text-white/90">五福齐聚，好运连连</p>
+                </div>
+            </div>
+
+            <!-- 未合成提示 -->
+            <div id="noWuFuLinMen" class="text-center py-12">
+                <div class="w-24 h-24 mb-4 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
+                    <i class="text-gray-400 text-4xl">🎯</i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-600 mb-2">尚未合成五福临门</h3>
+                <p class="text-gray-500">集齐五种福卡，合成五福临门，获得额外分红</p>
+            </div>
+        </div>
+
+        <!-- 我的福卡区域框 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <!-- 福卡标题 -->
+            <div class="flex items-center mb-6">
+                <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center mr-3">
+                    <span class="text-white text-sm font-bold">福</span>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-800" id="fukaCountTitle">我的福卡 (0)</h2>
+            </div>
+
+            <!-- 福卡列表 -->
+            <div class="space-y-4" id="fukaList">
+                <!-- 福卡将通过JavaScript动态加载 -->
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+    <script>
+        // 粒子背景效果
+        particlesJS('particles-js', {
+            particles: {
+                number: {
+                    value: 80,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: '#ff6b6b'
+                },
+                shape: {
+                    type: 'circle',
+                    stroke: {
+                        width: 0,
+                        color: '#000000'
+                    }
+                },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#ff6b6b',
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 600,
+                        rotateY: 1200
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: 'grab'
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: 'push'
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: {
+                        distance: 140,
+                        line_linked: {
+                            opacity: 1
+                        }
+                    },
+                    push: {
+                        particles_nb: 4
+                    }
+                }
+            },
+            retina_detect: true
+        });
+        // 智能合约ABI
+        const contractABI = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_taxWallet",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "approved",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Approval",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "operator",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "bool",
+                        "name": "approved",
+                        "type": "bool"
+                    }
+                ],
+                "name": "ApprovalForAll",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "cardId",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint8",
+                        "name": "cardType",
+                        "type": "uint8"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    }
+                ],
+                "name": "CardMinted",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "DividendCalculated",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "DividendClaimed",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "DividendAdded",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Transfer",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "oldBalance",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "newBalance",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "TaxWalletBalanceUpdated",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "oldWallet",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "newWallet",
+                        "type": "address"
+                    }
+                ],
+                "name": "TaxWalletUpdated",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "cardId",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    }
+                ],
+                "name": "WuFuLinMenCreated",
+                "type": "event"
+            },
+            {
+                "inputs": [],
+                "name": "claimDividend",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "calculateDividends",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "calculateUserDividendPercentage",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "cards",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "cardType",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "mintTime",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "hasBlessingType",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_address",
+                        "type": "address"
+                    }
+                ],
+                "name": "getAddressBlessingTypes",
+                "outputs": [
+                    {
+                        "internalType": "bool[7]",
+                        "name": "",
+                        "type": "bool[7]"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_cardId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getCardInfo",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "cardType",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "mintTime",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "getExpectedDividend",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getStats",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_totalPool",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_taxWalletBNB",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_holdersCount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_lastDistributionTime",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_totalCards",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "holdersCount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "isWuFuHolder",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "lastDistributionTime",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "mintBlessingCard",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "name",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "nextCardId",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "ownerOf",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "owner",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "approve",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "safeTransferFrom",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "_data",
+                        "type": "bytes"
+                    }
+                ],
+                "name": "safeTransferFrom",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_taxWallet",
+                        "type": "address"
+                    }
+                ],
+                "name": "setTaxWallet",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "operator",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "approved",
+                        "type": "bool"
+                    }
+                ],
+                "name": "setApprovalForAll",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "symbol",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "index",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "tokenOfOwnerByIndex",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "index",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "tokenByIndex",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "tokenURI",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "taxWallet",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "taxWalletBNB",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "transferFrom",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "totalPool",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "totalSupply",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    }
+                ],
+                "name": "balanceOf",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "withdraw",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getApproved",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "account",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "operator",
+                        "type": "address"
+                    }
+                ],
+                "name": "isApprovedForAll",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "userDividendBalance",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "getExpectedDividend",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "stateMutability": "payable",
+                "type": "receive"
+            }
+        ];
+
+        // 智能合约地址
+        const contractAddress = '0xYourContractAddress'; // 部署后替换为实际地址
+
+        // 全局变量
+        let web3;
+        let contract;
+        let account;
+
+        // DOM元素
+        const fukaList = document.getElementById('fukaList');
+        const synthesizeBtn = document.getElementById('synthesizeBtn');
+        const wufuLinMenCard = document.getElementById('wufuLinMenCard');
+        const noWuFuLinMen = document.getElementById('noWuFuLinMen');
+
+        // 福卡描述
+        const FUKA_DESCRIPTIONS = {
+            '和谐福': '和睦相处，幸福美满',
+            '友善福': '友善待人，福报常在',
+            '富强福': '国富民强，繁荣昌盛',
+            '爱国福': '爱我中华，福泽绵长',
+            '敬业福': '敬业乐业，福禄安康',
+            '万能福': '万福齐聚，好运临门',
+            '五福临门': '五福齐聚，好运连连'
+        };
+
+        // 福卡类型枚举
+        const BlessingType = {
+            AiGuo: 0,      // 爱国福
+            FuQiang: 1,    // 富强福
+            HeXie: 2,      // 和谐福
+            YouShan: 3,    // 友善福
+            JingYe: 4,     // 敬业福
+            WanNeng: 5,    // 万能福
+            WuFuLinMen: 6  // 五福临门
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initWeb3().then(() => {
+                loadFukaCounts();
+                loadFukaList();
+                checkWuFuLinMenStatus();
+            });
+
+            // 合成按钮点击事件
+            synthesizeBtn.addEventListener('click', async function() {
+                await synthesizeWuFuLinMen();
+            });
+        });
+
+        // 初始化Web3
+        async function initWeb3() {
+            return new Promise((resolve, reject) => {
+                if (typeof window.ethereum !== 'undefined') {
+                    web3 = new Web3(window.ethereum);
+                    try {
+                        // 请求账户访问
+                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                        account = accounts[0];
+                        
+                        // 初始化合约
+                        contract = new web3.eth.Contract(contractABI, contractAddress);
+                        
+                        console.log('钱包连接成功:', account);
+                        resolve(account);
+                    } catch (error) {
+                        console.error('初始化Web3失败:', error);
+                        resolve(null);
+                    }
+                } else {
+                    alert('请安装MetaMask等Web3钱包插件');
+                    resolve(null);
+                }
+            });
+        }
+
+        // 加载福卡数量
+        async function loadFukaCounts() {
+            try {
+                if (!contract || !account) {
+                    return;
+                }
+                
+                // 获取用户持有的福卡类型
+                const blessingTypes = await contract.methods.getAddressBlessingTypes(account).call();
+                
+                // 更新福卡数量
+                updateFukaCount('爱国福', blessingTypes[BlessingType.AiGuo] ? 1 : 0);
+                updateFukaCount('富强福', blessingTypes[BlessingType.FuQiang] ? 1 : 0);
+                updateFukaCount('和谐福', blessingTypes[BlessingType.HeXie] ? 1 : 0);
+                updateFukaCount('友善福', blessingTypes[BlessingType.YouShan] ? 1 : 0);
+                updateFukaCount('敬业福', blessingTypes[BlessingType.JingYe] ? 1 : 0);
+                updateFukaCount('万能福', blessingTypes[BlessingType.WanNeng] ? 1 : 0);
+            } catch (error) {
+                console.error('获取福卡数量失败:', error);
+                // 默认显示0
+                updateFukaCount('爱国福', 0);
+                updateFukaCount('富强福', 0);
+                updateFukaCount('和谐福', 0);
+                updateFukaCount('友善福', 0);
+                updateFukaCount('敬业福', 0);
+                updateFukaCount('万能福', 0);
+            }
+        }
+
+        // 更新单个福卡数量
+        function updateFukaCount(fukaName, count) {
+            const fukaElements = document.querySelectorAll('.bg-gradient-to-br.from-orange-100.to-orange-200');
+            fukaElements.forEach(element => {
+                const h3 = element.querySelector('h3');
+                if (h3 && h3.textContent === fukaName) {
+                    const countElement = element.querySelector('p');
+                    if (countElement) {
+                        countElement.textContent = `x${count}`;
+                    }
+                }
+            });
+        }
+
+        // 加载福卡列表
+        async function loadFukaList() {
+            try {
+                if (!contract || !account) {
+                    return;
+                }
+                
+                // 获取用户持有的福卡数量
+                const balance = await contract.methods.balanceOf(account).call();
+                
+                // 清空列表
+                fukaList.innerHTML = '';
+
+                // 添加福卡
+                for (let i = 0; i < balance; i++) {
+                    const tokenId = await contract.methods.tokenOfOwnerByIndex(account, i).call();
+                    const cardInfo = await contract.methods.cards(tokenId).call();
+                    
+                    let fukaName;
+                    let fukaImage;
+                    
+                    switch (cardInfo.cardType) {
+                        case '0':
+                            fukaName = '爱国福';
+                            fukaImage = 'aiguo.png';
+                            break;
+                        case '1':
+                            fukaName = '富强福';
+                            fukaImage = 'fuqiang.png';
+                            break;
+                        case '2':
+                            fukaName = '和谐福';
+                            fukaImage = 'hexie.png';
+                            break;
+                        case '3':
+                            fukaName = '友善福';
+                            fukaImage = 'youshan.png';
+                            break;
+                        case '4':
+                            fukaName = '敬业福';
+                            fukaImage = 'jingye.png';
+                            break;
+                        case '5':
+                            fukaName = '万能福';
+                            fukaImage = 'wanneng.png';
+                            break;
+                        case '6':
+                            fukaName = '五福临门';
+                            fukaImage = 'wufulinmen.png';
+                            break;
+                        default:
+                            fukaName = '未知福卡';
+                            fukaImage = 'wanneng.png';
+                    }
+                    
+                    // 跳过五福临门，单独显示
+                    if (cardInfo.cardType === '6') {
+                        continue;
+                    }
+                    
+                    const fukaCard = document.createElement('div');
+                    fukaCard.className = 'border-2 border-orange-400 bg-orange-50 rounded-lg p-4 text-center';
+                    fukaCard.innerHTML = `
+                        <div class="w-24 h-24 mb-3 mx-auto">
+                            <img src="images/fu-cards/${fukaImage}" alt="${fukaName}" class="w-full h-full object-contain">
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">${fukaName}</h3>
+                        <p class="text-gray-600">${FUKA_DESCRIPTIONS[fukaName]}</p>
+                    `;
+                    fukaList.appendChild(fukaCard);
+                }
+
+                // 更新标题中的数量
+                const title = document.getElementById('fukaCountTitle');
+                if (title) {
+                    title.textContent = `我的福卡 (${balance})`;
+                }
+            } catch (error) {
+                console.error('获取福卡列表失败:', error);
+                // 清空列表
+                fukaList.innerHTML = '';
+                // 更新标题
+                const title = document.querySelector('h2.text-lg.font-semibold');
+                if (title) {
+                    title.textContent = `我的福卡 (0)`;
+                }
+            }
+        }
+
+        // 检查五福临门状态
+        async function checkWuFuLinMenStatus() {
+            try {
+                if (!contract || !account) {
+                    return;
+                }
+                
+                // 检查用户是否持有五福临门
+                const hasWuFuLinMen = await contract.methods.hasBlessingType(account, BlessingType.WuFuLinMen).call();
+                
+                if (hasWuFuLinMen) {
+                    // 显示五福临门福卡
+                    wufuLinMenCard.classList.remove('hidden');
+                    noWuFuLinMen.classList.add('hidden');
+                } else {
+                    // 显示未合成提示
+                    wufuLinMenCard.classList.add('hidden');
+                    noWuFuLinMen.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('检查五福临门状态失败:', error);
+            }
+        }
+
+        // 合成五福临门
+        async function synthesizeWuFuLinMen() {
+            try {
+                if (!contract || !account) {
+                    alert('请先连接钱包');
+                    return;
+                }
+                
+                // 检查用户是否持有五福临门
+                const hasWuFuLinMen = await contract.methods.hasBlessingType(account, BlessingType.WuFuLinMen).call();
+                if (hasWuFuLinMen) {
+                    alert('您已经持有五福临门，无需再次合成');
+                    return;
+                }
+                
+                // 获取用户持有的福卡类型
+                const blessingTypes = await contract.methods.getAddressBlessingTypes(account).call();
+                
+                // 检查是否集齐五福（包括万能福）
+                const hasAiGuo = blessingTypes[BlessingType.AiGuo] || blessingTypes[BlessingType.WanNeng];
+                const hasFuQiang = blessingTypes[BlessingType.FuQiang] || blessingTypes[BlessingType.WanNeng];
+                const hasHeXie = blessingTypes[BlessingType.HeXie] || blessingTypes[BlessingType.WanNeng];
+                const hasYouShan = blessingTypes[BlessingType.YouShan] || blessingTypes[BlessingType.WanNeng];
+                const hasJingYe = blessingTypes[BlessingType.JingYe] || blessingTypes[BlessingType.WanNeng];
+                
+                if (!hasAiGuo || !hasFuQiang || !hasHeXie || !hasYouShan || !hasJingYe) {
+                    alert('您还未集齐五福，请继续收集');
+                    return;
+                }
+                
+                // 调用合成五福临门的功能
+                // 注意：这里需要在智能合约中实现合成功能
+                // 由于我们的智能合约已经在铸造时自动合成，这里只需要检查
+                const isWuFuHolder = await contract.methods.isWuFuHolder(account).call();
+                
+                if (isWuFuHolder) {
+                    alert('合成成功！您现在拥有五福临门');
+                    // 更新页面
+                    checkWuFuLinMenStatus();
+                    loadFukaList();
+                } else {
+                    alert('合成失败，请稍后再试');
+                }
+            } catch (error) {
+                console.error('合成五福临门失败:', error);
+                alert('合成失败，请稍后再试');
+            }
+        }
+    </script>
+</body>
+</html>

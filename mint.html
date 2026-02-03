@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>铸造福卡 - 集五福活动</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f5f5f5;
+            background-image: linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%);
+            overflow-x: hidden;
+        }
+        
+        /* 粒子背景容器 */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mint-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .mint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #ee5a6f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+        }
+        
+        .token-balance {
+            background: linear-gradient(135deg, #4ecdc4 0%, #45b7aa 100%);
+            border-radius: 16px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div id="particles-js"></div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar fixed bottom-0 left-0 right-0 z-10">
+        <div class="flex justify-around items-center py-2 px-4">
+            <a href="index.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏠&nbsp;</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">首页</span>
+            </a>
+            <a href="mint.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🃏</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">铸造</span>
+            </a>
+            <a href="collection.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🎁</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">我的福卡</span>
+            </a>
+            <a href="rewards.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏆</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">奖励</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 pt-6 pb-24">
+        <!-- 页面标题 -->
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center mr-3">
+                <span class="text-white text-2xl font-bold">福</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">铸造福卡</h1>
+        </div>
+
+        <!-- 铸造说明 -->
+        <p class="text-lg text-gray-600 mb-8">使用代币随机获得一张福卡</p>
+
+        <!-- 钱包区域框 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <!-- 钱包信息 -->
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                    <i class="text-blue-500 text-xl">👛</i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">钱包信息</h3>
+                    <p class="text-sm text-gray-500" id="walletAddress">未连接钱包</p>
+                </div>
+                <button class="btn-secondary text-sm" id="refreshWallet">
+                    <i class="fas fa-sync-alt mr-1"></i> 刷新
+                </button>
+            </div>
+
+            <!-- 代币信息 -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">代币余额</span>
+                    <span class="text-lg font-semibold text-gray-800" id="tokenBalance">0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">铸造价格</span>
+                    <span class="text-lg font-semibold text-gray-800">8888 代币</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">可铸造次数</span>
+                    <span class="text-lg font-semibold text-gray-800" id="mintCount">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 开始铸造按钮 -->
+        <button class="btn-primary w-full py-4 text-lg font-bold mb-8" id="startMint">
+            开始铸造
+        </button>
+
+        <!-- 温馨提示 -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+            <h3 class="text-lg font-bold text-yellow-800 mb-2">温馨提示</h3>
+            <ul class="space-y-2 text-yellow-700">
+                <li>• 每次铸造将随机获得一张福卡</li>
+                <li>• 持有福卡即可享受对应的税收分红(每种0.4%)</li>
+                <li>• 集齐五福合成后可享受额外1%税收分红</li>
+                <li>• 首次铸造需要授权代币，之后无需重复授权</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- 铸造成功弹窗 -->
+    <div id="mintSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="text-center mb-4">
+                <div class="text-6xl mb-4">🎊</div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">铸造成功！</h3>
+                <p class="text-gray-600 mb-6">恭喜您获得了一张福卡</p>
+            </div>
+            <div class="flex space-x-4">
+                <button class="btn-secondary flex-1" id="cancelModal">取消</button>
+                <button class="btn-primary flex-1" id="viewCollection">去查看</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+    <script>
+        // 全局变量
+        let web3 = null;
+        let accounts = [];
+        const MINT_PRICE = 8888;
+        const BLACK_HOLE_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+        // DOM元素
+        const walletAddress = document.getElementById('walletAddress');
+        const tokenBalance = document.getElementById('tokenBalance');
+        const mintCount = document.getElementById('mintCount');
+        const refreshWallet = document.getElementById('refreshWallet');
+        const startMint = document.getElementById('startMint');
+        const mintSuccessModal = document.getElementById('mintSuccessModal');
+        const cancelModal = document.getElementById('cancelModal');
+        const viewCollection = document.getElementById('viewCollection');
+
+        // 福卡概率
+        const FUKA_PROBABILITIES = [
+            { name: '爱国福', probability: 24, image: 'aiguo.png' },
+            { name: '富强福', probability: 24, image: 'fuqiang.png' },
+            { name: '和谐福', probability: 24, image: 'hexie.png' },
+            { name: '友善福', probability: 24, image: 'youshan.png' },
+            { name: '敬业福', probability: 3, image: 'jingye.png' },
+            { name: '万能福', probability: 1, image: 'wanneng.png' }
+        ];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            connectWallet();
+            updateMintCount();
+        });
+
+        // 连接钱包
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                try {
+                    accounts = await web3.eth.requestAccounts();
+                    const address = accounts[0];
+                    const shortAddress = address.substring(0, 4) + '...' + address.substring(address.length - 4);
+                    walletAddress.textContent = shortAddress;
+                    await updateTokenBalance();
+                } catch (error) {
+                    console.error('连接钱包失败:', error);
+                }
+            } else {
+                alert('请安装MetaMask等Web3钱包插件');
+            }
+        }
+
+        // 更新代币余额
+        async function updateTokenBalance() {
+            // 这里需要根据实际代币合约地址获取余额
+            // 暂时使用模拟数据
+            const balance = 100000; // 模拟余额
+            tokenBalance.textContent = balance;
+            updateMintCount();
+        }
+
+        // 更新可铸造次数
+        function updateMintCount() {
+            const balance = parseInt(tokenBalance.textContent) || 0;
+            const count = Math.floor(balance / MINT_PRICE);
+            mintCount.textContent = count;
+        }
+
+        // 刷新钱包
+        refreshWallet.addEventListener('click', function() {
+            connectWallet();
+        });
+
+        // 开始铸造
+        startMint.addEventListener('click', async function() {
+            if (!web3 || accounts.length === 0) {
+                alert('请先连接钱包');
+                return;
+            }
+
+            const balance = parseInt(tokenBalance.textContent) || 0;
+            if (balance < MINT_PRICE) {
+                alert('代币余额不足');
+                return;
+            }
+
+            try {
+                // 这里需要调用实际的代币合约转账方法
+                // 暂时模拟铸造过程
+                startMint.textContent = '铸造中...';
+                startMint.disabled = true;
+
+                // 模拟转账和铸造过程
+                setTimeout(async () => {
+                    // 随机生成福卡
+                    const fuka = generateRandomFuka();
+                    
+                    // 模拟保存到leancloud
+                    await saveFukaToLeanCloud(accounts[0], fuka);
+                    
+                    // 显示成功弹窗
+                    mintSuccessModal.classList.remove('hidden');
+                    
+                    // 恢复按钮状态
+                    startMint.textContent = '开始铸造';
+                    startMint.disabled = false;
+                    
+                    // 更新余额
+                    await updateTokenBalance();
+                }, 2000);
+            } catch (error) {
+                console.error('铸造失败:', error);
+                startMint.textContent = '开始铸造';
+                startMint.disabled = false;
+                alert('铸造失败，请重试');
+            }
+        });
+
+        // 随机生成福卡
+        function generateRandomFuka() {
+            const random = Math.random() * 100;
+            let cumulativeProbability = 0;
+            
+            for (const fuka of FUKA_PROBABILITIES) {
+                cumulativeProbability += fuka.probability;
+                if (random <= cumulativeProbability) {
+                    return fuka;
+                }
+            }
+            
+            return FUKA_PROBABILITIES[0]; // 默认返回第一个
+        }
+
+        // 保存福卡到LeanCloud
+        async function saveFukaToLeanCloud(walletAddress, fuka) {
+            // 这里需要实现实际的LeanCloud保存逻辑
+            console.log('保存福卡到LeanCloud:', {
+                walletAddress,
+                fukaName: fuka.name,
+                fukaImage: fuka.image,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // 取消弹窗
+        cancelModal.addEventListener('click', function() {
+            mintSuccessModal.classList.add('hidden');
+        });
+
+        // 去查看
+        viewCollection.addEventListener('click', function() {
+            mintSuccessModal.classList.add('hidden');
+            window.location.href = 'collection.html';
+        });
+
+        // 粒子背景效果
+        particlesJS('particles-js', {
+            particles: {
+                number: {
+                    value: 80,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: '#ff6b6b'
+                },
+                shape: {
+                    type: 'circle',
+                    stroke: {
+                        width: 0,
+                        color: '#000000'
+                    }
+                },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#ff6b6b',
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 600,
+                        rotateY: 1200
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: 'grab'
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: 'push'
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: {
+                        distance: 140,
+                        line_linked: {
+                            opacity: 1
+                        }
+                    },
+                    push: {
+                        particles_nb: 4
+                    }
+                }
+            },
+            retina_detect: true
+        });
+    </script>
+</body>
+</html>
