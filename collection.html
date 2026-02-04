@@ -349,6 +349,13 @@
         // 智能合约ABI
         const contractABI = [
             {
+                "inputs": [],
+                "name": "synthesizeWuFuLinMen",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
                 "inputs": [
                     {
                         "internalType": "address",
@@ -1492,34 +1499,45 @@
                 // 获取用户持有的福卡类型
                 const blessingTypes = await contract.methods.getAddressBlessingTypes(account).call();
                 
-                // 检查是否集齐五福（包括万能福）
-                const hasAiGuo = blessingTypes[BlessingType.AiGuo] || blessingTypes[BlessingType.WanNeng];
-                const hasFuQiang = blessingTypes[BlessingType.FuQiang] || blessingTypes[BlessingType.WanNeng];
-                const hasHeXie = blessingTypes[BlessingType.HeXie] || blessingTypes[BlessingType.WanNeng];
-                const hasYouShan = blessingTypes[BlessingType.YouShan] || blessingTypes[BlessingType.WanNeng];
-                const hasJingYe = blessingTypes[BlessingType.JingYe] || blessingTypes[BlessingType.WanNeng];
+                // 检查是否集齐五福
+                const hasAiGuo = blessingTypes[BlessingType.AiGuo];
+                const hasFuQiang = blessingTypes[BlessingType.FuQiang];
+                const hasHeXie = blessingTypes[BlessingType.HeXie];
+                const hasYouShan = blessingTypes[BlessingType.YouShan];
+                const hasJingYe = blessingTypes[BlessingType.JingYe];
                 
                 if (!hasAiGuo || !hasFuQiang || !hasHeXie || !hasYouShan || !hasJingYe) {
                     alert('您还未集齐五福，请继续收集');
                     return;
                 }
                 
-                // 调用合成五福临门的功能
-                // 注意：这里需要在智能合约中实现合成功能
-                // 由于我们的智能合约已经在铸造时自动合成，这里只需要检查
-                const isWuFuHolder = await contract.methods.isWuFuHolder(account).call();
-                
-                if (isWuFuHolder) {
-                    alert('合成成功！您现在拥有五福临门');
-                    // 更新页面
-                    checkWuFuLinMenStatus();
-                    loadFukaList();
-                } else {
-                    alert('合成失败，请稍后再试');
+                // 确认合成
+                if (!confirm('合成五福临门后，用于合成的5张福卡将被销毁，确定要继续吗？')) {
+                    return;
                 }
+                
+                // 显示合成中状态
+                synthesizeBtn.textContent = '合成中...';
+                synthesizeBtn.disabled = true;
+                
+                // 调用合成五福临门的功能
+                await contract.methods.synthesizeWuFuLinMen().send({ from: account });
+                
+                alert('合成成功！您现在拥有五福临门，用于合成的福卡已被销毁');
+                
+                // 更新页面
+                await checkWuFuLinMenStatus();
+                await loadFukaCounts();
+                await loadFukaList();
+                
+                // 恢复按钮状态
+                synthesizeBtn.textContent = '合成五福临门';
+                synthesizeBtn.disabled = false;
             } catch (error) {
                 console.error('合成五福临门失败:', error);
                 alert('合成失败，请稍后再试');
+                synthesizeBtn.textContent = '合成五福临门';
+                synthesizeBtn.disabled = false;
             }
         }
     </script>

@@ -187,11 +187,25 @@
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
     <script>
+        // 智能合约ABI
+        const contractABI = [
+            {
+                "inputs": [],
+                "name": "mintBlessingCard",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            }
+        ];
+
+        // 智能合约地址
+        const contractAddress = '0xYourContractAddress'; // 部署后替换为实际地址
+
         // 全局变量
         let web3 = null;
+        let contract = null;
         let accounts = [];
         const MINT_PRICE = 8888;
-        const BLACK_HOLE_ADDRESS = '0x0000000000000000000000000000000000000000';
 
         // DOM元素
         const walletAddress = document.getElementById('walletAddress');
@@ -202,16 +216,6 @@
         const mintSuccessModal = document.getElementById('mintSuccessModal');
         const cancelModal = document.getElementById('cancelModal');
         const viewCollection = document.getElementById('viewCollection');
-
-        // 福卡概率
-        const FUKA_PROBABILITIES = [
-            { name: '爱国福', probability: 24, image: 'aiguo.png' },
-            { name: '富强福', probability: 24, image: 'fuqiang.png' },
-            { name: '和谐福', probability: 24, image: 'hexie.png' },
-            { name: '友善福', probability: 24, image: 'youshan.png' },
-            { name: '敬业福', probability: 3, image: 'jingye.png' },
-            { name: '万能福', probability: 1, image: 'wanneng.png' }
-        ];
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -228,6 +232,10 @@
                     const address = accounts[0];
                     const shortAddress = address.substring(0, 4) + '...' + address.substring(address.length - 4);
                     walletAddress.textContent = shortAddress;
+                    
+                    // 初始化合约
+                    contract = new web3.eth.Contract(contractABI, contractAddress);
+                    
                     await updateTokenBalance();
                 } catch (error) {
                     console.error('连接钱包失败:', error);
@@ -260,7 +268,7 @@
 
         // 开始铸造
         startMint.addEventListener('click', async function() {
-            if (!web3 || accounts.length === 0) {
+            if (!web3 || !contract || accounts.length === 0) {
                 alert('请先连接钱包');
                 return;
             }
@@ -272,29 +280,21 @@
             }
 
             try {
-                // 这里需要调用实际的代币合约转账方法
-                // 暂时模拟铸造过程
                 startMint.textContent = '铸造中...';
                 startMint.disabled = true;
 
-                // 模拟转账和铸造过程
-                setTimeout(async () => {
-                    // 随机生成福卡
-                    const fuka = generateRandomFuka();
-                    
-                    // 模拟保存到leancloud
-                    await saveFukaToLeanCloud(accounts[0], fuka);
-                    
-                    // 显示成功弹窗
-                    mintSuccessModal.classList.remove('hidden');
-                    
-                    // 恢复按钮状态
-                    startMint.textContent = '开始铸造';
-                    startMint.disabled = false;
-                    
-                    // 更新余额
-                    await updateTokenBalance();
-                }, 2000);
+                // 调用智能合约铸造福卡
+                await contract.methods.mintBlessingCard().send({ from: accounts[0] });
+                
+                // 显示成功弹窗
+                mintSuccessModal.classList.remove('hidden');
+                
+                // 恢复按钮状态
+                startMint.textContent = '开始铸造';
+                startMint.disabled = false;
+                
+                // 更新余额
+                await updateTokenBalance();
             } catch (error) {
                 console.error('铸造失败:', error);
                 startMint.textContent = '开始铸造';
@@ -302,32 +302,6 @@
                 alert('铸造失败，请重试');
             }
         });
-
-        // 随机生成福卡
-        function generateRandomFuka() {
-            const random = Math.random() * 100;
-            let cumulativeProbability = 0;
-            
-            for (const fuka of FUKA_PROBABILITIES) {
-                cumulativeProbability += fuka.probability;
-                if (random <= cumulativeProbability) {
-                    return fuka;
-                }
-            }
-            
-            return FUKA_PROBABILITIES[0]; // 默认返回第一个
-        }
-
-        // 保存福卡到LeanCloud
-        async function saveFukaToLeanCloud(walletAddress, fuka) {
-            // 这里需要实现实际的LeanCloud保存逻辑
-            console.log('保存福卡到LeanCloud:', {
-                walletAddress,
-                fukaName: fuka.name,
-                fukaImage: fuka.image,
-                timestamp: new Date().toISOString()
-            });
-        }
 
         // 取消弹窗
         cancelModal.addEventListener('click', function() {
