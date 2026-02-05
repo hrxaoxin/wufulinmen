@@ -203,6 +203,52 @@
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
     <script>
+        // 代币合约ABI (ERC20标准)
+        const tokenABI = [
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+      {
+        "name": "balance",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_spender",
+        "type": "address"
+      },
+      {
+        "name": "_value",
+        "type": "uint256"
+      }
+    ],
+    "name": "approve",
+    "outputs": [
+      {
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+];
+
         // 智能合约ABI
         const contractABI = [
   {
@@ -1391,12 +1437,14 @@
 
         // 智能合约地址
         const contractAddress = '0xF2C83d45A8Ed2769B8EEbDf4A82d76e53082e436'; // 代理合约地址
+        const tokenContractAddress = '0xd6423f99863e13b0a3fa00b5e1e5597792f74f8c'; // 代币合约地址
 
         // 全局变量
         let web3 = null;
         let contract = null;
+        let tokenContract = null;
         let accounts = [];
-        const MINT_PRICE = 8888;
+        const MINT_PRICE = 8888; // 铸造价格：8888枚代币
 
         // DOM元素
         const walletAddress = document.getElementById('walletAddress');
@@ -1426,6 +1474,7 @@
                     
                     // 初始化合约
                     contract = new web3.eth.Contract(contractABI, contractAddress);
+                    tokenContract = new web3.eth.Contract(tokenABI, tokenContractAddress);
                     
                     await updateTokenBalance();
                 } catch (error) {
@@ -1438,18 +1487,37 @@
 
         // 更新代币余额
         async function updateTokenBalance() {
-            // 这里需要根据实际代币合约地址获取余额
-            // 暂时使用模拟数据
-            const balance = 100000; // 模拟余额
-            tokenBalance.textContent = balance;
+            try {
+                if (web3 && tokenContract && accounts.length > 0) {
+                    // 查询用户的代币余额
+                    const balance = await tokenContract.methods.balanceOf(accounts[0]).call();
+                    tokenBalance.textContent = balance;
+                }
+            } catch (error) {
+                console.error('获取余额失败:', error);
+                tokenBalance.textContent = '0';
+            }
             updateMintCount();
         }
 
         // 更新可铸造次数
         function updateMintCount() {
-            const balance = parseInt(tokenBalance.textContent) || 0;
-            const count = Math.floor(balance / MINT_PRICE);
-            mintCount.textContent = count;
+            try {
+                if (web3 && accounts.length > 0) {
+                    // 获取代币余额
+                    const balanceStr = tokenBalance.textContent || '0';
+                    const balance = parseInt(balanceStr);
+                    
+                    // 计算可铸造次数（向下取整）
+                    const count = Math.floor(balance / MINT_PRICE);
+                    mintCount.textContent = count;
+                } else {
+                    mintCount.textContent = '0';
+                }
+            } catch (error) {
+                console.error('计算可铸造次数失败:', error);
+                mintCount.textContent = '0';
+            }
         }
 
         // 刷新钱包
@@ -1459,14 +1527,23 @@
 
         // 开始铸造
         startMint.addEventListener('click', async function() {
-            if (!web3 || !contract || accounts.length === 0) {
+            if (!web3 || !contract || !tokenContract || accounts.length === 0) {
                 alert('请先连接钱包');
                 return;
             }
 
-            const balance = parseInt(tokenBalance.textContent) || 0;
-            if (balance < MINT_PRICE) {
-                alert('代币余额不足');
+            try {
+                // 获取代币余额
+                const balanceStr = tokenBalance.textContent || '0';
+                const balance = parseInt(balanceStr);
+                
+                if (balance < MINT_PRICE) {
+                    alert('代币余额不足，需要8888枚代币');
+                    return;
+                }
+            } catch (error) {
+                console.error('检查余额失败:', error);
+                alert('检查余额失败，请刷新页面重试');
                 return;
             }
 
@@ -1474,27 +1551,34 @@
                 startMint.textContent = '铸造中...';
                 startMint.disabled = true;
 
-                // 获取当前下一张卡ID，用于后续查询
+                // 1. 授权智能合约使用代币
+                console.log('正在授权智能合约使用代币...');
+                await tokenContract.methods.approve(contractAddress, MINT_PRICE).send({ from: accounts[0] });
+                console.log('代币授权成功');
+
+                // 2. 获取当前下一张卡ID，用于后续查询
                 const currentNextCardId = await contract.methods.nextCardId().call();
                 const expectedCardId = currentNextCardId;
 
-                // 调用智能合约铸造福卡
+                // 3. 调用智能合约铸造福卡（智能合约会自动销毁代币）
+                console.log('正在铸造福卡...');
                 await contract.methods.mintBlessingCard().send({ from: accounts[0] });
+                console.log('福卡铸造成功');
                 
-                // 获取铸造的卡信息
+                // 4. 获取铸造的卡信息
                 const cardInfo = await contract.methods.getCardInfo(expectedCardId).call();
                 
-                // 显示成功弹窗
+                // 5. 显示成功弹窗
                 mintSuccessModal.classList.remove('hidden');
                 
-                // 显示卡信息
+                // 6. 显示卡信息
                 displayCardInfo(cardInfo);
                 
-                // 恢复按钮状态
+                // 7. 恢复按钮状态
                 startMint.textContent = '开始铸造';
                 startMint.disabled = false;
                 
-                // 更新余额
+                // 8. 更新余额
                 await updateTokenBalance();
             } catch (error) {
                 console.error('铸造失败:', error);
