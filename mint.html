@@ -160,8 +160,13 @@
         </button>
 
         <!-- 测试铸造按钮 -->
-        <a href="mint-test.html" class="btn-secondary w-full py-4 text-lg font-bold mb-8 flex items-center justify-center">
+        <a href="mint-test.html" class="btn-secondary w-full py-4 text-lg font-bold mb-4 flex items-center justify-center">
             <i class="fas fa-flask mr-2"></i> 测试铸造
+        </a>
+
+        <!-- 代币销毁测试按钮 -->
+        <a href="burn-test.html" class="btn-secondary w-full py-4 text-lg font-bold mb-8 flex items-center justify-center">
+            <i class="fas fa-fire mr-2"></i> 代币销毁测试
         </a>
 
         <!-- 温馨提示 -->
@@ -264,6 +269,56 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferFrom",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "name": "spender",
+        "type": "address"
+      }
+    ],
+    "name": "allowance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   },
   {
