@@ -1609,13 +1609,15 @@
                     }
                     
                     // 将余额转换为枚
-                    const balanceInTokens = parseInt(balance) / Math.pow(10, decimals);
+                    // 使用Web3.js的fromWei方法，避免精度问题
+                    const balanceInTokens = web3.utils.fromWei(balance, 'ether');
                     
                     // 显示为整数
-                    const balanceInt = Math.floor(balanceInTokens);
+                    const balanceInt = Math.floor(parseFloat(balanceInTokens));
                     tokenBalance.textContent = balanceInt;
                     
                     console.log('代币余额:', balance, '单位 =', balanceInt, '枚');
+                    console.log('代币余额(原始):', balanceInTokens, '枚');
                     console.log('代币小数位数:', decimals);
                 }
             } catch (error) {
@@ -1688,10 +1690,11 @@
                 }
                 
                 // 根据小数位数计算授权数量
-                const amount = MINT_PRICE * Math.pow(10, decimals);
-                await tokenContract.methods.approve(contractAddress, amount.toString()).send({ from: accounts[0] });
+                // 使用Web3.js的toWei方法，避免科学计数法问题
+                const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
+                await tokenContract.methods.approve(contractAddress, amountInWei).send({ from: accounts[0] });
                 console.log('代币授权成功');
-                console.log('授权数量:', MINT_PRICE, '枚 =', amount.toString(), '单位');
+                console.log('授权数量:', MINT_PRICE, '枚 =', amountInWei, 'wei');
                 console.log('代币小数位数:', decimals);
 
                 // 2. 获取当前下一张卡ID，用于后续查询
