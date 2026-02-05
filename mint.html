@@ -306,7 +306,7 @@
 ];
 
         // 智能合约地址
-        const contractAddress = '0x4827d4E90988557b7CAbAf472549BC2948aA04b9'; // 代理合约地址
+        const contractAddress = '0xB573391c06A59Ec843D2b53c966fD39fD945BB3d'; // 代理合约地址
         const tokenContractAddress = '0xbF63b623DA9bA4Fb4af24C7D9E5A373Fb127fffF'; // 代币合约地址
 
         // 智能合约ABI
@@ -1269,11 +1269,37 @@
     "stateMutability": "nonpayable"
   },
   {
+    "name": "setMintPrice",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_mintPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
     "name": "setTaxWallet",
     "type": "function",
     "inputs": [
       {
         "name": "_taxWallet",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setTokenContractAddress",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_tokenContractAddress",
         "type": "address",
         "internalType": "address"
       }
@@ -1696,7 +1722,15 @@
                 console.error('铸造失败:', error);
                 startMint.textContent = '开始铸造';
                 startMint.disabled = false;
-                alert('铸造失败，请重试');
+                // 显示更详细的错误信息
+                let errorMsg = '铸造失败，请重试';
+                if (error.message) {
+                    errorMsg += '\n错误信息: ' + error.message;
+                }
+                if (error.code) {
+                    errorMsg += '\n错误代码: ' + error.code;
+                }
+                alert(errorMsg);
             }
         });
 

@@ -1718,11 +1718,37 @@
     "stateMutability": "nonpayable"
   },
   {
+    "name": "setMintPrice",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_mintPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
     "name": "setTaxWallet",
     "type": "function",
     "inputs": [
       {
         "name": "_taxWallet",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setTokenContractAddress",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_tokenContractAddress",
         "type": "address",
         "internalType": "address"
       }
@@ -1971,7 +1997,7 @@
 ];
 
         // 智能合约地址
-        const contractAddress = '0x4827d4E90988557b7CAbAf472549BC2948aA04b9'; // 代理合约地址
+        const contractAddress = '0xB573391c06A59Ec843D2b53c966fD39fD945BB3d'; // 代理合约地址
 
         // Web3实例
         let web3;
