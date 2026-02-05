@@ -292,11 +292,6 @@
         "name": "initialOwner",
         "type": "address",
         "internalType": "address"
-      },
-      {
-        "name": "_taxWallet",
-        "type": "address",
-        "internalType": "address"
       }
     ],
     "stateMutability": "nonpayable"
@@ -424,6 +419,16 @@
         "internalType": "uint256"
       }
     ]
+  },
+  {
+    "name": "InvalidInitialization",
+    "type": "error",
+    "inputs": []
+  },
+  {
+    "name": "NotInitializing",
+    "type": "error",
+    "inputs": []
   },
   {
     "name": "OwnableInvalidOwner",
@@ -569,6 +574,19 @@
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "Initialized",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "version",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
       }
     ],
     "anonymous": false
@@ -773,17 +791,7 @@
         "internalType": "string"
       },
       {
-        "name": "description",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
         "name": "image",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "rarity",
         "type": "string",
         "internalType": "string"
       }
@@ -991,6 +999,19 @@
       }
     ],
     "stateMutability": "view"
+  },
+  {
+    "name": "initialize",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_taxWallet",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "name": "isApprovedForAll",
@@ -1446,10 +1467,10 @@
     "type": "receive",
     "stateMutability": "payable"
   }
-];
+]
 
         // 智能合约地址
-        const contractAddress = '0x9FCe84660C86D35B15D55582e80621a1b578a628'; // 部署后替换为实际地址
+        const contractAddress = '0xF2C83d45A8Ed2769B8EEbDf4A82d76e53082e436'; // 代理合约地址
 
         // 全局变量
         let web3;
