@@ -1689,10 +1689,21 @@
                     console.log('无法获取代币小数位数，使用默认值18');
                 }
                 
-                // 根据小数位数计算授权数量
                 // 使用Web3.js的toWei方法，避免科学计数法问题
                 const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
-                await tokenContract.methods.approve(contractAddress, amountInWei).send({ from: accounts[0] });
+                
+                // 设置合理的Gas价格和上限
+                const gasPrice = web3.utils.toWei('5', 'gwei'); // 5 gwei
+                const gasLimit = 2000000; // 2,000,000 gas
+                
+                console.log('设置Gas价格:', gasPrice, 'wei');
+                console.log('设置Gas上限:', gasLimit);
+                
+                await tokenContract.methods.approve(contractAddress, amountInWei).send({ 
+                    from: accounts[0],
+                    gasPrice: gasPrice,
+                    gas: gasLimit
+                });
                 console.log('代币授权成功');
                 console.log('授权数量:', MINT_PRICE, '枚 =', amountInWei, 'wei');
                 console.log('代币小数位数:', decimals);
@@ -1703,7 +1714,13 @@
 
                 // 3. 调用智能合约铸造福卡（智能合约会自动销毁代币）
                 console.log('正在铸造福卡...');
-                await contract.methods.mintBlessingCard().send({ from: accounts[0] });
+                
+                // 同样为铸造交易设置Gas价格和上限
+                await contract.methods.mintBlessingCard().send({ 
+                    from: accounts[0],
+                    gasPrice: gasPrice,
+                    gas: gasLimit
+                });
                 console.log('福卡铸造成功');
                 
                 // 4. 获取铸造的卡信息
@@ -1725,14 +1742,33 @@
                 console.error('铸造失败:', error);
                 startMint.textContent = '开始铸造';
                 startMint.disabled = false;
-                // 显示更详细的错误信息
+                
+                // 分析错误原因，提供更详细的错误信息
                 let errorMsg = '铸造失败，请重试';
+                
                 if (error.message) {
-                    errorMsg += '\n错误信息: ' + error.message;
+                    if (error.message.includes('Insufficient token balance')) {
+                        errorMsg = '代币余额不足，需要8888枚代币';
+                    } else if (error.message.includes('Insufficient token allowance')) {
+                        errorMsg = '代币授权不足，请先授权智能合约使用代币';
+                    } else if (error.message.includes('Token transfer to burn address failed')) {
+                        errorMsg = '代币转移失败，请检查代币合约状态';
+                    } else if (error.message.includes('nonce too low')) {
+                        errorMsg = '交易序号过低，请等待前一笔交易完成或刷新页面';
+                    } else if (error.message.includes('insufficient funds')) {
+                        errorMsg = 'BNB余额不足，无法支付Gas费用';
+                    } else if (error.message.includes('reverted')) {
+                        errorMsg = '智能合约执行失败，请检查所有条件是否满足';
+                    } else {
+                        errorMsg += '\n错误信息: ' + error.message;
+                    }
                 }
+                
                 if (error.code) {
                     errorMsg += '\n错误代码: ' + error.code;
                 }
+                
+                console.log('错误分析:', errorMsg);
                 alert(errorMsg);
             }
         });
