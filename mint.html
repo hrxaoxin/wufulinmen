@@ -1489,9 +1489,23 @@
         async function updateTokenBalance() {
             try {
                 if (web3 && tokenContract && accounts.length > 0) {
-                    // 查询用户的代币余额
-                    const balance = await tokenContract.methods.balanceOf(accounts[0]).call();
-                    tokenBalance.textContent = balance;
+                    // 查询用户的代币余额（以wei为单位）
+                    const balanceWei = await tokenContract.methods.balanceOf(accounts[0]).call();
+                    
+                    // 查询代币的小数位数
+                    let decimals = 18; // 默认值
+                    try {
+                        decimals = await tokenContract.methods.decimals().call();
+                    } catch (e) {
+                        console.log('无法获取代币小数位数，使用默认值18');
+                    }
+                    
+                    // 将wei转换为枚
+                    const balance = web3.utils.fromWei(balanceWei, 'ether');
+                    
+                    // 显示为整数（如果代币没有小数位）
+                    const balanceInt = Math.floor(parseFloat(balance));
+                    tokenBalance.textContent = balanceInt;
                 }
             } catch (error) {
                 console.error('获取余额失败:', error);
@@ -1551,10 +1565,12 @@
                 startMint.textContent = '铸造中...';
                 startMint.disabled = true;
 
-                // 1. 授权智能合约使用代币
+                // 1. 授权智能合约使用代币（将8888枚转换为wei）
                 console.log('正在授权智能合约使用代币...');
-                await tokenContract.methods.approve(contractAddress, MINT_PRICE).send({ from: accounts[0] });
+                const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
+                await tokenContract.methods.approve(contractAddress, amountInWei).send({ from: accounts[0] });
                 console.log('代币授权成功');
+                console.log('授权数量:', MINT_PRICE, '枚 =', amountInWei, 'wei');
 
                 // 2. 获取当前下一张卡ID，用于后续查询
                 const currentNextCardId = await contract.methods.nextCardId().call();
