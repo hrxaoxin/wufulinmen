@@ -206,52 +206,6 @@
         // 代币合约ABI (ERC20标准)
         const tokenABI = [
   {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "_owner",
-        "type": "address"
-      }
-    ],
-    "name": "balanceOf",
-    "outputs": [
-      {
-        "name": "balance",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_spender",
-        "type": "address"
-      },
-      {
-        "name": "_value",
-        "type": "uint256"
-      }
-    ],
-    "name": "approve",
-    "outputs": [
-      {
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-];
-
-        // 智能合约ABI
-        const contractABI = [
-  {
     "type": "constructor",
     "inputs": [
       {
@@ -1059,7 +1013,20 @@
     "type": "function",
     "inputs": [],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "mintPrice",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "name": "name",
@@ -1293,6 +1260,19 @@
     "stateMutability": "view"
   },
   {
+    "name": "tokenContractAddress",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
     "name": "tokenOfOwnerByIndex",
     "type": "function",
     "inputs": [
@@ -1436,8 +1416,8 @@
 ]
 
         // 智能合约地址
-        const contractAddress = '0xF2C83d45A8Ed2769B8EEbDf4A82d76e53082e436'; // 代理合约地址
-        const tokenContractAddress = '0x9b6616b065ec22711175c516b17731126b0fffff'; // 代币合约地址
+        const contractAddress = '0x073D2F564C5b69d050587734f927A2E9C1f7d4c0'; // 代理合约地址
+        const tokenContractAddress = '0x9b6616B065ec22711175C516b17731126b0FfffF'; // 代币合约地址
 
         // 全局变量
         let web3 = null;
