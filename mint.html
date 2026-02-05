@@ -206,6 +206,112 @@
         // 代币合约ABI (ERC20标准)
         const tokenABI = [
   {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "approve",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "name",
+    "outputs": [
+      {
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [
+      {
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
+
+        // 智能合约地址
+        const contractAddress = '0x073D2F564C5b69d050587734f927A2E9C1f7d4c0'; // 代理合约地址
+        const tokenContractAddress = '0x9b6616B065ec22711175C516b17731126b0FfffF'; // 代币合约地址
+
+        // 智能合约ABI
+        const contractABI = [
+  {
     "type": "constructor",
     "inputs": [
       {
@@ -1413,11 +1519,7 @@
     "type": "receive",
     "stateMutability": "payable"
   }
-]
-
-        // 智能合约地址
-        const contractAddress = '0x073D2F564C5b69d050587734f927A2E9C1f7d4c0'; // 代理合约地址
-        const tokenContractAddress = '0x9b6616B065ec22711175C516b17731126b0FfffF'; // 代币合约地址
+];
 
         // 全局变量
         let web3 = null;
