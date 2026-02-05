@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>五福测试 - 铸造NFT</title>
+    <link rel="icon" href="images/fu-cards/wufulinmen.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f5f5f5;
+            background-image: linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%);
+            overflow-x: hidden;
+        }
+        
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mint-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .mint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #ee5a6f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .card-item {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar fixed bottom-0 left-0 right-0 z-10">
+        <div class="flex justify-around items-center py-2 px-4">
+            <a href="index.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏠&nbsp;</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">首页</span>
+            </a>
+            <a href="mint.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🃏</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">正式铸造</span>
+            </a>
+            <a href="mint-test.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🧪</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">测试铸造</span>
+            </a>
+            <a href="collection.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🎁</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">我的福卡</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 pt-6 pb-24">
+        <!-- 页面标题 -->
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center mr-3">
+                <span class="text-white text-2xl font-bold">🧪</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">五福测试铸造</h1>
+        </div>
+
+        <!-- 铸造说明 -->
+        <p class="text-lg text-gray-600 mb-8">免费随机铸造五福NFT，用于测试铸造功能</p>
+
+        <!-- 钱包区域框 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <!-- 钱包信息 -->
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                    <i class="text-blue-500 text-xl">👛</i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">钱包信息</h3>
+                    <p class="text-sm text-gray-500" id="walletAddress">未连接钱包</p>
+                </div>
+                <button class="btn-secondary text-sm" id="refreshWallet">
+                    <i class="fas fa-sync-alt mr-1"></i> 刷新
+                </button>
+            </div>
+
+            <!-- 铸造统计 -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">已铸造总数</span>
+                    <span class="text-lg font-semibold text-gray-800" id="totalCards">0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">我的铸造数量</span>
+                    <span class="text-lg font-semibold text-gray-800" id="myCards">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 铸造控制区 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">铸造控制</h3>
+            
+            <!-- 单个铸造 -->
+            <button class="btn-primary w-full py-4 text-lg font-bold mb-4" id="mintSingle">
+                <i class="fas fa-coins mr-2"></i> 随机铸造1张
+            </button>
+            
+            <!-- 批量铸造 -->
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">批量铸造数量</label>
+                <div class="flex space-x-2">
+                    <input type="number" id="batchCount" min="1" max="10" value="5" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg">
+                    <button class="btn-secondary py-2 px-4" id="mintBatch">
+                        <i class="fas fa-layer-group mr-1"></i> 批量铸造
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 重置测试（仅管理员） -->
+            <button class="btn-secondary w-full py-2 text-sm" id="resetTest">
+                <i class="fas fa-redo mr-1"></i> 重置测试（仅管理员）
+            </button>
+        </div>
+
+        <!-- 铸造结果 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">铸造结果</h3>
+            <div id="mintResults" class="card-grid">
+                <!-- 铸造的卡片将在这里显示 -->
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-gift text-4xl mb-2"></i>
+                    <p>还没有铸造卡片</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 铸造成功弹窗 -->
+    <div id="mintSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="text-center mb-4">
+                <div class="text-6xl mb-4">🎊</div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">铸造成功！</h3>
+                <p class="text-gray-600 mb-6">恭喜您获得了一张福卡</p>
+            </div>
+            
+            <!-- 福卡信息 -->
+            <div id="mintedCardInfo" class="mb-6">
+                <div class="flex items-center mb-4">
+                    <div id="cardImage" class="w-20 h-20 rounded-lg overflow-hidden mr-4">
+                        <img src="" alt="福卡" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1">
+                        <h4 id="cardName" class="text-xl font-bold text-gray-800">福卡名称</h4>
+                        <p id="cardType" class="text-sm text-gray-500">卡类型</p>
+                    </div>
+                </div>
+                <p id="cardDescription" class="text-gray-600 text-sm">福卡描述</p>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button class="btn-secondary flex-1" id="cancelModal">取消</button>
+                <button class="btn-primary flex-1" id="viewResults">查看结果</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+    <script>
+        // 智能合约ABI
+        const contractABI = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "initialOwner",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "cardId",
+                        "type": "uint256"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "enum FiveBlessingsTest.BlessingType",
+                        "name": "cardType",
+                        "type": "uint8"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    }
+                ],
+                "name": "CardMinted",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "approved",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Approval",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "operator",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "bool",
+                        "name": "approved",
+                        "type": "bool"
+                    }
+                ],
+                "name": "ApprovalForAll",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "previousOwner",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "newOwner",
+                        "type": "address"
+                    }
+                ],
+                "name": "OwnershipTransferred",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "Transfer",
+                "type": "event"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "approve",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    }
+                ],
+                "name": "balanceOf",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "enum FiveBlessingsTest.BlessingType",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "cardMetadata",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "image",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "cards",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "enum FiveBlessingsTest.BlessingType",
+                        "name": "cardType",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "mintTime",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getApproved",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "cardId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "getCardInfo",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "enum FiveBlessingsTest.BlessingType",
+                        "name": "cardType",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "mintTime",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "enum FiveBlessingsTest.BlessingType",
+                        "name": "cardType",
+                        "type": "uint8"
+                    }
+                ],
+                "name": "getCardMetadata",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "image",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getTotalCards",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "operator",
+                        "type": "address"
+                    }
+                ],
+                "name": "isApprovedForAll",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "name",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "nextCardId",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "owner",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "ownerOf",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "reset",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "renounceOwnership",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "safeTransferFrom",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "safeTransferFrom",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "operator",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "approved",
+                        "type": "bool"
+                    }
+                ],
+                "name": "setApprovalForAll",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "symbol",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "tokenURI",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "from",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "transferFrom",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "newOwner",
+                        "type": "address"
+                    }
+                ],
+                "name": "transferOwnership",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "mintRandomCard",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "enum FiveBlessingsTest.BlessingType",
+                        "name": "",
+                        "type": "uint8"
+                    }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "count",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "mintBatch",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
+        // 智能合约地址（部署后替换）
+        const contractAddress = 'YOUR_TEST_CONTRACT_ADDRESS'; // 替换为实际部署的测试合约地址
+
+        // 全局变量
+        let web3 = null;
+        let contract = null;
+        let accounts = [];
+
+        // DOM元素
+        const walletAddress = document.getElementById('walletAddress');
+        const totalCards = document.getElementById('totalCards');
+        const myCards = document.getElementById('myCards');
+        const mintSingle = document.getElementById('mintSingle');
+        const mintBatch = document.getElementById('mintBatch');
+        const batchCount = document.getElementById('batchCount');
+        const resetTest = document.getElementById('resetTest');
+        const mintResults = document.getElementById('mintResults');
+        const mintSuccessModal = document.getElementById('mintSuccessModal');
+        const cancelModal = document.getElementById('cancelModal');
+        const viewResults = document.getElementById('viewResults');
+        const refreshWallet = document.getElementById('refreshWallet');
+
+        // 福卡类型名称映射
+        const blessingTypeNames = {
+            0: "爱国福",
+            1: "富强福",
+            2: "和谐福",
+            3: "友善福",
+            4: "敬业福",
+            5: "万能福",
+            6: "五福临门"
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            connectWallet();
+            updateStats();
+        });
+
+        // 连接钱包
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                try {
+                    accounts = await web3.eth.requestAccounts();
+                    const address = accounts[0];
+                    const shortAddress = address.substring(0, 4) + '...' + address.substring(address.length - 4);
+                    walletAddress.textContent = shortAddress;
+                    
+                    // 初始化合约
+                    contract = new web3.eth.Contract(contractABI, contractAddress);
+                    
+                    await updateStats();
+                    await loadMyCards();
+                } catch (error) {
+                    console.error('连接钱包失败:', error);
+                }
+            } else {
+                alert('请安装MetaMask等Web3钱包插件');
+            }
+        }
+
+        // 更新统计信息
+        async function updateStats() {
+            try {
+                if (web3 && contract) {
+                    // 获取总卡数
+                    const total = await contract.methods.getTotalCards().call();
+                    totalCards.textContent = total;
+                    
+                    // 获取我的卡数
+                    if (accounts.length > 0) {
+                        const balance = await contract.methods.balanceOf(accounts[0]).call();
+                        myCards.textContent = balance;
+                    }
+                }
+            } catch (error) {
+                console.error('更新统计信息失败:', error);
+            }
+        }
+
+        // 加载我的卡片
+        async function loadMyCards() {
+            try {
+                if (web3 && contract && accounts.length > 0) {
+                    const balance = await contract.methods.balanceOf(accounts[0]).call();
+                    
+                    if (parseInt(balance) > 0) {
+                        mintResults.innerHTML = '';
+                        
+                        // 简单显示最近铸造的卡片
+                        const total = await contract.methods.getTotalCards().call();
+                        const startId = Math.max(1, parseInt(total) - 10);
+                        
+                        for (let i = startId; i <= parseInt(total); i++) {
+                            const cardInfo = await contract.methods.cards(i).call();
+                            if (cardInfo.owner.toLowerCase() === accounts[0].toLowerCase()) {
+                                await displayCard(i);
+                            }
+                        }
+                    } else {
+                        mintResults.innerHTML = `
+                            <div class="text-center text-gray-500 py-8">
+                                <i class="fas fa-gift text-4xl mb-2"></i>
+                                <p>还没有铸造卡片</p>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (error) {
+                console.error('加载卡片失败:', error);
+            }
+        }
+
+        // 显示卡片
+        async function displayCard(cardId) {
+            try {
+                const cardInfo = await contract.methods.cards(cardId).call();
+                const metadata = await contract.methods.cardMetadata(cardInfo.cardType).call();
+                
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card-item';
+                cardElement.innerHTML = `
+                    <img src="${metadata.image}" alt="${metadata.name}" class="card-image">
+                    <div class="p-3">
+                        <h4 class="font-bold text-gray-800">${metadata.name}</h4>
+                        <p class="text-sm text-gray-500 mb-2">ID: ${cardId}</p>
+                        <p class="text-xs text-gray-400">
+                            ${new Date(parseInt(cardInfo.mintTime) * 1000).toLocaleString()}
+                        </p>
+                    </div>
+                `;
+                
+                mintResults.appendChild(cardElement);
+            } catch (error) {
+                console.error('显示卡片失败:', error);
+            }
+        }
+
+        // 单个铸造
+        mintSingle.addEventListener('click', async function() {
+            if (!web3 || !contract || accounts.length === 0) {
+                alert('请先连接钱包');
+                return;
+            }
+
+            try {
+                mintSingle.textContent = '铸造中...';
+                mintSingle.disabled = true;
+
+                // 调用智能合约铸造
+                const result = await contract.methods.mintRandomCard().send({ from: accounts[0] });
+                const cardId = result.events.CardMinted.returnValues.cardId;
+                const cardType = result.events.CardMinted.returnValues.cardType;
+                
+                console.log('铸造成功:', cardId, cardType);
+                
+                // 获取卡片信息
+                const metadata = await contract.methods.cardMetadata(cardType).call();
+                
+                // 显示成功弹窗
+                document.getElementById('cardName').textContent = metadata.name;
+                document.getElementById('cardType').textContent = `类型: ${blessingTypeNames[cardType]}`;
+                document.getElementById('cardDescription').textContent = `成功铸造了一张${metadata.name}，ID: ${cardId}`;
+                document.getElementById('cardImage').querySelector('img').src = metadata.image;
+                mintSuccessModal.classList.remove('hidden');
+                
+                // 更新统计和卡片
+                await updateStats();
+                await loadMyCards();
+                
+                mintSingle.textContent = '随机铸造1张';
+                mintSingle.disabled = false;
+            } catch (error) {
+                console.error('铸造失败:', error);
+                mintSingle.textContent = '随机铸造1张';
+                mintSingle.disabled = false;
+                alert('铸造失败，请重试');
+            }
+        });
+
+        // 批量铸造
+        mintBatch.addEventListener('click', async function() {
+            if (!web3 || !contract || accounts.length === 0) {
+                alert('请先连接钱包');
+                return;
+            }
+
+            const count = parseInt(batchCount.value);
+            if (count < 1 || count > 10) {
+                alert('铸造数量必须在1-10之间');
+                return;
+            }
+
+            try {
+                mintBatch.textContent = '铸造中...';
+                mintBatch.disabled = true;
+
+                // 调用智能合约批量铸造
+                await contract.methods.mintBatch(count).send({ from: accounts[0] });
+                
+                console.log('批量铸造成功:', count, '张');
+                
+                // 更新统计和卡片
+                await updateStats();
+                await loadMyCards();
+                
+                alert(`成功铸造了${count}张福卡！`);
+                
+                mintBatch.textContent = '批量铸造';
+                mintBatch.disabled = false;
+            } catch (error) {
+                console.error('批量铸造失败:', error);
+                mintBatch.textContent = '批量铸造';
+                mintBatch.disabled = false;
+                alert('批量铸造失败，请重试');
+            }
+        });
+
+        // 重置测试
+        resetTest.addEventListener('click', async function() {
+            if (!web3 || !contract || accounts.length === 0) {
+                alert('请先连接钱包');
+                return;
+            }
+
+            if (!confirm('确定要重置测试吗？这将重置计数器，但不会删除已铸造的NFT。')) {
+                return;
+            }
+
+            try {
+                resetTest.textContent = '重置中...';
+                resetTest.disabled = true;
+
+                // 调用智能合约重置
+                await contract.methods.reset().send({ from: accounts[0] });
+                
+                console.log('重置成功');
+                
+                // 更新统计和卡片
+                await updateStats();
+                await loadMyCards();
+                
+                alert('测试已重置！');
+                
+                resetTest.textContent = '重置测试（仅管理员）';
+                resetTest.disabled = false;
+            } catch (error) {
+                console.error('重置失败:', error);
+                resetTest.textContent = '重置测试（仅管理员）';
+                resetTest.disabled = false;
+                alert('重置失败，请检查是否为管理员');
+            }
+        });
+
+        // 刷新钱包
+        refreshWallet.addEventListener('click', function() {
+            connectWallet();
+        });
+
+        // 取消弹窗
+        cancelModal.addEventListener('click', function() {
+            mintSuccessModal.classList.add('hidden');
+        });
+
+        // 查看结果
+        viewResults.addEventListener('click', function() {
+            mintSuccessModal.classList.add('hidden');
+            loadMyCards();
+        });
+    </script>
+</body>
+</html>

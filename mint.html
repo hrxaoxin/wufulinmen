@@ -155,9 +155,14 @@
         </div>
 
         <!-- 开始铸造按钮 -->
-        <button class="btn-primary w-full py-4 text-lg font-bold mb-8" id="startMint">
+        <button class="btn-primary w-full py-4 text-lg font-bold mb-4" id="startMint">
             开始铸造
         </button>
+
+        <!-- 测试铸造按钮 -->
+        <a href="mint-test.html" class="btn-secondary w-full py-4 text-lg font-bold mb-8 flex items-center justify-center">
+            <i class="fas fa-flask mr-2"></i> 测试铸造
+        </a>
 
         <!-- 温馨提示 -->
         <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
@@ -1652,9 +1657,47 @@
             connectWallet();
         });
 
-        // 开始铸造
-        startMint.addEventListener('click', async function() {
-            if (!web3 || !contract || !tokenContract || accounts.length === 0) {
+        // 授权按钮（新增）
+        let approveButton = document.createElement('button');
+        approveButton.id = 'approveToken';
+        approveButton.className = 'btn-secondary text-sm mb-4';
+        approveButton.textContent = '授权代币';
+        
+        // 将授权按钮插入到开始铸造按钮之前
+        const mintButtonParent = startMint.parentElement;
+        mintButtonParent.insertBefore(approveButton, startMint);
+
+        // 授权状态
+        let isApproved = false;
+
+        // 检查授权状态
+        async function checkApprovalStatus() {
+            try {
+                if (web3 && tokenContract && accounts.length > 0) {
+                    const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
+                    const allowance = await tokenContract.methods.allowance(accounts[0], contractAddress).call();
+                    isApproved = allowance >= amountInWei;
+                    
+                    if (isApproved) {
+                        approveButton.textContent = '已授权';
+                        approveButton.disabled = true;
+                        approveButton.style.backgroundColor = '#4CAF50';
+                        approveButton.style.color = 'white';
+                    } else {
+                        approveButton.textContent = '授权代币';
+                        approveButton.disabled = false;
+                        approveButton.style.backgroundColor = '';
+                        approveButton.style.color = '';
+                    }
+                }
+            } catch (error) {
+                console.error('检查授权状态失败:', error);
+            }
+        }
+
+        // 授权代币函数
+        approveButton.addEventListener('click', async function() {
+            if (!web3 || !tokenContract || accounts.length === 0) {
                 alert('请先连接钱包');
                 return;
             }
@@ -1675,47 +1718,99 @@
             }
 
             try {
-                startMint.textContent = '铸造中...';
-                startMint.disabled = true;
+                approveButton.textContent = '授权中...';
+                approveButton.disabled = true;
 
-                // 1. 授权智能合约使用代币
-                console.log('正在授权智能合约使用代币...');
-                
-                // 获取代币的小数位数
-                let decimals = 18; // 默认值
-                try {
-                    decimals = await tokenContract.methods.decimals().call();
-                } catch (e) {
-                    console.log('无法获取代币小数位数，使用默认值18');
-                }
-                
                 // 使用Web3.js的toWei方法，避免科学计数法问题
                 const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
                 
                 // 设置合理的Gas价格和上限
                 const gasPrice = web3.utils.toWei('5', 'gwei'); // 5 gwei
-                const gasLimit = 2000000; // 2,000,000 gas
+                const gasLimit = 1000000; // 1,000,000 gas
                 
+                console.log('正在授权智能合约使用代币...');
+                console.log('授权数量:', MINT_PRICE, '枚 =', amountInWei, 'wei');
                 console.log('设置Gas价格:', gasPrice, 'wei');
                 console.log('设置Gas上限:', gasLimit);
+                
+                // 显示授权提示
+                alert('即将授权智能合约使用8888枚代币\n\n这是正常的铸造流程，用于支付铸造费用\n\n请在MetaMask中确认授权交易');
                 
                 await tokenContract.methods.approve(contractAddress, amountInWei).send({ 
                     from: accounts[0],
                     gasPrice: gasPrice,
                     gas: gasLimit
                 });
+                
                 console.log('代币授权成功');
-                console.log('授权数量:', MINT_PRICE, '枚 =', amountInWei, 'wei');
-                console.log('代币小数位数:', decimals);
+                alert('代币授权成功！现在可以开始铸造了');
+                
+                // 更新授权状态
+                await checkApprovalStatus();
+            } catch (error) {
+                console.error('授权失败:', error);
+                approveButton.textContent = '授权代币';
+                approveButton.disabled = false;
+                
+                let errorMsg = '授权失败，请重试';
+                if (error.message) {
+                    errorMsg += '\n错误信息: ' + error.message;
+                }
+                alert(errorMsg);
+            }
+        });
 
-                // 2. 获取当前下一张卡ID，用于后续查询
+        // 开始铸造
+        startMint.addEventListener('click', async function() {
+            if (!web3 || !contract || !tokenContract || accounts.length === 0) {
+                alert('请先连接钱包');
+                return;
+            }
+
+            try {
+                // 检查授权状态
+                const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
+                const allowance = await tokenContract.methods.allowance(accounts[0], contractAddress).call();
+                
+                if (allowance < amountInWei) {
+                    alert('请先授权代币后再铸造');
+                    return;
+                }
+
+                // 获取代币余额
+                const balanceStr = tokenBalance.textContent || '0';
+                const balance = parseInt(balanceStr);
+                
+                if (balance < MINT_PRICE) {
+                    alert('代币余额不足，需要8888枚代币');
+                    return;
+                }
+            } catch (error) {
+                console.error('检查条件失败:', error);
+                alert('检查条件失败，请刷新页面重试');
+                return;
+            }
+
+            try {
+                startMint.textContent = '铸造中...';
+                startMint.disabled = true;
+
+                // 设置合理的Gas价格和上限
+                const gasPrice = web3.utils.toWei('5', 'gwei'); // 5 gwei
+                const gasLimit = 2000000; // 2,000,000 gas
+                
+                // 显示铸造提示
+                alert('即将开始铸造福卡\n\n系统将自动销毁8888枚代币作为铸造费用\n\n请在MetaMask中确认铸造交易');
+                
+                console.log('正在铸造福卡...');
+                console.log('设置Gas价格:', gasPrice, 'wei');
+                console.log('设置Gas上限:', gasLimit);
+                
+                // 获取当前下一张卡ID，用于后续查询
                 const currentNextCardId = await contract.methods.nextCardId().call();
                 const expectedCardId = currentNextCardId;
 
-                // 3. 调用智能合约铸造福卡（智能合约会自动销毁代币）
-                console.log('正在铸造福卡...');
-                
-                // 同样为铸造交易设置Gas价格和上限
+                // 调用智能合约铸造福卡
                 await contract.methods.mintBlessingCard().send({ 
                     from: accounts[0],
                     gasPrice: gasPrice,
@@ -1723,21 +1818,24 @@
                 });
                 console.log('福卡铸造成功');
                 
-                // 4. 获取铸造的卡信息
+                // 获取铸造的卡信息
                 const cardInfo = await contract.methods.getCardInfo(expectedCardId).call();
                 
-                // 5. 显示成功弹窗
+                // 显示成功弹窗
                 mintSuccessModal.classList.remove('hidden');
                 
-                // 6. 显示卡信息
+                // 显示卡信息
                 displayCardInfo(cardInfo);
                 
-                // 7. 恢复按钮状态
+                // 恢复按钮状态
                 startMint.textContent = '开始铸造';
                 startMint.disabled = false;
                 
-                // 8. 更新余额
+                // 更新余额
                 await updateTokenBalance();
+                
+                // 重新检查授权状态
+                await checkApprovalStatus();
             } catch (error) {
                 console.error('铸造失败:', error);
                 startMint.textContent = '开始铸造';
@@ -1759,6 +1857,8 @@
                         errorMsg = 'BNB余额不足，无法支付Gas费用';
                     } else if (error.message.includes('reverted')) {
                         errorMsg = '智能合约执行失败，请检查所有条件是否满足';
+                    } else if (error.message.includes('canceled')) {
+                        errorMsg = '交易已取消，请检查交易参数后重试';
                     } else {
                         errorMsg += '\n错误信息: ' + error.message;
                     }
@@ -1772,6 +1872,19 @@
                 alert(errorMsg);
             }
         });
+
+        // 钱包连接后检查授权状态
+        async function onWalletConnected() {
+            await updateTokenBalance();
+            await checkApprovalStatus();
+        }
+
+        // 修改connectWallet函数，添加授权状态检查
+        const originalConnectWallet = connectWallet;
+        connectWallet = async function() {
+            await originalConnectWallet();
+            await onWalletConnected();
+        };
 
         // 显示卡信息
         function displayCardInfo(cardInfo) {
