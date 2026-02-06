@@ -592,57 +592,6 @@
     "anonymous": false
   },
   {
-    "name": "DividendAdded",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "DividendCalculated",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "user",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "DividendClaimed",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "user",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
     "name": "Initialized",
     "type": "event",
     "inputs": [
@@ -675,26 +624,26 @@
     "anonymous": false
   },
   {
-    "name": "TaxWalletBalanceUpdated",
+    "name": "RoyaltyFeeUpdated",
     "type": "event",
     "inputs": [
       {
-        "name": "oldBalance",
+        "name": "oldFee",
         "type": "uint256",
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256"
       },
       {
-        "name": "newBalance",
+        "name": "newFee",
         "type": "uint256",
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256"
       }
     ],
     "anonymous": false
   },
   {
-    "name": "TaxWalletUpdated",
+    "name": "RoyaltyWalletUpdated",
     "type": "event",
     "inputs": [
       {
@@ -708,6 +657,25 @@
         "type": "address",
         "indexed": true,
         "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "TokenBurnedForMint",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false
@@ -794,49 +762,30 @@
     "stateMutability": "view"
   },
   {
-    "name": "blessingHolders",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "calculateDividends",
+    "name": "burnAddress",
     "type": "function",
     "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "calculateUserDividendPercentage",
-    "type": "function",
-    "inputs": [
+    "outputs": [
       {
-        "name": "_user",
+        "name": "",
         "type": "address",
         "internalType": "address"
       }
     ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "burnTokenForMint",
+    "type": "function",
+    "inputs": [],
     "outputs": [
       {
         "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "nonpayable"
   },
   {
     "name": "cardMetadata",
@@ -895,13 +844,6 @@
       }
     ],
     "stateMutability": "view"
-  },
-  {
-    "name": "claimDividend",
-    "type": "function",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
   },
   {
     "name": "getAddressBlessingTypes",
@@ -976,58 +918,6 @@
     "stateMutability": "view"
   },
   {
-    "name": "getExpectedDividend",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "_user",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "getStats",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "_totalPool",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_taxWalletBNB",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_holdersCount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_lastDistributionTime",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "_totalCards",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
     "name": "hasBlessingType",
     "type": "function",
     "inputs": [
@@ -1040,6 +930,25 @@
         "name": "",
         "type": "uint8",
         "internalType": "enum FiveBlessings.BlessingType"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "hasBurnedToken",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [
@@ -1069,7 +978,7 @@
     "type": "function",
     "inputs": [
       {
-        "name": "_taxWallet",
+        "name": "_royaltyWallet",
         "type": "address",
         "internalType": "address"
       }
@@ -1088,25 +997,6 @@
       },
       {
         "name": "operator",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "isBlessingHolder",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "",
         "type": "address",
         "internalType": "address"
       }
@@ -1140,7 +1030,14 @@
     "stateMutability": "view"
   },
   {
-    "name": "lastDistributionTime",
+    "name": "mintBlessingCard",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "mintBlessingCardAfterBurn",
     "type": "function",
     "inputs": [],
     "outputs": [
@@ -1148,15 +1045,13 @@
         "name": "",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum FiveBlessings.BlessingType"
       }
     ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "mintBlessingCard",
-    "type": "function",
-    "inputs": [],
-    "outputs": [],
     "stateMutability": "nonpayable"
   },
   {
@@ -1236,6 +1131,61 @@
     "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "name": "royaltyFee",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "royaltyInfo",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "salePrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "receiver",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "royaltyAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "royaltyWallet",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "name": "safeTransferFrom",
@@ -1320,11 +1270,24 @@
     "stateMutability": "nonpayable"
   },
   {
-    "name": "setTaxWallet",
+    "name": "setRoyaltyFee",
     "type": "function",
     "inputs": [
       {
-        "name": "_taxWallet",
+        "name": "_royaltyFee",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setRoyaltyWallet",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_royaltyWallet",
         "type": "address",
         "internalType": "address"
       }
@@ -1383,32 +1346,6 @@
     "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
-  },
-  {
-    "name": "taxWallet",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "taxWalletBNB",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
   },
   {
     "name": "tokenByIndex",
@@ -1486,19 +1423,6 @@
     "stateMutability": "view"
   },
   {
-    "name": "totalPool",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
     "name": "totalSupply",
     "type": "function",
     "inputs": [],
@@ -1546,47 +1470,11 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
-  },
-  {
-    "name": "userDividendBalance",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "withdraw",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "amount",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "receive",
-    "stateMutability": "payable"
   }
 ];
 
         // 智能合约地址
-        const contractAddress = '0xB573391c06A59Ec843D2b53c966fD39fD945BB3d'; // 代理合约地址
+        const contractAddress = '0x651277a5dd5962f239EE83aCA457DDE7a879D79a'; // 代理合约地址
 
         // 全局变量
         let web3;
