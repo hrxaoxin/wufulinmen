@@ -379,7 +379,7 @@
 ];
 
         // 智能合约地址
-        const contractAddress = '0xE66137241d83530DbcE8f7B32cB8D2e13389566b'; // 代理合约地址
+        const contractAddress = ' 0x9052D59dc594aC04aAe1c096c45AEd81eB918E76'; // 代理合约地址
         const tokenContractAddress = '0xbF63b623DA9bA4Fb4af24C7D9E5A373Fb127fffF'; // 代币合约地址
 
         // 智能合约ABI
@@ -936,10 +936,29 @@
     "stateMutability": "view"
   },
   {
+    "name": "burnAddress",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
     "name": "burnTokenForMint",
     "type": "function",
     "inputs": [],
-    "outputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
     "stateMutability": "nonpayable"
   },
   {
