@@ -1,0 +1,2539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>铸造福卡 - 集五福活动</title>
+    <link rel="icon" href="images/fu-cards/wufulinmen.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f5f5f5;
+            background-image: linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%);
+            overflow-x: hidden;
+        }
+        
+        /* 粒子背景容器 */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mint-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .mint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #ee5a6f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+        }
+        
+        .token-balance {
+            background: linear-gradient(135deg, #4ecdc4 0%, #45b7aa 100%);
+            border-radius: 16px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div id="particles-js"></div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar fixed bottom-0 left-0 right-0 z-10">
+        <div class="flex justify-around items-center py-2 px-4">
+            <a href="index.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏠&nbsp;</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">首页</span>
+            </a>
+            <a href="mint.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🃏</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">铸造</span>
+            </a>
+            <a href="collection.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🎁</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">我的福卡</span>
+            </a>
+            <a href="rewards.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏆</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">奖励</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 pt-6 pb-24">
+        <!-- 页面标题 -->
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center mr-3">
+                <span class="text-white text-2xl font-bold">福</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">铸造福卡</h1>
+        </div>
+
+        <!-- 铸造说明 -->
+        <p class="text-lg text-gray-600 mb-8">使用代币随机获得一张福卡</p>
+
+        <!-- 钱包区域框 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <!-- 钱包信息 -->
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                    <i class="text-blue-500 text-xl">👛</i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">钱包信息</h3>
+                    <p class="text-sm text-gray-500" id="walletAddress">未连接钱包</p>
+                </div>
+                <button class="btn-secondary text-sm" id="refreshWallet">
+                    <i class="fas fa-sync-alt mr-1"></i> 刷新
+                </button>
+            </div>
+
+            <!-- 代币信息 -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">代币余额</span>
+                    <span class="text-lg font-semibold text-gray-800" id="tokenBalance">0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">铸造价格</span>
+                    <span class="text-lg font-semibold text-gray-800">8888 代币</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">可铸造次数</span>
+                    <span class="text-lg font-semibold text-gray-800" id="mintCount">0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">授权状态</span>
+                    <span class="text-lg font-semibold text-gray-800" id="approvalStatus">未授权</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 授权按钮 -->
+        <button class="btn-secondary w-full py-4 text-lg font-bold mb-6" id="approveToken">
+            <i class="fas fa-key mr-2"></i> 授权代币
+        </button>
+
+        <!-- 两步铸造流程 -->
+        <div class="space-y-4 mb-8">
+            <!-- 第一步：销毁代币 -->
+            <button class="btn-secondary w-full py-4 text-lg font-bold" id="burnTokenBtn">
+                <i class="fas fa-fire mr-2"></i> 第一步：销毁代币
+            </button>
+
+            <!-- 第二步：铸造NFT -->
+            <button class="btn-primary w-full py-4 text-lg font-bold" id="mintAfterBurnBtn" disabled>
+                <i class="fas fa-magic mr-2"></i> 第二步：铸造NFT
+            </button>
+
+            <!-- 铸造状态提示 -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4" id="mintStatus">
+                <p class="text-yellow-700">请先完成第一步：销毁代币</p>
+            </div>
+        </div>
+
+        <!-- 测试铸造按钮 -->
+        <a href="mint-test.html" class="btn-secondary w-full py-4 text-lg font-bold mb-4 flex items-center justify-center">
+            <i class="fas fa-flask mr-2"></i> 测试铸造
+        </a>
+
+        <!-- 代币销毁测试按钮 -->
+        <a href="burn-test.html" class="btn-secondary w-full py-4 text-lg font-bold mb-8 flex items-center justify-center">
+            <i class="fas fa-fire mr-2"></i> 代币销毁测试
+        </a>
+
+        <!-- 温馨提示 -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+            <h3 class="text-lg font-bold text-yellow-800 mb-2">温馨提示</h3>
+            <ul class="space-y-2 text-yellow-700">
+                <li>• 每次铸造将随机获得一张福卡</li>
+                <li>• 持有福卡即可享受对应的税收分红(每种0.4%)</li>
+                <li>• 集齐五福合成后可享受额外1%税收分红</li>
+                <li>• 首次铸造需要授权代币，之后无需重复授权</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- 铸造成功弹窗 -->
+    <div id="mintSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="text-center mb-4">
+                <div class="text-6xl mb-4">🎊</div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">铸造成功！</h3>
+                <p class="text-gray-600 mb-6">恭喜您获得了一张福卡</p>
+            </div>
+            
+            <!-- 福卡信息 -->
+            <div id="mintedCardInfo" class="mb-6">
+                <div class="flex items-center mb-4">
+                    <div id="cardImage" class="w-20 h-20 rounded-lg overflow-hidden mr-4">
+                        <img src="" alt="福卡" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1">
+                        <h4 id="cardName" class="text-xl font-bold text-gray-800">福卡名称</h4>
+                        <p id="cardRarity" class="text-sm text-gray-500">稀有度</p>
+                    </div>
+                </div>
+                <p id="cardDescription" class="text-gray-600 text-sm">福卡描述</p>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button class="btn-secondary flex-1" id="cancelModal">取消</button>
+                <button class="btn-primary flex-1" id="viewCollection">去查看</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+    <script>
+        // 代币合约ABI (ERC20标准)
+        const tokenABI = [
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "approve",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "transferFrom",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "name": "spender",
+        "type": "address"
+      }
+    ],
+    "name": "allowance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "name",
+    "outputs": [
+      {
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [
+      {
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
+
+        // 智能合约地址
+        const contractAddress = ' 0x9052D59dc594aC04aAe1c096c45AEd81eB918E76'; // 代理合约地址
+        const tokenContractAddress = '0xbF63b623DA9bA4Fb4af24C7D9E5A373Fb127fffF'; // 代币合约地址
+
+        // 智能合约ABI
+        const contractABI = [
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "initialOwner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "ERC721EnumerableForbiddenBatchMint",
+    "type": "error",
+    "inputs": []
+  },
+  {
+    "name": "ERC721IncorrectOwner",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "sender",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "name": "ERC721InsufficientApproval",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "operator",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "name": "ERC721InvalidApprover",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "approver",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "name": "ERC721InvalidOperator",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "operator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "name": "ERC721InvalidOwner",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "name": "ERC721InvalidReceiver",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "receiver",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "name": "ERC721InvalidSender",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "sender",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "name": "ERC721NonexistentToken",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "name": "ERC721OutOfBoundsIndex",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "name": "InvalidInitialization",
+    "type": "error",
+    "inputs": []
+  },
+  {
+    "name": "NotInitializing",
+    "type": "error",
+    "inputs": []
+  },
+  {
+    "name": "OwnableInvalidOwner",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "name": "Approval",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "approved",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "ApprovalForAll",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "operator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "approved",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "CardMinted",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "cardId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "cardType",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "enum FiveBlessings.BlessingType"
+      },
+      {
+        "name": "owner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "DividendAdded",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "DividendCalculated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "DividendClaimed",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "Initialized",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "version",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "OwnershipTransferred",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "previousOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "RoyaltyCollected",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "from",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "RoyaltyFeeUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "oldFee",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newFee",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "RoyaltyWalletUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "oldWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "TaxWalletBalanceUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "oldBalance",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newBalance",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "TaxWalletUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "oldWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "TokenBurnedForMint",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "Transfer",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "WuFuLinMenCreated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "cardId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "owner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "approve",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "balanceOf",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "blessingHolders",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "burnAddress",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "burnTokenForMint",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "calculateDividends",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "calculateUserDividendPercentage",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "cardMetadata",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum FiveBlessings.BlessingType"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "image",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "cards",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "cardType",
+        "type": "uint8",
+        "internalType": "enum FiveBlessings.BlessingType"
+      },
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "mintTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "claimDividend",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "getAddressBlessingTypes",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_address",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool[7]",
+        "internalType": "bool[7]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getApproved",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getCardInfo",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_cardId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "cardType",
+        "type": "uint8",
+        "internalType": "enum FiveBlessings.BlessingType"
+      },
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "mintTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getExpectedDividend",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "getStats",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "_totalPool",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_taxWalletBNB",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_holdersCount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_lastDistributionTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_totalCards",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "hasBlessingType",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum FiveBlessings.BlessingType"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "hasBurnedToken",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "holdersCount",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "initialize",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_taxWallet",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_royaltyWallet",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "isApprovedForAll",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "operator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "isBlessingHolder",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "isWuFuHolder",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "lastDistributionTime",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "mintBlessingCard",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "mintBlessingCardAfterBurn",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum FiveBlessings.BlessingType"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "mintPrice",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "name",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "nextCardId",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "owner",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "ownerOf",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "renounceOwnership",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "royaltyFee",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "royaltyInfo",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "salePrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "receiver",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "royaltyAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "royaltyWallet",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "safeTransferFrom",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "safeTransferFrom",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setApprovalForAll",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "operator",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "approved",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setMintPrice",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_mintPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setRoyaltyFee",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_royaltyFee",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setRoyaltyWallet",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_royaltyWallet",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setTaxWallet",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_taxWallet",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setTokenContractAddress",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_tokenContractAddress",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "supportsInterface",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "interfaceId",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "symbol",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "synthesizeWuFuLinMen",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "taxWallet",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "taxWalletBNB",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "tokenByIndex",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "tokenContractAddress",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "tokenOfOwnerByIndex",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "tokenURI",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "totalPool",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "totalSupply",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "transferFrom",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "transferOwnership",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "newOwner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "userDividendBalance",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "withdraw",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "receive",
+    "stateMutability": "payable"
+  }
+];
+
+        // 全局变量
+        let web3 = null;
+        let contract = null;
+        let tokenContract = null;
+        let accounts = [];
+        const MINT_PRICE = 8888; // 铸造价格：8888枚代币
+
+        // DOM元素
+        const walletAddress = document.getElementById('walletAddress');
+        const tokenBalance = document.getElementById('tokenBalance');
+        const mintCount = document.getElementById('mintCount');
+        const approvalStatus = document.getElementById('approvalStatus');
+        const refreshWallet = document.getElementById('refreshWallet');
+        const approveToken = document.getElementById('approveToken');
+        const mintSuccessModal = document.getElementById('mintSuccessModal');
+        const cancelModal = document.getElementById('cancelModal');
+        const viewCollection = document.getElementById('viewCollection');
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            connectWallet();
+        });
+
+        // 连接钱包
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                try {
+                    accounts = await web3.eth.requestAccounts();
+                    const address = accounts[0];
+                    const shortAddress = address.substring(0, 4) + '...' + address.substring(address.length - 4);
+                    walletAddress.textContent = shortAddress;
+                    
+                    // 初始化合约
+                    contract = new web3.eth.Contract(contractABI, contractAddress);
+                    tokenContract = new web3.eth.Contract(tokenABI, tokenContractAddress);
+                    
+                    await updateTokenBalance();
+                    await checkApprovalStatus();
+                    updateMintCount();
+                } catch (error) {
+                    console.error('连接钱包失败:', error);
+                }
+            } else {
+                alert('请安装MetaMask等Web3钱包插件');
+            }
+        }
+
+        // 更新代币余额
+        async function updateTokenBalance() {
+            try {
+                if (web3 && tokenContract && accounts.length > 0) {
+                    // 查询用户的代币余额
+                    const balance = await tokenContract.methods.balanceOf(accounts[0]).call();
+                    
+                    // 查询代币的小数位数
+                    let decimals = 18; // 默认值
+                    try {
+                        decimals = await tokenContract.methods.decimals().call();
+                    } catch (e) {
+                        console.log('无法获取代币小数位数，使用默认值18');
+                    }
+                    
+                    // 将余额转换为枚
+                    // 使用Web3.js的fromWei方法，避免精度问题
+                    const balanceInTokens = web3.utils.fromWei(balance, 'ether');
+                    
+                    // 显示为整数
+                    const balanceInt = Math.floor(parseFloat(balanceInTokens));
+                    tokenBalance.textContent = balanceInt;
+                    
+                    console.log('代币余额:', balance, '单位 =', balanceInt, '枚');
+                    console.log('代币余额(原始):', balanceInTokens, '枚');
+                    console.log('代币小数位数:', decimals);
+                }
+            } catch (error) {
+                console.error('获取余额失败:', error);
+                tokenBalance.textContent = '0';
+            }
+            updateMintCount();
+        }
+
+        // 更新可铸造次数
+        function updateMintCount() {
+            try {
+                if (web3 && accounts.length > 0) {
+                    // 获取代币余额
+                    const balanceStr = tokenBalance.textContent || '0';
+                    const balance = parseInt(balanceStr);
+                    
+                    // 计算可铸造次数（向下取整）
+                    const count = Math.floor(balance / MINT_PRICE);
+                    mintCount.textContent = count;
+                } else {
+                    mintCount.textContent = '0';
+                }
+            } catch (error) {
+                console.error('计算可铸造次数失败:', error);
+                mintCount.textContent = '0';
+            }
+        }
+
+        // 刷新钱包
+        refreshWallet.addEventListener('click', function() {
+            connectWallet();
+        });
+
+        // 检查授权状态
+        async function checkApprovalStatus() {
+            try {
+                if (web3 && tokenContract && accounts.length > 0) {
+                    const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
+                    const allowance = await tokenContract.methods.allowance(accounts[0], contractAddress).call();
+                    const isApproved = allowance >= amountInWei;
+                    
+                    if (isApproved) {
+                        approvalStatus.textContent = '已授权';
+                        approvalStatus.style.color = '#4CAF50';
+                    } else {
+                        approvalStatus.textContent = '未授权';
+                        approvalStatus.style.color = '#f44336';
+                    }
+                }
+            } catch (error) {
+                console.error('检查授权状态失败:', error);
+                approvalStatus.textContent = '检查失败';
+                approvalStatus.style.color = '#ff9800';
+            }
+        }
+
+        // 授权代币函数
+        approveToken.addEventListener('click', async function() {
+            if (!web3 || !tokenContract || accounts.length === 0) {
+                alert('请先连接钱包');
+                return;
+            }
+
+            try {
+                // 获取代币余额
+                const balanceStr = tokenBalance.textContent || '0';
+                const balance = parseInt(balanceStr);
+                
+                if (balance < MINT_PRICE) {
+                    alert('代币余额不足，需要8888枚代币');
+                    return;
+                }
+            } catch (error) {
+                console.error('检查余额失败:', error);
+                alert('检查余额失败，请刷新页面重试');
+                return;
+            }
+
+            try {
+                approveToken.textContent = '授权中...';
+                approveToken.disabled = true;
+
+                // 使用Web3.js的toWei方法，避免科学计数法问题
+                const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
+                
+                // 设置合理的Gas价格和上限
+                // 使用动态Gas价格，根据网络状况自动调整
+                const gasPrice = await web3.eth.getGasPrice();
+                // 增加20%的Gas价格以提高交易优先级
+                const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
+                const gasLimit = 1000000; // 1,000,000 gas
+                
+                console.log('当前网络Gas价格:', gasPrice, 'wei');
+                console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
+                
+                console.log('正在授权智能合约使用代币...');
+                console.log('授权数量:', MINT_PRICE, '枚 =', amountInWei, 'wei');
+                console.log('设置Gas价格:', gasPrice, 'wei');
+                console.log('设置Gas上限:', gasLimit);
+                
+                // 显示授权提示
+                alert('即将授权智能合约使用8888枚代币\n\n这是正常的铸造流程，用于支付铸造费用\n\n请在MetaMask中确认授权交易');
+                
+                await tokenContract.methods.approve(contractAddress, amountInWei).send({ 
+                    from: accounts[0],
+                    gasPrice: adjustedGasPrice,
+                    gas: gasLimit
+                });
+                
+                console.log('代币授权成功');
+                
+                // 更新授权状态
+                await checkApprovalStatus();
+                
+                // 显示成功提示
+                alert('代币授权成功！现在可以开始铸造了');
+                
+                // 恢复按钮状态
+                approveToken.textContent = '授权代币';
+                approveToken.disabled = false;
+            } catch (error) {
+                console.error('授权失败:', error);
+                approveToken.textContent = '授权代币';
+                approveToken.disabled = false;
+                
+                let errorMsg = '授权失败，请重试';
+                if (error.message) {
+                    errorMsg += '\n错误信息: ' + error.message;
+                }
+                alert(errorMsg);
+            }
+        });
+
+        // 两步铸造流程
+        // DOM元素
+        const burnTokenBtn = document.getElementById('burnTokenBtn');
+        const mintAfterBurnBtn = document.getElementById('mintAfterBurnBtn');
+        const mintStatus = document.getElementById('mintStatus');
+
+        // 检查用户是否已销毁代币
+        async function checkBurnStatus() {
+            try {
+                if (web3 && contract && accounts.length > 0) {
+                    const hasBurned = await contract.methods.hasBurnedToken(accounts[0]).call();
+                    return hasBurned;
+                }
+                return false;
+            } catch (error) {
+                console.error('检查销毁状态失败:', error);
+                return false;
+            }
+        }
+
+        // 更新铸造状态
+        async function updateMintStatus() {
+            const hasBurned = await checkBurnStatus();
+            if (hasBurned) {
+                mintAfterBurnBtn.disabled = false;
+                mintStatus.innerHTML = '<p class="text-green-700">✓ 已完成代币销毁，可以开始铸造NFT</p>';
+            } else {
+                mintAfterBurnBtn.disabled = true;
+                mintStatus.innerHTML = '<p class="text-yellow-700">请先完成第一步：销毁代币</p>';
+            }
+        }
+
+        // 第一步：销毁代币
+        burnTokenBtn.addEventListener('click', async function() {
+            console.log('点击了销毁代币按钮');
+            
+            // 添加视觉反馈
+            burnTokenBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 处理中...';
+            burnTokenBtn.disabled = true;
+
+            try {
+                // 检查钱包连接
+                if (!web3 || !contract || !tokenContract || accounts.length === 0) {
+                    console.log('钱包未连接，尝试连接...');
+                    await connectWallet();
+                    
+                    // 再次检查连接状态
+                    if (!web3 || !contract || !tokenContract || accounts.length === 0) {
+                        alert('请先连接钱包');
+                        burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
+                        burnTokenBtn.disabled = false;
+                        return;
+                    }
+                }
+
+                console.log('钱包已连接，检查授权状态...');
+                
+                // 检查授权状态
+                const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
+                const allowance = await tokenContract.methods.allowance(accounts[0], contractAddress).call();
+                
+                console.log('授权检查详情:', {
+                    userAddress: accounts[0],
+                    contractAddress: contractAddress,
+                    requiredAmount: MINT_PRICE,
+                    requiredAmountInWei: amountInWei,
+                    currentAllowance: allowance,
+                    isSufficient: allowance >= amountInWei
+                });
+                
+                if (allowance < amountInWei) {
+                    alert('请先授权代币后再销毁');
+                    burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
+                    burnTokenBtn.disabled = false;
+                    return;
+                }
+
+                console.log('授权检查通过，检查代币余额...');
+                
+                // 获取代币余额
+                const balanceStr = tokenBalance.textContent || '0';
+                const balance = parseInt(balanceStr);
+                
+                console.log('余额检查详情:', {
+                    currentBalance: balance,
+                    requiredBalance: MINT_PRICE,
+                    isSufficient: balance >= MINT_PRICE
+                });
+                
+                if (balance < MINT_PRICE) {
+                    alert(`代币余额不足，需要${MINT_PRICE}枚代币，当前余额为${balance}枚`);
+                    burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
+                    burnTokenBtn.disabled = false;
+                    return;
+                }
+
+                console.log('余额检查通过，准备销毁代币...');
+                
+                // 设置合理的Gas价格和上限
+                const gasPrice = await web3.eth.getGasPrice();
+                const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
+                const gasLimit = 1000000; // 1,000,000 gas
+                
+                console.log('当前网络Gas价格:', gasPrice, 'wei');
+                console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
+                
+                // 显示销毁提示
+                alert('即将销毁8888枚代币作为铸造费用\n\n请在MetaMask中确认销毁交易');
+                
+                console.log('正在销毁代币...');
+                
+                // 调用智能合约销毁代币
+                console.log('开始调用burnTokenForMint()函数...');
+                try {
+                    await contract.methods.burnTokenForMint().send({ 
+                        from: accounts[0],
+                        gasPrice: adjustedGasPrice,
+                        gas: gasLimit
+                    });
+                    console.log('代币销毁成功');
+                } catch (error) {
+                    console.error('代币销毁失败:', error);
+                    // 显示详细的错误信息给用户
+                    let errorMessage = '销毁代币失败';
+                    if (error.message) {
+                        errorMessage += ': ' + error.message;
+                    } else if (error.reason) {
+                        errorMessage += ': ' + error.reason;
+                    }
+                    alert(errorMessage);
+                    return;
+                }
+                
+                // 更新铸造状态
+                await updateMintStatus();
+                
+                // 更新余额
+                await updateTokenBalance();
+                
+                // 显示成功提示
+                alert('代币销毁成功！现在可以开始铸造NFT了');
+                
+                // 恢复按钮状态
+                burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
+                burnTokenBtn.disabled = false;
+            } catch (error) {
+                console.error('销毁代币失败:', error);
+                
+                // 恢复按钮状态
+                burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
+                burnTokenBtn.disabled = false;
+                
+                // 分析错误原因，提供更详细的错误信息
+                let errorMsg = '销毁代币失败，请重试';
+                
+                if (error.message) {
+                    if (error.message.includes('Insufficient token balance')) {
+                        errorMsg = '代币余额不足，需要8888枚代币';
+                    } else if (error.message.includes('Insufficient token allowance')) {
+                        errorMsg = '代币授权不足，请先授权智能合约使用代币';
+                    } else if (error.message.includes('Token transfer to burn address failed')) {
+                        errorMsg = '代币转移失败，请检查代币合约状态';
+                    } else if (error.message.includes('User rejected the request')) {
+                        errorMsg = '您取消了交易，请重试';
+                    } else {
+                        errorMsg += '\n错误信息: ' + error.message;
+                    }
+                }
+                
+                console.log('错误分析:', errorMsg);
+                alert(errorMsg);
+            }
+        });
+
+        // 第二步：铸造NFT
+        mintAfterBurnBtn.addEventListener('click', async function() {
+            // 检查钱包连接状态，如果未连接则尝试连接
+            if (!web3 || !contract || accounts.length === 0) {
+                alert('正在连接钱包...');
+                try {
+                    await connectWallet();
+                    // 再次检查连接状态
+                    if (!web3 || !contract || accounts.length === 0) {
+                        alert('连接钱包失败，请手动连接钱包后重试');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('连接钱包失败:', error);
+                    alert('连接钱包失败，请手动连接钱包后重试');
+                    return;
+                }
+            }
+
+            try {
+                // 检查是否已销毁代币
+                const hasBurned = await checkBurnStatus();
+                if (!hasBurned) {
+                    alert('请先销毁代币后再铸造NFT');
+                    return;
+                }
+            } catch (error) {
+                console.error('检查销毁状态失败:', error);
+                alert('检查销毁状态失败，请刷新页面重试');
+                return;
+            }
+
+            mintAfterBurnBtn.textContent = '铸造中...';
+            mintAfterBurnBtn.disabled = true;
+
+            // 设置合理的Gas价格和上限
+            const gasPrice = await web3.eth.getGasPrice();
+            const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
+            const gasLimit = 2000000; // 2,000,000 gas
+            
+            console.log('当前网络Gas价格:', gasPrice, 'wei');
+            console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
+            
+            // 显示铸造提示
+            alert('即将开始铸造NFT\n\n请在MetaMask中确认铸造交易');
+            
+            console.log('正在铸造NFT...');
+            
+            // 调用智能合约铸造NFT
+            console.log('开始调用mintBlessingCardAfterBurn()函数...');
+            try {
+                // 监听CardMinted事件，获取铸造的卡ID
+                let mintedCardId = null;
+                contract.events.CardMinted({ fromBlock: 'latest' }, (error, event) => {
+                    if (!error && event && event.returnValues.owner === accounts[0]) {
+                        mintedCardId = event.returnValues.cardId;
+                        console.log('捕获到CardMinted事件，卡ID:', mintedCardId);
+                    }
+                });
+                
+                await contract.methods.mintBlessingCardAfterBurn().send({ 
+                    from: accounts[0],
+                    gasPrice: adjustedGasPrice,
+                    gas: gasLimit
+                });
+                console.log('NFT铸造成功');
+                
+                // 获取铸造的卡信息
+                // 先获取当前的nextCardId，然后减1得到刚铸造的卡ID
+                const currentNextCardId = await contract.methods.nextCardId().call();
+                const actualCardId = (parseInt(currentNextCardId) - 1).toString();
+                console.log('计算得到的实际卡ID:', actualCardId);
+                
+                const cardInfo = await contract.methods.getCardInfo(actualCardId).call();
+                
+                // 显示成功弹窗
+                mintSuccessModal.classList.remove('hidden');
+                
+                // 显示卡信息
+                displayCardInfo(cardInfo);
+                
+                // 更新铸造状态
+                await updateMintStatus();
+                
+                // 恢复按钮状态
+                mintAfterBurnBtn.textContent = '第二步：铸造NFT';
+                mintAfterBurnBtn.disabled = true;
+            } catch (error) {
+                console.error('NFT铸造失败:', error);
+                // 显示详细的错误信息给用户
+                let errorMessage = '铸造NFT失败';
+                if (error.message) {
+                    errorMessage += ': ' + error.message;
+                } else if (error.reason) {
+                    errorMessage += ': ' + error.reason;
+                }
+                alert(errorMessage);
+                // 恢复按钮状态
+                mintAfterBurnBtn.textContent = '第二步：铸造NFT';
+                mintAfterBurnBtn.disabled = false;
+                return;
+            }
+        });
+
+        // 钱包连接后检查授权状态
+        async function onWalletConnected() {
+            await updateTokenBalance();
+            await checkApprovalStatus();
+            await updateMintStatus();
+        }
+
+        // 修改connectWallet函数，添加授权状态检查
+        const originalConnectWallet = connectWallet;
+        connectWallet = async function() {
+            await originalConnectWallet();
+            await onWalletConnected();
+        };
+
+        // 显示卡信息
+        function displayCardInfo(cardInfo) {
+            const cardType = parseInt(cardInfo[1]);
+            
+            // 根据卡类型获取对应的信息
+            const cardData = getCardDataByType(cardType);
+            
+            // 更新UI
+            document.getElementById('cardImage').querySelector('img').src = cardData.image;
+            document.getElementById('cardName').textContent = cardData.name;
+            document.getElementById('cardRarity').textContent = `稀有度: ${cardData.rarity}`;
+            document.getElementById('cardDescription').textContent = cardData.description;
+        }
+
+        // 根据卡类型获取卡数据
+        function getCardDataByType(cardType) {
+            const cardDataMap = {
+                0: {
+                    name: "爱国福",
+                    description: "爱国福，象征着对祖国的热爱与忠诚。持有此卡可享受税收分红。",
+                    image: "https://gold-fascinating-ermine-925.mypinata.cloud/ipfs/bafybeicmdlx35rjx7slj3ncmjynxzmwllkvujvcrqmdiynmijpkvnc734q",
+                    rarity: "Common"
+                },
+                1: {
+                    name: "富强福",
+                    description: "富强福，象征着国家繁荣昌盛，人民生活富裕。持有此卡可享受税收分红。",
+                    image: "https://gold-fascinating-ermine-925.mypinata.cloud/ipfs/bafybeihkbyl6zlkx5vxxu366gwa5gpnd45twwlooczyolannp5ewcxaoja",
+                    rarity: "Common"
+                },
+                2: {
+                    name: "和谐福",
+                    description: "和谐福，象征着社会和谐，家庭和睦。持有此卡可享受税收分红。",
+                    image: "https://gold-fascinating-ermine-925.mypinata.cloud/ipfs/bafybeifsojdpnspewquotpvbwhkfq6n5celzjtsyulbaecczkwm4y25yji",
+                    rarity: "Common"
+                },
+                3: {
+                    name: "友善福",
+                    description: "友善福，象征着人际关系友善，社会充满爱心。持有此卡可享受税收分红。",
+                    image: "https://gold-fascinating-ermine-925.mypinata.cloud/ipfs/bafybeiekctcxtyaews5udiumrogwxjdxkughjnhbycemgxvgpzhwhi564u",
+                    rarity: "Common"
+                },
+                4: {
+                    name: "敬业福",
+                    description: "敬业福，象征着爱岗敬业，精益求精的职业精神。持有此卡可享受税收分红。",
+                    image: "https://gold-fascinating-ermine-925.mypinata.cloud/ipfs/bafybeibcse6fzqol32qrwlmsl7cz4ujhi7ctrxavfywzzqjgdvxla62m4e",
+                    rarity: "Rare"
+                },
+                5: {
+                    name: "万能福",
+                    description: "万能福，象征着无限可能，可替代任何一种基础福卡。持有此卡可享受税收分红。",
+                    image: "https://gold-fascinating-ermine-925.mypinata.cloud/ipfs/bafybeig7ztsaeiddwpgjivwe7la6zxsck5q7hbael32thq4pw6amylxpgi",
+                    rarity: "Ultra Rare"
+                },
+                6: {
+                    name: "五福临门",
+                    description: "五福临门，象征着五种福气同时降临，是最高等级的福卡。持有此卡可享受额外税收分红。",
+                    image: "https://gold-fascinating-ermine-925.mypinata.cloud/ipfs/bafybeich5jq6lv5zcf2ly4dwnxmvnh4nk5xoddy75fihq6bajxnxdxumnm",
+                    rarity: "Legendary"
+                }
+            };
+            
+            return cardDataMap[cardType] || {
+                name: "未知福卡",
+                description: "未知福卡类型",
+                image: "",
+                rarity: "Unknown"
+            };
+        }
+
+        // 取消弹窗
+        cancelModal.addEventListener('click', function() {
+            mintSuccessModal.classList.add('hidden');
+        });
+
+        // 去查看
+        viewCollection.addEventListener('click', function() {
+            mintSuccessModal.classList.add('hidden');
+            window.location.href = 'collection.html';
+        });
+
+        // 粒子背景效果
+        particlesJS('particles-js', {
+            particles: {
+                number: {
+                    value: 80,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: '#ff6b6b'
+                },
+                shape: {
+                    type: 'circle',
+                    stroke: {
+                        width: 0,
+                        color: '#000000'
+                    }
+                },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#ff6b6b',
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 600,
+                        rotateY: 1200
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: 'grab'
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: 'push'
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: {
+                        distance: 140,
+                        line_linked: {
+                            opacity: 1
+                        }
+                    },
+                    push: {
+                        particles_nb: 4
+                    }
+                }
+            },
+            retina_detect: true
+        });
+    </script>
+</body>
+</html>
