@@ -379,7 +379,7 @@
 ];
 
         // 智能合约地址
-        const contractAddress = '0xb3dc340a11a5188f401C851389c7120eCa1e8e6e'; // 代理合约地址
+        const contractAddress = '0x01f60f9fA69c67C3330725162f5992063218B1D7'; // 代理合约地址
         const tokenContractAddress = '0xbF63b623DA9bA4Fb4af24C7D9E5A373Fb127fffF'; // 代币合约地址
 
         // 智能合约ABI
@@ -705,6 +705,56 @@
         "type": "address",
         "indexed": true,
         "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "RoyaltyCollected",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "from",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "RoyaltyFeeUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "oldFee",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newFee",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false
@@ -1325,6 +1375,48 @@
     "stateMutability": "nonpayable"
   },
   {
+    "name": "royaltyFee",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "royaltyInfo",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "salePrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "receiver",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "royaltyAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
     "name": "safeTransferFrom",
     "type": "function",
     "inputs": [
@@ -1399,6 +1491,19 @@
     "inputs": [
       {
         "name": "_mintPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setRoyaltyFee",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_royaltyFee",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -1949,6 +2054,15 @@
                 const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
                 const allowance = await tokenContract.methods.allowance(accounts[0], contractAddress).call();
                 
+                console.log('授权检查详情:', {
+                    userAddress: accounts[0],
+                    contractAddress: contractAddress,
+                    requiredAmount: MINT_PRICE,
+                    requiredAmountInWei: amountInWei,
+                    currentAllowance: allowance,
+                    isSufficient: allowance >= amountInWei
+                });
+                
                 if (allowance < amountInWei) {
                     alert('请先授权代币后再销毁');
                     burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
@@ -1962,8 +2076,14 @@
                 const balanceStr = tokenBalance.textContent || '0';
                 const balance = parseInt(balanceStr);
                 
+                console.log('余额检查详情:', {
+                    currentBalance: balance,
+                    requiredBalance: MINT_PRICE,
+                    isSufficient: balance >= MINT_PRICE
+                });
+                
                 if (balance < MINT_PRICE) {
-                    alert('代币余额不足，需要8888枚代币');
+                    alert(`代币余额不足，需要${MINT_PRICE}枚代币，当前余额为${balance}枚`);
                     burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
                     burnTokenBtn.disabled = false;
                     return;
@@ -1985,12 +2105,26 @@
                 console.log('正在销毁代币...');
                 
                 // 调用智能合约销毁代币
-                await contract.methods.burnTokenForMint().send({ 
-                    from: accounts[0],
-                    gasPrice: adjustedGasPrice,
-                    gas: gasLimit
-                });
-                console.log('代币销毁成功');
+                console.log('开始调用burnTokenForMint()函数...');
+                try {
+                    await contract.methods.burnTokenForMint().send({ 
+                        from: accounts[0],
+                        gasPrice: adjustedGasPrice,
+                        gas: gasLimit
+                    });
+                    console.log('代币销毁成功');
+                } catch (error) {
+                    console.error('代币销毁失败:', error);
+                    // 显示详细的错误信息给用户
+                    let errorMessage = '销毁代币失败';
+                    if (error.message) {
+                        errorMessage += ': ' + error.message;
+                    } else if (error.reason) {
+                        errorMessage += ': ' + error.reason;
+                    }
+                    alert(errorMessage);
+                    return;
+                }
                 
                 // 更新铸造状态
                 await updateMintStatus();
@@ -2053,28 +2187,34 @@
                 return;
             }
 
+            mintAfterBurnBtn.textContent = '铸造中...';
+            mintAfterBurnBtn.disabled = true;
+
+            // 设置合理的Gas价格和上限
+            const gasPrice = await web3.eth.getGasPrice();
+            const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
+            const gasLimit = 2000000; // 2,000,000 gas
+            
+            console.log('当前网络Gas价格:', gasPrice, 'wei');
+            console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
+            
+            // 显示铸造提示
+            alert('即将开始铸造NFT\n\n请在MetaMask中确认铸造交易');
+            
+            console.log('正在铸造NFT...');
+            
+            // 调用智能合约铸造NFT
+            console.log('开始调用mintBlessingCardAfterBurn()函数...');
             try {
-                mintAfterBurnBtn.textContent = '铸造中...';
-                mintAfterBurnBtn.disabled = true;
-
-                // 设置合理的Gas价格和上限
-                const gasPrice = await web3.eth.getGasPrice();
-                const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
-                const gasLimit = 2000000; // 2,000,000 gas
+                // 监听CardMinted事件，获取铸造的卡ID
+                let mintedCardId = null;
+                contract.events.CardMinted({ fromBlock: 'latest' }, (error, event) => {
+                    if (!error && event && event.returnValues.owner === accounts[0]) {
+                        mintedCardId = event.returnValues.cardId;
+                        console.log('捕获到CardMinted事件，卡ID:', mintedCardId);
+                    }
+                });
                 
-                console.log('当前网络Gas价格:', gasPrice, 'wei');
-                console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
-                
-                // 显示铸造提示
-                alert('即将开始铸造NFT\n\n请在MetaMask中确认铸造交易');
-                
-                console.log('正在铸造NFT...');
-                
-                // 获取当前下一张卡ID，用于后续查询
-                const currentNextCardId = await contract.methods.nextCardId().call();
-                const expectedCardId = currentNextCardId;
-
-                // 调用智能合约铸造NFT
                 await contract.methods.mintBlessingCardAfterBurn().send({ 
                     from: accounts[0],
                     gasPrice: adjustedGasPrice,
@@ -2083,7 +2223,12 @@
                 console.log('NFT铸造成功');
                 
                 // 获取铸造的卡信息
-                const cardInfo = await contract.methods.getCardInfo(expectedCardId).call();
+                // 先获取当前的nextCardId，然后减1得到刚铸造的卡ID
+                const currentNextCardId = await contract.methods.nextCardId().call();
+                const actualCardId = (parseInt(currentNextCardId) - 1).toString();
+                console.log('计算得到的实际卡ID:', actualCardId);
+                
+                const cardInfo = await contract.methods.getCardInfo(actualCardId).call();
                 
                 // 显示成功弹窗
                 mintSuccessModal.classList.remove('hidden');
@@ -2098,25 +2243,19 @@
                 mintAfterBurnBtn.textContent = '第二步：铸造NFT';
                 mintAfterBurnBtn.disabled = true;
             } catch (error) {
-                console.error('铸造NFT失败:', error);
+                console.error('NFT铸造失败:', error);
+                // 显示详细的错误信息给用户
+                let errorMessage = '铸造NFT失败';
+                if (error.message) {
+                    errorMessage += ': ' + error.message;
+                } else if (error.reason) {
+                    errorMessage += ': ' + error.reason;
+                }
+                alert(errorMessage);
+                // 恢复按钮状态
                 mintAfterBurnBtn.textContent = '第二步：铸造NFT';
                 mintAfterBurnBtn.disabled = false;
-                
-                // 分析错误原因，提供更详细的错误信息
-                let errorMsg = '铸造NFT失败，请重试';
-                
-                if (error.message) {
-                    if (error.message.includes('Must burn token first')) {
-                        errorMsg = '请先销毁代币后再铸造NFT';
-                    } else if (error.message.includes('reverted')) {
-                        errorMsg = '智能合约执行失败，请检查所有条件是否满足';
-                    } else {
-                        errorMsg += '\n错误信息: ' + error.message;
-                    }
-                }
-                
-                console.log('错误分析:', errorMsg);
-                alert(errorMsg);
+                return;
             }
         });
 
