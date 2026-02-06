@@ -154,10 +154,23 @@
             </div>
         </div>
 
-        <!-- 开始铸造按钮 -->
-        <button class="btn-primary w-full py-4 text-lg font-bold mb-4" id="startMint">
-            开始铸造
-        </button>
+        <!-- 两步铸造流程 -->
+        <div class="space-y-4 mb-8">
+            <!-- 第一步：销毁代币 -->
+            <button class="btn-secondary w-full py-4 text-lg font-bold" id="burnTokenBtn">
+                <i class="fas fa-fire mr-2"></i> 第一步：销毁代币
+            </button>
+
+            <!-- 第二步：铸造NFT -->
+            <button class="btn-primary w-full py-4 text-lg font-bold" id="mintAfterBurnBtn" disabled>
+                <i class="fas fa-magic mr-2"></i> 第二步：铸造NFT
+            </button>
+
+            <!-- 铸造状态提示 -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4" id="mintStatus">
+                <p class="text-yellow-700">请先完成第一步：销毁代币</p>
+            </div>
+        </div>
 
         <!-- 测试铸造按钮 -->
         <a href="mint-test.html" class="btn-secondary w-full py-4 text-lg font-bold mb-4 flex items-center justify-center">
@@ -366,7 +379,7 @@
 ];
 
         // 智能合约地址
-        const contractAddress = '0x78056c1FA5447699eF866e02928632f39F1e8F92'; // 代理合约地址
+        const contractAddress = '0xb3dc340a11a5188f401C851389c7120eCa1e8e6e'; // 代理合约地址
         const tokenContractAddress = '0xbF63b623DA9bA4Fb4af24C7D9E5A373Fb127fffF'; // 代币合约地址
 
         // 智能合约ABI
@@ -735,6 +748,25 @@
     "anonymous": false
   },
   {
+    "name": "TokenBurnedForMint",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "name": "Transfer",
     "type": "event",
     "inputs": [
@@ -833,6 +865,13 @@
       }
     ],
     "stateMutability": "view"
+  },
+  {
+    "name": "burnTokenForMint",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "name": "calculateDividends",
@@ -1074,6 +1113,25 @@
     "stateMutability": "view"
   },
   {
+    "name": "hasBurnedToken",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
     "name": "holdersCount",
     "type": "function",
     "inputs": [],
@@ -1176,6 +1234,13 @@
   },
   {
     "name": "mintBlessingCard",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "mintBlessingCardAfterBurn",
     "type": "function",
     "inputs": [],
     "outputs": [],
@@ -1821,8 +1886,40 @@
             }
         });
 
-        // 开始铸造
-        startMint.addEventListener('click', async function() {
+        // 两步铸造流程
+        // DOM元素
+        const burnTokenBtn = document.getElementById('burnTokenBtn');
+        const mintAfterBurnBtn = document.getElementById('mintAfterBurnBtn');
+        const mintStatus = document.getElementById('mintStatus');
+
+        // 检查用户是否已销毁代币
+        async function checkBurnStatus() {
+            try {
+                if (web3 && contract && accounts.length > 0) {
+                    const hasBurned = await contract.methods.hasBurnedToken(accounts[0]).call();
+                    return hasBurned;
+                }
+                return false;
+            } catch (error) {
+                console.error('检查销毁状态失败:', error);
+                return false;
+            }
+        }
+
+        // 更新铸造状态
+        async function updateMintStatus() {
+            const hasBurned = await checkBurnStatus();
+            if (hasBurned) {
+                mintAfterBurnBtn.disabled = false;
+                mintStatus.innerHTML = '<p class="text-green-700">✓ 已完成代币销毁，可以开始铸造NFT</p>';
+            } else {
+                mintAfterBurnBtn.disabled = true;
+                mintStatus.innerHTML = '<p class="text-yellow-700">请先完成第一步：销毁代币</p>';
+            }
+        }
+
+        // 第一步：销毁代币
+        burnTokenBtn.addEventListener('click', async function() {
             if (!web3 || !contract || !tokenContract || accounts.length === 0) {
                 alert('请先连接钱包');
                 return;
@@ -1834,7 +1931,7 @@
                 const allowance = await tokenContract.methods.allowance(accounts[0], contractAddress).call();
                 
                 if (allowance < amountInWei) {
-                    alert('请先授权代币后再铸造');
+                    alert('请先授权代币后再销毁');
                     return;
                 }
 
@@ -1853,13 +1950,93 @@
             }
 
             try {
-                startMint.textContent = '铸造中...';
-                startMint.disabled = true;
+                burnTokenBtn.textContent = '销毁中...';
+                burnTokenBtn.disabled = true;
 
                 // 设置合理的Gas价格和上限
-                // 使用动态Gas价格，根据网络状况自动调整
                 const gasPrice = await web3.eth.getGasPrice();
-                // 增加20%的Gas价格以提高交易优先级
+                const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
+                const gasLimit = 1000000; // 1,000,000 gas
+                
+                console.log('当前网络Gas价格:', gasPrice, 'wei');
+                console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
+                
+                // 显示销毁提示
+                alert('即将销毁8888枚代币作为铸造费用\n\n请在MetaMask中确认销毁交易');
+                
+                console.log('正在销毁代币...');
+                
+                // 调用智能合约销毁代币
+                await contract.methods.burnTokenForMint().send({ 
+                    from: accounts[0],
+                    gasPrice: adjustedGasPrice,
+                    gas: gasLimit
+                });
+                console.log('代币销毁成功');
+                
+                // 更新铸造状态
+                await updateMintStatus();
+                
+                // 更新余额
+                await updateTokenBalance();
+                
+                // 显示成功提示
+                alert('代币销毁成功！现在可以开始铸造NFT了');
+                
+                // 恢复按钮状态
+                burnTokenBtn.textContent = '第一步：销毁代币';
+                burnTokenBtn.disabled = false;
+            } catch (error) {
+                console.error('销毁代币失败:', error);
+                burnTokenBtn.textContent = '第一步：销毁代币';
+                burnTokenBtn.disabled = false;
+                
+                // 分析错误原因，提供更详细的错误信息
+                let errorMsg = '销毁代币失败，请重试';
+                
+                if (error.message) {
+                    if (error.message.includes('Insufficient token balance')) {
+                        errorMsg = '代币余额不足，需要8888枚代币';
+                    } else if (error.message.includes('Insufficient token allowance')) {
+                        errorMsg = '代币授权不足，请先授权智能合约使用代币';
+                    } else if (error.message.includes('Token transfer to burn address failed')) {
+                        errorMsg = '代币转移失败，请检查代币合约状态';
+                    } else {
+                        errorMsg += '\n错误信息: ' + error.message;
+                    }
+                }
+                
+                console.log('错误分析:', errorMsg);
+                alert(errorMsg);
+            }
+        });
+
+        // 第二步：铸造NFT
+        mintAfterBurnBtn.addEventListener('click', async function() {
+            if (!web3 || !contract || accounts.length === 0) {
+                alert('请先连接钱包');
+                return;
+            }
+
+            try {
+                // 检查是否已销毁代币
+                const hasBurned = await checkBurnStatus();
+                if (!hasBurned) {
+                    alert('请先销毁代币后再铸造NFT');
+                    return;
+                }
+            } catch (error) {
+                console.error('检查销毁状态失败:', error);
+                alert('检查销毁状态失败，请刷新页面重试');
+                return;
+            }
+
+            try {
+                mintAfterBurnBtn.textContent = '铸造中...';
+                mintAfterBurnBtn.disabled = true;
+
+                // 设置合理的Gas价格和上限
+                const gasPrice = await web3.eth.getGasPrice();
                 const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
                 const gasLimit = 2000000; // 2,000,000 gas
                 
@@ -1867,23 +2044,21 @@
                 console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
                 
                 // 显示铸造提示
-                alert('即将开始铸造福卡\n\n系统将自动销毁8888枚代币作为铸造费用\n\n请在MetaMask中确认铸造交易');
+                alert('即将开始铸造NFT\n\n请在MetaMask中确认铸造交易');
                 
-                console.log('正在铸造福卡...');
-                console.log('设置Gas价格:', gasPrice, 'wei');
-                console.log('设置Gas上限:', gasLimit);
+                console.log('正在铸造NFT...');
                 
                 // 获取当前下一张卡ID，用于后续查询
                 const currentNextCardId = await contract.methods.nextCardId().call();
                 const expectedCardId = currentNextCardId;
 
-                // 调用智能合约铸造福卡
-                await contract.methods.mintBlessingCard().send({ 
+                // 调用智能合约铸造NFT
+                await contract.methods.mintBlessingCardAfterBurn().send({ 
                     from: accounts[0],
                     gasPrice: adjustedGasPrice,
                     gas: gasLimit
                 });
-                console.log('福卡铸造成功');
+                console.log('NFT铸造成功');
                 
                 // 获取铸造的卡信息
                 const cardInfo = await contract.methods.getCardInfo(expectedCardId).call();
@@ -1894,45 +2069,28 @@
                 // 显示卡信息
                 displayCardInfo(cardInfo);
                 
+                // 更新铸造状态
+                await updateMintStatus();
+                
                 // 恢复按钮状态
-                startMint.textContent = '开始铸造';
-                startMint.disabled = false;
-                
-                // 更新余额
-                await updateTokenBalance();
-                
-                // 重新检查授权状态
-                await checkApprovalStatus();
+                mintAfterBurnBtn.textContent = '第二步：铸造NFT';
+                mintAfterBurnBtn.disabled = true;
             } catch (error) {
-                console.error('铸造失败:', error);
-                startMint.textContent = '开始铸造';
-                startMint.disabled = false;
+                console.error('铸造NFT失败:', error);
+                mintAfterBurnBtn.textContent = '第二步：铸造NFT';
+                mintAfterBurnBtn.disabled = false;
                 
                 // 分析错误原因，提供更详细的错误信息
-                let errorMsg = '铸造失败，请重试';
+                let errorMsg = '铸造NFT失败，请重试';
                 
                 if (error.message) {
-                    if (error.message.includes('Insufficient token balance')) {
-                        errorMsg = '代币余额不足，需要8888枚代币';
-                    } else if (error.message.includes('Insufficient token allowance')) {
-                        errorMsg = '代币授权不足，请先授权智能合约使用代币';
-                    } else if (error.message.includes('Token transfer to burn address failed')) {
-                        errorMsg = '代币转移失败，请检查代币合约状态';
-                    } else if (error.message.includes('nonce too low')) {
-                        errorMsg = '交易序号过低，请等待前一笔交易完成或刷新页面';
-                    } else if (error.message.includes('insufficient funds')) {
-                        errorMsg = 'BNB余额不足，无法支付Gas费用';
+                    if (error.message.includes('Must burn token first')) {
+                        errorMsg = '请先销毁代币后再铸造NFT';
                     } else if (error.message.includes('reverted')) {
                         errorMsg = '智能合约执行失败，请检查所有条件是否满足';
-                    } else if (error.message.includes('canceled')) {
-                        errorMsg = '交易已取消，请检查交易参数后重试';
                     } else {
                         errorMsg += '\n错误信息: ' + error.message;
                     }
-                }
-                
-                if (error.code) {
-                    errorMsg += '\n错误代码: ' + error.code;
                 }
                 
                 console.log('错误分析:', errorMsg);
@@ -1944,6 +2102,7 @@
         async function onWalletConnected() {
             await updateTokenBalance();
             await checkApprovalStatus();
+            await updateMintStatus();
         }
 
         // 修改connectWallet函数，添加授权状态检查
