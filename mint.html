@@ -1783,9 +1783,11 @@
         approveButton.className = 'btn-secondary text-sm mb-4';
         approveButton.textContent = '授权代币';
         
-        // 将授权按钮插入到开始铸造按钮之前
-        const mintButtonParent = startMint.parentElement;
-        mintButtonParent.insertBefore(approveButton, startMint);
+        // 将授权按钮插入到代币信息区域
+        const tokenInfoContainer = document.querySelector('.space-y-4');
+        if (tokenInfoContainer) {
+            tokenInfoContainer.appendChild(approveButton);
+        }
 
         // 授权状态
         let isApproved = false;
@@ -1920,39 +1922,55 @@
 
         // 第一步：销毁代币
         burnTokenBtn.addEventListener('click', async function() {
-            if (!web3 || !contract || !tokenContract || accounts.length === 0) {
-                alert('请先连接钱包');
-                return;
-            }
+            console.log('点击了销毁代币按钮');
+            
+            // 添加视觉反馈
+            burnTokenBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 处理中...';
+            burnTokenBtn.disabled = true;
 
             try {
+                // 检查钱包连接
+                if (!web3 || !contract || !tokenContract || accounts.length === 0) {
+                    console.log('钱包未连接，尝试连接...');
+                    await connectWallet();
+                    
+                    // 再次检查连接状态
+                    if (!web3 || !contract || !tokenContract || accounts.length === 0) {
+                        alert('请先连接钱包');
+                        burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
+                        burnTokenBtn.disabled = false;
+                        return;
+                    }
+                }
+
+                console.log('钱包已连接，检查授权状态...');
+                
                 // 检查授权状态
                 const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
                 const allowance = await tokenContract.methods.allowance(accounts[0], contractAddress).call();
                 
                 if (allowance < amountInWei) {
                     alert('请先授权代币后再销毁');
+                    burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
+                    burnTokenBtn.disabled = false;
                     return;
                 }
 
+                console.log('授权检查通过，检查代币余额...');
+                
                 // 获取代币余额
                 const balanceStr = tokenBalance.textContent || '0';
                 const balance = parseInt(balanceStr);
                 
                 if (balance < MINT_PRICE) {
                     alert('代币余额不足，需要8888枚代币');
+                    burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
+                    burnTokenBtn.disabled = false;
                     return;
                 }
-            } catch (error) {
-                console.error('检查条件失败:', error);
-                alert('检查条件失败，请刷新页面重试');
-                return;
-            }
 
-            try {
-                burnTokenBtn.textContent = '销毁中...';
-                burnTokenBtn.disabled = true;
-
+                console.log('余额检查通过，准备销毁代币...');
+                
                 // 设置合理的Gas价格和上限
                 const gasPrice = await web3.eth.getGasPrice();
                 const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
@@ -1984,11 +2002,13 @@
                 alert('代币销毁成功！现在可以开始铸造NFT了');
                 
                 // 恢复按钮状态
-                burnTokenBtn.textContent = '第一步：销毁代币';
+                burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
                 burnTokenBtn.disabled = false;
             } catch (error) {
                 console.error('销毁代币失败:', error);
-                burnTokenBtn.textContent = '第一步：销毁代币';
+                
+                // 恢复按钮状态
+                burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
                 burnTokenBtn.disabled = false;
                 
                 // 分析错误原因，提供更详细的错误信息
@@ -2001,6 +2021,8 @@
                         errorMsg = '代币授权不足，请先授权智能合约使用代币';
                     } else if (error.message.includes('Token transfer to burn address failed')) {
                         errorMsg = '代币转移失败，请检查代币合约状态';
+                    } else if (error.message.includes('User rejected the request')) {
+                        errorMsg = '您取消了交易，请重试';
                     } else {
                         errorMsg += '\n错误信息: ' + error.message;
                     }
