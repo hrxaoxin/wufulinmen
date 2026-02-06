@@ -1780,8 +1780,14 @@
                 const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
                 
                 // 设置合理的Gas价格和上限
-                const gasPrice = web3.utils.toWei('5', 'gwei'); // 5 gwei
+                // 使用动态Gas价格，根据网络状况自动调整
+                const gasPrice = await web3.eth.getGasPrice();
+                // 增加20%的Gas价格以提高交易优先级
+                const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
                 const gasLimit = 1000000; // 1,000,000 gas
+                
+                console.log('当前网络Gas价格:', gasPrice, 'wei');
+                console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
                 
                 console.log('正在授权智能合约使用代币...');
                 console.log('授权数量:', MINT_PRICE, '枚 =', amountInWei, 'wei');
@@ -1793,7 +1799,7 @@
                 
                 await tokenContract.methods.approve(contractAddress, amountInWei).send({ 
                     from: accounts[0],
-                    gasPrice: gasPrice,
+                    gasPrice: adjustedGasPrice,
                     gas: gasLimit
                 });
                 
@@ -1851,8 +1857,14 @@
                 startMint.disabled = true;
 
                 // 设置合理的Gas价格和上限
-                const gasPrice = web3.utils.toWei('5', 'gwei'); // 5 gwei
+                // 使用动态Gas价格，根据网络状况自动调整
+                const gasPrice = await web3.eth.getGasPrice();
+                // 增加20%的Gas价格以提高交易优先级
+                const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
                 const gasLimit = 2000000; // 2,000,000 gas
+                
+                console.log('当前网络Gas价格:', gasPrice, 'wei');
+                console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
                 
                 // 显示铸造提示
                 alert('即将开始铸造福卡\n\n系统将自动销毁8888枚代币作为铸造费用\n\n请在MetaMask中确认铸造交易');
@@ -1868,7 +1880,7 @@
                 // 调用智能合约铸造福卡
                 await contract.methods.mintBlessingCard().send({ 
                     from: accounts[0],
-                    gasPrice: gasPrice,
+                    gasPrice: adjustedGasPrice,
                     gas: gasLimit
                 });
                 console.log('福卡铸造成功');
