@@ -1998,9 +1998,21 @@
 
         // 授权代币函数
         approveToken.addEventListener('click', async function() {
+            // 检查钱包连接状态，如果未连接则尝试连接
             if (!web3 || !tokenContract || accounts.length === 0) {
-                alert('请先连接钱包');
-                return;
+                alert('正在连接钱包...');
+                try {
+                    await connectWallet();
+                    // 再次检查连接状态
+                    if (!web3 || !tokenContract || accounts.length === 0) {
+                        alert('连接钱包失败，请手动连接钱包后重试');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('连接钱包失败:', error);
+                    alert('连接钱包失败，请手动连接钱包后重试');
+                    return;
+                }
             }
 
             try {
