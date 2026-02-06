@@ -1998,21 +1998,9 @@
 
         // 授权代币函数
         approveToken.addEventListener('click', async function() {
-            // 检查钱包连接状态，如果未连接则尝试连接
             if (!web3 || !tokenContract || accounts.length === 0) {
-                alert('正在连接钱包...');
-                try {
-                    await connectWallet();
-                    // 再次检查连接状态
-                    if (!web3 || !tokenContract || accounts.length === 0) {
-                        alert('连接钱包失败，请手动连接钱包后重试');
-                        return;
-                    }
-                } catch (error) {
-                    console.error('连接钱包失败:', error);
-                    alert('连接钱包失败，请手动连接钱包后重试');
-                    return;
-                }
+                alert('请先连接钱包');
+                return;
             }
 
             try {
@@ -2121,24 +2109,16 @@
         burnTokenBtn.addEventListener('click', async function() {
             console.log('点击了销毁代币按钮');
             
+            if (!web3 || !contract || !tokenContract || accounts.length === 0) {
+                alert('请先连接钱包');
+                return;
+            }
+
             // 添加视觉反馈
             burnTokenBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 处理中...';
             burnTokenBtn.disabled = true;
 
             try {
-                // 检查钱包连接
-                if (!web3 || !contract || !tokenContract || accounts.length === 0) {
-                    console.log('钱包未连接，尝试连接...');
-                    await connectWallet();
-                    
-                    // 再次检查连接状态
-                    if (!web3 || !contract || !tokenContract || accounts.length === 0) {
-                        alert('请先连接钱包');
-                        burnTokenBtn.innerHTML = '<i class="fas fa-fire mr-2"></i> 第一步：销毁代币';
-                        burnTokenBtn.disabled = false;
-                        return;
-                    }
-                }
 
                 console.log('钱包已连接，检查授权状态...');
                 
@@ -2261,21 +2241,9 @@
 
         // 第二步：铸造NFT
         mintAfterBurnBtn.addEventListener('click', async function() {
-            // 检查钱包连接状态，如果未连接则尝试连接
             if (!web3 || !contract || accounts.length === 0) {
-                alert('正在连接钱包...');
-                try {
-                    await connectWallet();
-                    // 再次检查连接状态
-                    if (!web3 || !contract || accounts.length === 0) {
-                        alert('连接钱包失败，请手动连接钱包后重试');
-                        return;
-                    }
-                } catch (error) {
-                    console.error('连接钱包失败:', error);
-                    alert('连接钱包失败，请手动连接钱包后重试');
-                    return;
-                }
+                alert('请先连接钱包');
+                return;
             }
 
             try {
