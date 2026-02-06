@@ -1911,10 +1911,12 @@
 
         // 连接钱包
         async function connectWallet() {
+            console.log('开始连接钱包...');
             if (typeof window.ethereum !== 'undefined') {
                 web3 = new Web3(window.ethereum);
                 try {
                     accounts = await web3.eth.requestAccounts();
+                    console.log('获取到账户:', accounts);
                     const address = accounts[0];
                     const shortAddress = address.substring(0, 4) + '...' + address.substring(address.length - 4);
                     walletAddress.textContent = shortAddress;
@@ -1922,15 +1924,33 @@
                     // 初始化合约
                     contract = new web3.eth.Contract(contractABI, contractAddress);
                     tokenContract = new web3.eth.Contract(tokenABI, tokenContractAddress);
+                    console.log('合约初始化完成');
                     
                     await updateTokenBalance();
                     await checkApprovalStatus();
                     updateMintCount();
+                    console.log('钱包连接成功，状态已更新');
                 } catch (error) {
                     console.error('连接钱包失败:', error);
+                    // 重置状态
+                    web3 = null;
+                    contract = null;
+                    tokenContract = null;
+                    accounts = [];
+                    walletAddress.textContent = '未连接钱包';
+                    tokenBalance.textContent = '0';
+                    mintCount.textContent = '0';
+                    approvalStatus.textContent = '未授权';
+                    approvalStatus.style.color = '#f44336';
                 }
             } else {
                 alert('请安装MetaMask等Web3钱包插件');
+                // 重置状态
+                web3 = null;
+                contract = null;
+                tokenContract = null;
+                accounts = [];
+                walletAddress.textContent = '未连接钱包';
             }
         }
 
@@ -2018,13 +2038,28 @@
 
         // 授权代币函数
         approveToken.addEventListener('click', async function() {
+            console.log('点击授权代币按钮，当前状态:', {
+                web3: !!web3,
+                tokenContract: !!tokenContract,
+                accountsLength: accounts.length,
+                accounts: accounts
+            });
+            
             // 检查钱包连接状态，如果未连接则尝试连接
             if (!web3 || !tokenContract || accounts.length === 0) {
+                console.log('检测到钱包未连接，尝试重新连接...');
                 alert('正在检查钱包连接...');
                 try {
                     await connectWallet();
+                    console.log('重新连接后状态:', {
+                        web3: !!web3,
+                        tokenContract: !!tokenContract,
+                        accountsLength: accounts.length,
+                        accounts: accounts
+                    });
                     // 再次检查连接状态
                     if (!web3 || !tokenContract || accounts.length === 0) {
+                        console.log('重新连接失败，提示用户连接钱包');
                         alert('请先连接钱包');
                         return;
                     }
@@ -2034,6 +2069,7 @@
                     return;
                 }
             }
+            console.log('钱包连接正常，继续授权流程');
 
             try {
                 // 获取代币余额
@@ -2139,12 +2175,37 @@
 
         // 第一步：销毁代币
         burnTokenBtn.addEventListener('click', async function() {
-            console.log('点击了销毁代币按钮');
+            console.log('点击了销毁代币按钮，当前状态:', {
+                web3: !!web3,
+                contract: !!contract,
+                tokenContract: !!tokenContract,
+                accountsLength: accounts.length,
+                accounts: accounts
+            });
             
             if (!web3 || !contract || !tokenContract || accounts.length === 0) {
-                alert('请先连接钱包');
-                return;
+                console.log('检测到钱包未连接，尝试重新连接...');
+                try {
+                    await connectWallet();
+                    console.log('重新连接后状态:', {
+                        web3: !!web3,
+                        contract: !!contract,
+                        tokenContract: !!tokenContract,
+                        accountsLength: accounts.length,
+                        accounts: accounts
+                    });
+                    if (!web3 || !contract || !tokenContract || accounts.length === 0) {
+                        console.log('重新连接失败，提示用户连接钱包');
+                        alert('请先连接钱包');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('连接钱包失败:', error);
+                    alert('请先连接钱包');
+                    return;
+                }
             }
+            console.log('钱包连接正常，继续销毁流程');
 
             // 添加视觉反馈
             burnTokenBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 处理中...';
@@ -2273,10 +2334,35 @@
 
         // 第二步：铸造NFT
         mintAfterBurnBtn.addEventListener('click', async function() {
+            console.log('点击了铸造NFT按钮，当前状态:', {
+                web3: !!web3,
+                contract: !!contract,
+                accountsLength: accounts.length,
+                accounts: accounts
+            });
+            
             if (!web3 || !contract || accounts.length === 0) {
-                alert('请先连接钱包');
-                return;
+                console.log('检测到钱包未连接，尝试重新连接...');
+                try {
+                    await connectWallet();
+                    console.log('重新连接后状态:', {
+                        web3: !!web3,
+                        contract: !!contract,
+                        accountsLength: accounts.length,
+                        accounts: accounts
+                    });
+                    if (!web3 || !contract || accounts.length === 0) {
+                        console.log('重新连接失败，提示用户连接钱包');
+                        alert('请先连接钱包');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('连接钱包失败:', error);
+                    alert('请先连接钱包');
+                    return;
+                }
             }
+            console.log('钱包连接正常，继续铸造流程');
 
             try {
                 // 检查是否已销毁代币
@@ -2362,20 +2448,6 @@
                 return;
             }
         });
-
-        // 钱包连接后检查授权状态
-        async function onWalletConnected() {
-            await updateTokenBalance();
-            await checkApprovalStatus();
-            await updateMintStatus();
-        }
-
-        // 修改connectWallet函数，添加授权状态检查
-        const originalConnectWallet = connectWallet;
-        connectWallet = async function() {
-            await originalConnectWallet();
-            await onWalletConnected();
-        };
 
         // 显示卡信息
         function displayCardInfo(cardInfo) {
