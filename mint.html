@@ -379,7 +379,7 @@
 ];
 
         // 智能合约地址
-        const contractAddress = '0x3F00222878e01113E404dae754D99965c605DA94'; // 代理合约地址
+        const contractAddress = '0xE66137241d83530DbcE8f7B32cB8D2e13389566b'; // 代理合约地址
         const tokenContractAddress = '0xbF63b623DA9bA4Fb4af24C7D9E5A373Fb127fffF'; // 代币合约地址
 
         // 智能合约ABI
@@ -755,6 +755,25 @@
         "type": "uint256",
         "indexed": true,
         "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "RoyaltyWalletUpdated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "oldWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newWallet",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
       }
     ],
     "anonymous": false
@@ -1202,6 +1221,11 @@
         "name": "_taxWallet",
         "type": "address",
         "internalType": "address"
+      },
+      {
+        "name": "_royaltyWallet",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -1293,7 +1317,18 @@
     "name": "mintBlessingCardAfterBurn",
     "type": "function",
     "inputs": [],
-    "outputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum FiveBlessings.BlessingType"
+      }
+    ],
     "stateMutability": "nonpayable"
   },
   {
@@ -1417,6 +1452,19 @@
     "stateMutability": "view"
   },
   {
+    "name": "royaltyWallet",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
     "name": "safeTransferFrom",
     "type": "function",
     "inputs": [
@@ -1506,6 +1554,19 @@
         "name": "_royaltyFee",
         "type": "uint256",
         "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "setRoyaltyWallet",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_royaltyWallet",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
