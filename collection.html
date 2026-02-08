@@ -387,14 +387,14 @@
         let account;
 
         // DOM元素
-        const fukaList = document.getElementById('fukaList');
-        const synthesizeBtn = document.getElementById('synthesizeBtn');
-        const wufuLinMenCard = document.getElementById('wufuLinMenCard');
-        const noWuFuLinMen = document.getElementById('noWuFuLinMen');
-        const walletAddress = document.getElementById('walletAddress');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const connectWalletBtn = document.getElementById('connectWalletBtn');
-        const refreshWallet = document.getElementById('refreshWallet');
+        let fukaList;
+        let synthesizeBtn;
+        let wufuLinMenCard;
+        let noWuFuLinMen;
+        let walletAddress;
+        let connectionStatus;
+        let connectWalletBtn;
+        let refreshWallet;
 
         // 福卡描述
         const FUKA_DESCRIPTIONS = {
@@ -420,6 +420,16 @@
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            fukaList = document.getElementById('fukaList');
+            synthesizeBtn = document.getElementById('synthesizeBtn');
+            wufuLinMenCard = document.getElementById('wufuLinMenCard');
+            noWuFuLinMen = document.getElementById('noWuFuLinMen');
+            walletAddress = document.getElementById('walletAddress');
+            connectionStatus = document.getElementById('connectionStatus');
+            connectWalletBtn = document.getElementById('connectWalletBtn');
+            refreshWallet = document.getElementById('refreshWallet');
+            
             // 初始连接钱包
             initWeb3().then(() => {
                 loadFukaCounts();
