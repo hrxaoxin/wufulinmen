@@ -419,7 +419,9 @@
         };
 
         // 初始化
+        console.log('collection.html: 开始执行JavaScript代码');
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('collection.html: DOMContentLoaded事件触发');
             // 获取DOM元素
             fukaList = document.getElementById('fukaList');
             synthesizeBtn = document.getElementById('synthesizeBtn');
@@ -429,6 +431,17 @@
             connectionStatus = document.getElementById('connectionStatus');
             connectWalletBtn = document.getElementById('connectWalletBtn');
             refreshWallet = document.getElementById('refreshWallet');
+            
+            console.log('collection.html: DOM元素获取结果:', {
+                fukaList: !!fukaList,
+                synthesizeBtn: !!synthesizeBtn,
+                wufuLinMenCard: !!wufuLinMenCard,
+                noWuFuLinMen: !!noWuFuLinMen,
+                walletAddress: !!walletAddress,
+                connectionStatus: !!connectionStatus,
+                connectWalletBtn: !!connectWalletBtn,
+                refreshWallet: !!refreshWallet
+            });
             
             // 初始连接钱包
             initWeb3().then(() => {
@@ -499,6 +512,7 @@
 
         // 初始化Web3
         async function initWeb3() {
+            console.log('collection.html: initWeb3函数被调用');
             return new Promise((resolve, reject) => {
                 if (typeof window.ethereum !== 'undefined') {
                     web3 = new Web3(window.ethereum);
@@ -511,12 +525,20 @@
                         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                         account = accounts[0];
                         
-                        const shortAddress = account.substring(0, 4) + '...' + account.substring(account.length - 4);
-                        walletAddress.textContent = shortAddress;
-                        connectionStatus.textContent = '钱包已连接';
-                        connectionStatus.style.color = '#4CAF50';
-                        connectWalletBtn.textContent = '已连接';
-                        connectWalletBtn.disabled = true;
+                        console.log('collection.html: 账户获取成功:', account);
+                        
+                        // 检查DOM元素是否存在
+                        if (walletAddress && connectionStatus && connectWalletBtn) {
+                            const shortAddress = account.substring(0, 4) + '...' + account.substring(account.length - 4);
+                            walletAddress.textContent = shortAddress;
+                            connectionStatus.textContent = '钱包已连接';
+                            connectionStatus.style.color = '#4CAF50';
+                            connectWalletBtn.textContent = '已连接';
+                            connectWalletBtn.disabled = true;
+                            console.log('collection.html: DOM元素更新成功');
+                        } else {
+                            console.error('collection.html: DOM元素未初始化');
+                        }
                         
                         // 检查合约地址是否为占位符
                         if (rewardManagerAddress !== '0xPLACEHOLDER' && tokenBurnerAddress !== '0xPLACEHOLDER' && blessingMinterAddress !== '0xPLACEHOLDER') {
@@ -536,21 +558,31 @@
                     } catch (error) {
                         console.error('初始化Web3失败:', error);
                         // 更新UI状态
-                        walletAddress.textContent = '未连接钱包';
-                        connectionStatus.textContent = '连接失败，请重试';
-                        connectionStatus.style.color = '#f44336';
-                        connectWalletBtn.textContent = '连接';
-                        connectWalletBtn.disabled = false;
+                        if (walletAddress && connectionStatus && connectWalletBtn) {
+                            walletAddress.textContent = '未连接钱包';
+                            connectionStatus.textContent = '连接失败，请重试';
+                            connectionStatus.style.color = '#f44336';
+                            connectWalletBtn.textContent = '连接';
+                            connectWalletBtn.disabled = false;
+                            console.log('collection.html: 错误状态更新成功');
+                        } else {
+                            console.error('collection.html: DOM元素未初始化，无法更新错误状态');
+                        }
                         resolve(null);
                     }
                 } else {
                     alert('请安装MetaMask等Web3钱包插件');
                     // 更新UI状态
-                    walletAddress.textContent = '未连接钱包';
-                    connectionStatus.textContent = '请安装Web3钱包插件';
-                    connectionStatus.style.color = '#f44336';
-                    connectWalletBtn.textContent = '连接';
-                    connectWalletBtn.disabled = false;
+                    if (walletAddress && connectionStatus && connectWalletBtn) {
+                        walletAddress.textContent = '未连接钱包';
+                        connectionStatus.textContent = '请安装Web3钱包插件';
+                        connectionStatus.style.color = '#f44336';
+                        connectWalletBtn.textContent = '连接';
+                        connectWalletBtn.disabled = false;
+                        console.log('collection.html: 未安装钱包状态更新成功');
+                    } else {
+                        console.error('collection.html: DOM元素未初始化，无法更新未安装钱包状态');
+                    }
                     resolve(null);
                 }
             });
