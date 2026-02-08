@@ -1269,10 +1269,9 @@
                         throw new Error('TokenBurner地址未设置，请先设置TokenBurner地址');
                     }
                     
-                    // 测试decreaseBurnCount函数是否能成功执行
-                    console.log('测试decreaseBurnCount函数...');
+                    // 直接执行decreaseBurnCount操作，然后执行铸造操作
+                    console.log('执行decreaseBurnCount操作...');
                     try {
-                        console.log('尝试执行decreaseBurnCount...');
                         // 先获取当前的burnCount
                         const beforeBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
                         console.log('执行前的burnCount:', beforeBurnCount);
@@ -1290,27 +1289,15 @@
                         console.log('执行后的burnCount:', afterBurnCount);
                         console.log('burnCount是否减少:', parseInt(afterBurnCount) === parseInt(beforeBurnCount) - 1);
                         
-                        // 恢复burnCount（通过再次执行burnTokenForMint）
-                        console.log('恢复burnCount...');
-                        const burnTx = await tokenBurnerContract.methods.burnTokenForMint().send({ 
-                            from: accounts[0],
-                            gasPrice: adjustedGasPrice,
-                            gas: 200000
-                        });
-                        console.log('burnTokenForMint执行成功，交易哈希:', burnTx.transactionHash);
-                        
-                        // 获取恢复后的burnCount
-                        const restoredBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
-                        console.log('恢复后的burnCount:', restoredBurnCount);
-                        console.log('burnCount是否恢复:', parseInt(restoredBurnCount) === parseInt(beforeBurnCount));
-                        
-                        console.log('decreaseBurnCount函数测试成功，可以执行铸造操作');
+                        console.log('decreaseBurnCount操作执行成功，准备执行铸造操作');
                     } catch (decreaseError) {
-                        console.error('decreaseBurnCount函数测试失败:', decreaseError);
-                        throw new Error('decreaseBurnCount函数执行失败，无法执行铸造操作');
+                        console.error('decreaseBurnCount操作执行失败:', decreaseError);
+                        throw new Error('decreaseBurnCount操作执行失败，无法执行铸造操作');
                     }
                     
-                    console.log('发送铸造交易...');
+                    // 修改BlessingMinter合约的mintBlessingCardAfterBurn函数，移除decreaseBurnCount调用
+                    // 因为我们已经在外部执行了decreaseBurnCount操作
+                    console.log('发送铸造交易（已移除decreaseBurnCount调用）...');
                     console.time('铸造交易执行时间');
                     
                     const tx = await blessingMinterContract.methods.mintBlessingCardAfterBurn().send({ 
