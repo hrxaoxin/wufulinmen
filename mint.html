@@ -920,6 +920,10 @@
                 accounts: accounts
             });
             
+            // 添加视觉反馈
+            mintAfterBurnBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 处理中...';
+            mintAfterBurnBtn.disabled = true;
+            
             if (!web3 || !blessingMinterContract || accounts.length === 0) {
                 console.log('检测到钱包未连接，尝试重新连接...');
                 try {
@@ -933,11 +937,17 @@
                     if (!web3 || !blessingMinterContract || accounts.length === 0) {
                         console.log('重新连接失败，提示用户连接钱包');
                         alert('请先连接钱包');
+                        // 恢复按钮状态
+                        mintAfterBurnBtn.innerHTML = '<i class="fas fa-magic mr-2"></i> 第二步：铸造NFT';
+                        mintAfterBurnBtn.disabled = false;
                         return;
                     }
                 } catch (error) {
                     console.error('连接钱包失败:', error);
                     alert('请先连接钱包');
+                    // 恢复按钮状态
+                    mintAfterBurnBtn.innerHTML = '<i class="fas fa-magic mr-2"></i> 第二步：铸造NFT';
+                    mintAfterBurnBtn.disabled = false;
                     return;
                 }
             }
@@ -945,36 +955,44 @@
 
             try {
                 // 检查是否已销毁代币
+                console.log('检查用户是否已销毁代币...');
                 const hasBurned = await checkBurnStatus();
                 if (!hasBurned) {
-                    alert('请先销毁代币后再铸造NFT');
+                    console.log('检查销毁状态失败: 用户未销毁代币');
+                    alert('请先完成第一步：销毁代币');
+                    // 恢复按钮状态
+                    mintAfterBurnBtn.innerHTML = '<i class="fas fa-magic mr-2"></i> 第二步：铸造NFT';
+                    mintAfterBurnBtn.disabled = false;
                     return;
                 }
+                console.log('销毁状态检查通过');
             } catch (error) {
                 console.error('检查销毁状态失败:', error);
                 alert('检查销毁状态失败，请刷新页面重试');
+                // 恢复按钮状态
+                mintAfterBurnBtn.innerHTML = '<i class="fas fa-magic mr-2"></i> 第二步：铸造NFT';
+                mintAfterBurnBtn.disabled = false;
                 return;
             }
 
-            mintAfterBurnBtn.textContent = '铸造中...';
-            mintAfterBurnBtn.disabled = true;
-
-            // 设置合理的Gas价格和上限
-            const gasPrice = await web3.eth.getGasPrice();
-            const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
-            const gasLimit = 2000000; // 2,000,000 gas
-            
-            console.log('当前网络Gas价格:', gasPrice, 'wei');
-            console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
-            
-            // 显示铸造提示
-            alert('即将开始铸造NFT\n\n请在MetaMask中确认铸造交易');
-            
-            console.log('正在铸造NFT...');
-            
-            // 调用智能合约铸造NFT
-            console.log('开始调用mintBlessingCardAfterBurn()函数...');
             try {
+                // 设置合理的Gas价格和上限
+                console.log('获取Gas价格...');
+                const gasPrice = await web3.eth.getGasPrice();
+                const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
+                const gasLimit = 2000000; // 2,000,000 gas
+                
+                console.log('当前网络Gas价格:', gasPrice, 'wei');
+                console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
+                
+                // 显示铸造提示
+                alert('即将开始铸造NFT\n\n请在MetaMask中确认铸造交易');
+                
+                console.log('正在铸造NFT...');
+                
+                // 调用智能合约铸造NFT
+                console.log('开始调用mintBlessingCardAfterBurn()函数...');
+                
                 // 监听CardMinted事件，获取铸造的卡ID
                 let mintedCardId = null;
                 blessingMinterContract.events.CardMinted({ fromBlock: 'latest' }, (error, event) => {
@@ -984,6 +1002,7 @@
                     }
                 });
                 
+                console.log('执行铸造交易...');
                 await blessingMinterContract.methods.mintBlessingCardAfterBurn().send({ 
                     from: accounts[0],
                     gasPrice: adjustedGasPrice,
@@ -992,12 +1011,15 @@
                 console.log('NFT铸造成功');
                 
                 // 获取铸造的卡信息
+                console.log('获取铸造的卡信息...');
                 // 先获取当前的nextCardId，然后减1得到刚铸造的卡ID
                 const currentNextCardId = await blessingMinterContract.methods.nextCardId().call();
                 const actualCardId = (parseInt(currentNextCardId) - 1).toString();
                 console.log('计算得到的实际卡ID:', actualCardId);
                 
+                console.log('获取卡详情...');
                 const cardInfo = await blessingMinterContract.methods.getCardInfo(actualCardId).call();
+                console.log('获取卡信息成功:', cardInfo);
                 
                 // 显示成功弹窗
                 mintSuccessModal.classList.remove('hidden');
@@ -1006,26 +1028,46 @@
                 displayCardInfo(cardInfo);
                 
                 // 更新铸造状态
+                console.log('更新铸造状态...');
                 await updateMintStatus();
                 
                 // 更新剩余铸造次数
+                console.log('更新剩余铸造次数...');
                 await getRemainingBurnCount();
                 
+                // 显示成功提示
+                alert('NFT铸造成功！恭喜您获得了一张福卡');
+                
                 // 恢复按钮状态
-                mintAfterBurnBtn.textContent = '第二步：铸造NFT';
+                mintAfterBurnBtn.innerHTML = '<i class="fas fa-magic mr-2"></i> 第二步：铸造NFT';
                 mintAfterBurnBtn.disabled = true;
             } catch (error) {
                 console.error('NFT铸造失败:', error);
-                // 显示详细的错误信息给用户
-                let errorMessage = '铸造NFT失败';
+                
+                // 分析错误原因，提供更详细的错误信息
+                let errorMsg = '铸造NFT失败，请重试';
+                
                 if (error.message) {
-                    errorMessage += ': ' + error.message;
+                    if (error.message.includes('User rejected the request')) {
+                        errorMsg = '您取消了交易，请重试';
+                    } else if (error.message.includes('Insufficient funds')) {
+                        errorMsg = 'Gas费用不足，请确保您的钱包中有足够的BNB支付Gas费用';
+                    } else if (error.message.includes('execution reverted')) {
+                        errorMsg = '智能合约执行失败：可能是您的剩余铸造次数不足';
+                    } else {
+                        errorMsg += '\n错误信息: ' + error.message;
+                    }
                 } else if (error.reason) {
-                    errorMessage += ': ' + error.reason;
+                    errorMsg += '\n错误原因: ' + error.reason;
+                } else if (error.data) {
+                    errorMsg += '\n错误数据: ' + JSON.stringify(error.data);
                 }
-                alert(errorMessage);
+                
+                console.log('错误分析:', errorMsg);
+                alert(errorMsg);
+                
                 // 恢复按钮状态
-                mintAfterBurnBtn.textContent = '第二步：铸造NFT';
+                mintAfterBurnBtn.innerHTML = '<i class="fas fa-magic mr-2"></i> 第二步：铸造NFT';
                 mintAfterBurnBtn.disabled = false;
                 return;
             }
