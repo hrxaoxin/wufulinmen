@@ -305,7 +305,7 @@
         });
 
         // 合约地址（需要根据实际部署情况修改）
-        const rewardManagerAddress = '0x651277a5dd5962f239EE83aCA457DDE7a879D79a'; // RewardManager 代理合约地址
+        const rewardManagerAddress = '0x918ce9074102FfdCE6Ec74CcCfAD6eC105cF70Ce'; // RewardManager 代理合约地址
 
         // 全局变量
         let web3;
@@ -394,7 +394,7 @@
                         connectWalletBtn.disabled = true;
                         
                         // 检查合约地址是否为占位符
-                        if (rewardManagerAddress !== '0xPLACEHOLDER' && rewardManagerAddress !== '0x651277a5dd5962f239EE83aCA457DDE7a879D79a') {
+                        if (rewardManagerAddress !== '0xPLACEHOLDER') {
                             // 初始化合约
                             rewardManagerContract = new web3.eth.Contract(window.rewardManagerABI, rewardManagerAddress);
                             console.log('合约初始化完成');
