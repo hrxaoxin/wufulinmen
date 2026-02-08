@@ -154,8 +154,12 @@
                     <span class="text-lg font-semibold text-gray-800">8888 代币</span>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-gray-600">可铸造次数</span>
+                    <span class="text-gray-600">可铸造次数（基于余额）</span>
                     <span class="text-lg font-semibold text-gray-800" id="mintCount">0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">剩余铸造次数（已销毁）</span>
+                    <span class="text-lg font-semibold text-green-600" id="remainingBurnCount">0</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">授权状态</span>
@@ -268,6 +272,7 @@
         const connectionStatus = document.getElementById('connectionStatus');
         const tokenBalance = document.getElementById('tokenBalance');
         const mintCount = document.getElementById('mintCount');
+        const remainingBurnCount = document.getElementById('remainingBurnCount');
         const approvalStatus = document.getElementById('approvalStatus');
         const refreshWallet = document.getElementById('refreshWallet');
         const connectWalletBtn = document.getElementById('connectWalletBtn');
@@ -385,6 +390,9 @@
                     }
                     
                     updateMintCount();
+                    
+                    // 获取用户剩余铸造次数
+                    await getRemainingBurnCount();
                     
                     // 更新连接状态显示
                     if (connectionStatus.textContent !== '钱包已连接，但部分合约地址未配置') {
@@ -527,6 +535,25 @@
                 console.error('检查授权状态失败:', error);
                 approvalStatus.textContent = '检查失败';
                 approvalStatus.style.color = '#ff9800';
+            }
+        }
+
+        // 获取用户剩余铸造次数
+        async function getRemainingBurnCount() {
+            try {
+                if (web3 && tokenBurnerContract && accounts.length > 0) {
+                    const burnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
+                    remainingBurnCount.textContent = burnCount;
+                    console.log('用户剩余铸造次数:', burnCount);
+                    return burnCount;
+                } else {
+                    remainingBurnCount.textContent = '0';
+                    return 0;
+                }
+            } catch (error) {
+                console.error('获取剩余铸造次数失败:', error);
+                remainingBurnCount.textContent = '0';
+                return 0;
             }
         }
 
@@ -829,6 +856,9 @@
                 // 更新余额
                 await updateTokenBalance();
                 
+                // 更新剩余铸造次数
+                await getRemainingBurnCount();
+                
                 // 显示成功提示
                 alert('代币销毁成功！现在可以开始铸造NFT了');
                 
@@ -960,6 +990,9 @@
                 
                 // 更新铸造状态
                 await updateMintStatus();
+                
+                // 更新剩余铸造次数
+                await getRemainingBurnCount();
                 
                 // 恢复按钮状态
                 mintAfterBurnBtn.textContent = '第二步：铸造NFT';
