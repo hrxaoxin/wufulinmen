@@ -352,26 +352,45 @@
             if (typeof window.ethereum !== 'undefined') {
                 web3 = new Web3(window.ethereum);
                 try {
+                    // 检测网络
+                    const chainId = await web3.eth.getChainId();
+                    console.log('当前网络:', chainId);
+                    
+                    // 检查账户
                     accounts = await web3.eth.requestAccounts();
                     console.log('获取到账户:', accounts);
                     const address = accounts[0];
                     const shortAddress = address.substring(0, 4) + '...' + address.substring(address.length - 4);
                     walletAddress.textContent = shortAddress;
                     
-                    // 初始化合约
-                    rewardManagerContract = new web3.eth.Contract(rewardManagerABI, rewardManagerAddress);
-                    tokenBurnerContract = new web3.eth.Contract(tokenBurnerABI, tokenBurnerAddress);
-                    blessingMinterContract = new web3.eth.Contract(blessingMinterABI, blessingMinterAddress);
+                    // 初始化合约（即使地址是占位符也先初始化，后续操作会检查）
                     tokenContract = new web3.eth.Contract(tokenABI, tokenContractAddress);
-                    console.log('合约初始化完成');
+                    console.log('代币合约初始化完成');
                     
+                    // 尝试更新代币余额（这会测试代币合约连接）
                     await updateTokenBalance();
-                    await checkApprovalStatus();
+                    
+                    // 检查其他合约地址是否为占位符
+                    if (rewardManagerAddress !== '0xPLACEHOLDER' && tokenBurnerAddress !== '0xPLACEHOLDER' && blessingMinterAddress !== '0xPLACEHOLDER') {
+                        rewardManagerContract = new web3.eth.Contract(rewardManagerABI, rewardManagerAddress);
+                        tokenBurnerContract = new web3.eth.Contract(tokenBurnerABI, tokenBurnerAddress);
+                        blessingMinterContract = new web3.eth.Contract(blessingMinterABI, blessingMinterAddress);
+                        console.log('所有合约初始化完成');
+                        
+                        await checkApprovalStatus();
+                    } else {
+                        console.log('部分合约地址为占位符，仅初始化代币合约');
+                        connectionStatus.textContent = '钱包已连接，但部分合约地址未配置';
+                        connectionStatus.style.color = '#ff9800';
+                    }
+                    
                     updateMintCount();
                     
                     // 更新连接状态显示
-                    connectionStatus.textContent = '钱包已连接';
-                    connectionStatus.style.color = '#4CAF50';
+                    if (connectionStatus.textContent !== '钱包已连接，但部分合约地址未配置') {
+                        connectionStatus.textContent = '钱包已连接';
+                        connectionStatus.style.color = '#4CAF50';
+                    }
                     connectWalletBtn.textContent = '已连接';
                     connectWalletBtn.disabled = true;
                     
@@ -386,7 +405,18 @@
                     tokenContract = null;
                     accounts = [];
                     walletAddress.textContent = '未连接钱包';
-                    connectionStatus.textContent = '连接失败，请重试';
+                    
+                    // 分析错误原因
+                    let errorMessage = '连接失败，请重试';
+                    if (error.code === 4001) {
+                        errorMessage = '用户拒绝了连接请求';
+                    } else if (error.message && error.message.includes('chainId')) {
+                        errorMessage = '网络连接失败，请检查网络设置';
+                    } else if (error.message && error.message.includes('contract')) {
+                        errorMessage = '合约连接失败，请检查合约地址';
+                    }
+                    
+                    connectionStatus.textContent = errorMessage;
                     connectionStatus.style.color = '#f44336';
                     tokenBalance.textContent = '0';
                     mintCount.textContent = '0';

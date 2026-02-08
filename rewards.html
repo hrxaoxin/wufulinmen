@@ -142,6 +142,29 @@
         <!-- 领取说明 -->
         <p class="text-lg text-gray-600 mb-8">领取你的福卡税收分红</p>
 
+        <!-- 钱包区域框 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <!-- 钱包信息 -->
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                    <i class="text-blue-500 text-xl">👛</i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">钱包信息</h3>
+                    <p class="text-sm text-gray-500" id="walletAddress">未连接钱包</p>
+                    <p class="text-xs text-gray-400" id="connectionStatus">请点击连接钱包按钮</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="btn-primary text-sm" id="connectWalletBtn">
+                        <i class="fas fa-plug mr-1"></i> 连接
+                    </button>
+                    <button class="btn-secondary text-sm" id="refreshWallet">
+                        <i class="fas fa-sync-alt mr-1"></i> 刷新
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- 税收分配机制框 -->
         <div class="bg-white rounded-xl p-6 shadow-md mb-8">
             <!-- 税收分配标题 -->
@@ -292,12 +315,61 @@
         // DOM元素
         const claimAllBtn = document.getElementById('claimAllBtn');
         const bnbReward = document.getElementById('bnbReward');
+        const walletAddress = document.getElementById('walletAddress');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const refreshWallet = document.getElementById('refreshWallet');
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
+            // 初始连接钱包
             initWeb3().then(() => {
                 loadBNBReward();
             });
+
+            // 连接钱包按钮点击事件
+            connectWalletBtn.addEventListener('click', async function() {
+                await initWeb3().then(() => {
+                    loadBNBReward();
+                });
+            });
+
+            // 刷新钱包按钮点击事件
+            refreshWallet.addEventListener('click', async function() {
+                await initWeb3().then(() => {
+                    loadBNBReward();
+                });
+            });
+
+            // 监听钱包账户变化
+            if (typeof window.ethereum !== 'undefined') {
+                window.ethereum.on('accountsChanged', function(accounts) {
+                    console.log('钱包账户变化:', accounts);
+                    if (accounts.length > 0) {
+                        initWeb3().then(() => {
+                            loadBNBReward();
+                        });
+                    } else {
+                        // 钱包已断开连接
+                        account = null;
+                        web3 = null;
+                        rewardManagerContract = null;
+                        walletAddress.textContent = '未连接钱包';
+                        connectionStatus.textContent = '钱包已断开连接';
+                        connectionStatus.style.color = '#f44336';
+                        connectWalletBtn.textContent = '连接';
+                        connectWalletBtn.disabled = false;
+                    }
+                });
+
+                // 监听网络变化
+                window.ethereum.on('chainChanged', function(chainId) {
+                    console.log('网络已切换:', chainId);
+                    initWeb3().then(() => {
+                        loadBNBReward();
+                    });
+                });
+            }
         });
 
         // 初始化Web3
@@ -306,21 +378,52 @@
                 if (typeof window.ethereum !== 'undefined') {
                     web3 = new Web3(window.ethereum);
                     try {
+                        // 检测网络
+                        const chainId = await web3.eth.getChainId();
+                        console.log('当前网络:', chainId);
+                        
                         // 请求账户访问
                         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                         account = accounts[0];
                         
-                        // 初始化合约
-                        rewardManagerContract = new web3.eth.Contract(window.rewardManagerABI, rewardManagerAddress);
+                        const shortAddress = account.substring(0, 4) + '...' + account.substring(account.length - 4);
+                        walletAddress.textContent = shortAddress;
+                        connectionStatus.textContent = '钱包已连接';
+                        connectionStatus.style.color = '#4CAF50';
+                        connectWalletBtn.textContent = '已连接';
+                        connectWalletBtn.disabled = true;
+                        
+                        // 检查合约地址是否为占位符
+                        if (rewardManagerAddress !== '0xPLACEHOLDER' && rewardManagerAddress !== '0x651277a5dd5962f239EE83aCA457DDE7a879D79a') {
+                            // 初始化合约
+                            rewardManagerContract = new web3.eth.Contract(window.rewardManagerABI, rewardManagerAddress);
+                            console.log('合约初始化完成');
+                        } else {
+                            console.log('合约地址未配置，仅连接钱包');
+                            connectionStatus.textContent = '钱包已连接，但合约地址未配置';
+                            connectionStatus.style.color = '#ff9800';
+                        }
                         
                         console.log('钱包连接成功:', account);
                         resolve(account);
                     } catch (error) {
                         console.error('初始化Web3失败:', error);
+                        // 更新UI状态
+                        walletAddress.textContent = '未连接钱包';
+                        connectionStatus.textContent = '连接失败，请重试';
+                        connectionStatus.style.color = '#f44336';
+                        connectWalletBtn.textContent = '连接';
+                        connectWalletBtn.disabled = false;
                         resolve(null);
                     }
                 } else {
                     alert('请安装MetaMask等Web3钱包插件');
+                    // 更新UI状态
+                    walletAddress.textContent = '未连接钱包';
+                    connectionStatus.textContent = '请安装Web3钱包插件';
+                    connectionStatus.style.color = '#f44336';
+                    connectWalletBtn.textContent = '连接';
+                    connectWalletBtn.disabled = false;
                     resolve(null);
                 }
             });
@@ -367,30 +470,78 @@
 
         // 一键领取所有BNB
         claimAllBtn.addEventListener('click', async function() {
+            // 检查钱包连接状态
             if (!rewardManagerContract || !account) {
-                alert('请先连接钱包');
+                alert('请先连接钱包后再尝试领取分红');
+                return;
+            }
+
+            // 检查合约是否初始化
+            if (!rewardManagerContract) {
+                alert('合约未初始化，请检查合约地址配置');
                 return;
             }
 
             try {
                 // 显示领取中状态
-                claimAllBtn.textContent = '领取中...';
+                claimAllBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 领取中...';
                 claimAllBtn.disabled = true;
 
-                // 调用智能合约的领取分红方法
-                await rewardManagerContract.methods.claimDividend().send({ from: account });
+                try {
+                    // 检查用户是否有分红资格
+                    const hasEligibility = await rewardManagerContract.methods.hasDividendEligibility(account).call();
+                    if (!hasEligibility) {
+                        alert('📋 您当前没有分红资格\n\n请确保您持有以下福卡之一：\n• 至少一种基础福卡（爱国、富强、和谐、友善、敬业）\n• 或一张五福临门稀有福卡\n\n持有福卡即可自动获得对应税收分红资格');
+                        return;
+                    }
 
-                // 领取成功
-                claimAllBtn.textContent = '已领取';
-                alert('领取成功！BNB已发送到您的钱包');
+                    // 获取当前BNB奖励金额
+                    const currentReward = bnbReward.textContent;
+                    if (currentReward === '0.0000 BNB') {
+                        alert('📋 当前没有可领取的分红\n\n请耐心等待，当有新的代币交易产生税收时，您的分红会自动累积');
+                        return;
+                    }
 
-                // 重新加载数据
-                await loadBNBReward();
+                    // 确认领取
+                    if (!confirm(`🎯 确认领取分红\n\n当前可领取金额：${currentReward}\n\n领取后，分红将直接发送到您的钱包地址\n\n确定要继续吗？`)) {
+                        return;
+                    }
+
+                    // 调用智能合约的领取分红方法
+                    await rewardManagerContract.methods.claimDividend().send({ from: account });
+
+                    // 领取成功
+                    alert(`🎉 领取成功！\n\n${currentReward} 已发送到您的钱包\n\n感谢您参与集五福活动！\n\n继续持有福卡，享受持续分红吧！`);
+
+                    // 重新加载数据
+                    await loadBNBReward();
+
+                    // 更新按钮状态
+                    claimAllBtn.innerHTML = '一键领取所有BNB';
+                } catch (error) {
+                    console.error('领取失败:', error);
+                    
+                    // 分析错误原因
+                    let errorMsg = '领取失败，请稍后再试';
+                    if (error.code === 4001) {
+                        errorMsg = '您取消了交易，请重试';
+                    } else if (error.message && error.message.includes('insufficient funds')) {
+                        errorMsg = 'Gas费用不足，请确保钱包中有足够的BNB支付Gas费用';
+                    } else if (error.message && error.message.includes('reverted')) {
+                        errorMsg = '合约执行失败：' + error.message;
+                    }
+                    
+                    alert(`❌ 领取失败\n\n${errorMsg}\n\n请检查以下事项：\n1. 钱包是否有足够的BNB支付Gas费用\n2. 网络连接是否稳定\n3. 合约地址是否正确配置\n4. 您是否确实持有福卡并具有分红资格`);
+                } finally {
+                    // 恢复按钮状态
+                    claimAllBtn.innerHTML = '一键领取所有BNB';
+                    claimAllBtn.disabled = false;
+                }
             } catch (error) {
-                console.error('领取失败:', error);
-                claimAllBtn.textContent = '一键领取所有BNB';
+                console.error('操作失败:', error);
+                alert('❌ 操作失败，请稍后再试\n\n错误信息：' + error.message);
+                claimAllBtn.innerHTML = '一键领取所有BNB';
                 claimAllBtn.disabled = false;
-                alert('领取失败，请重试');
             }
         });
     </script>
