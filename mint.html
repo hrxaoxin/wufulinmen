@@ -1003,12 +1003,29 @@
                 });
                 
                 console.log('执行铸造交易...');
-                await blessingMinterContract.methods.mintBlessingCardAfterBurn().send({ 
-                    from: accounts[0],
-                    gasPrice: adjustedGasPrice,
-                    gas: gasLimit
-                });
-                console.log('NFT铸造成功');
+                console.log('用户地址:', accounts[0]);
+                console.log('Gas价格:', adjustedGasPrice, 'wei');
+                console.log('Gas上限:', gasLimit);
+                console.log('BlessingMinter合约地址:', blessingMinterAddress);
+                
+                try {
+                    const tx = await blessingMinterContract.methods.mintBlessingCardAfterBurn().send({ 
+                        from: accounts[0],
+                        gasPrice: adjustedGasPrice,
+                        gas: gasLimit
+                    });
+                    console.log('NFT铸造成功，交易哈希:', tx.transactionHash);
+                } catch (txError) {
+                    console.error('交易执行失败:', txError);
+                    console.error('错误详情:', {
+                        message: txError.message,
+                        reason: txError.reason,
+                        code: txError.code,
+                        data: txError.data,
+                        receipt: txError.receipt
+                    });
+                    throw txError;
+                }
                 
                 // 获取铸造的卡信息
                 console.log('获取铸造的卡信息...');
