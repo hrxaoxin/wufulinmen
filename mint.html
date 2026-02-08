@@ -979,19 +979,77 @@
                 // 设置合理的Gas价格和上限
                 console.log('获取Gas价格...');
                 const gasPrice = await web3.eth.getGasPrice();
-                const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.2);
-                const gasLimit = 2000000; // 2,000,000 gas
+                const adjustedGasPrice = Math.floor(parseInt(gasPrice) * 1.5); // 增加Gas价格以提高交易优先级
+                const gasLimit = 3000000; // 增加Gas上限到3,000,000 gas，确保有足够的Gas执行交易
                 
                 console.log('当前网络Gas价格:', gasPrice, 'wei');
                 console.log('调整后的Gas价格:', adjustedGasPrice, 'wei');
+                console.log('预设Gas上限:', gasLimit);
+                
+                // 估算Gas需求
+                try {
+                    const estimatedGas = await blessingMinterContract.methods.mintBlessingCardAfterBurn().estimateGas({ from: accounts[0] });
+                    console.log('估算的Gas需求:', estimatedGas);
+                } catch (gasError) {
+                    console.error('Gas估算失败:', gasError);
+                    console.error('Gas估算错误详情:', {
+                        message: gasError.message,
+                        reason: gasError.reason,
+                        code: gasError.code,
+                        data: gasError.data
+                    });
+                }
+                
+                // 再次检查用户的剩余铸造次数
+                try {
+                    const burnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
+                    console.log('交易前用户剩余铸造次数:', burnCount);
+                    if (burnCount === '0') {
+                        throw new Error('用户剩余铸造次数为0');
+                    }
+                } catch (countError) {
+                    console.error('检查铸造次数失败:', countError);
+                    throw countError;
+                }
+                
+                // 再次检查BlessingMinter合约中的地址设置
+                try {
+                    const tokenBurnerAddr = await blessingMinterContract.methods.tokenBurnerAddress().call();
+                    const rewardManagerAddr = await blessingMinterContract.methods.rewardManagerAddress().call();
+                    console.log('BlessingMinter中的TokenBurner地址:', tokenBurnerAddr);
+                    console.log('BlessingMinter中的RewardManager地址:', rewardManagerAddr);
+                    
+                    if (tokenBurnerAddr === '0x0000000000000000000000000000000000000000') {
+                        throw new Error('TokenBurner地址未设置');
+                    }
+                    if (rewardManagerAddr === '0x0000000000000000000000000000000000000000') {
+                        throw new Error('RewardManager地址未设置');
+                    }
+                } catch (addrError) {
+                    console.error('检查合约地址失败:', addrError);
+                    throw addrError;
+                }
                 
                 // 显示铸造提示
-                alert('即将开始铸造NFT\n\n请在MetaMask中确认铸造交易');
+                alert('即将开始铸造NFT\n\n请在MetaMask中确认铸造交易\n\n交易详情：\n- 铸造费用：已通过销毁代币支付\n- 网络：当前连接的区块链网络\n- Gas费用：约' + (Math.floor(parseInt(adjustedGasPrice) * parseInt(gasLimit) / 1000000000000000000 * 100) / 100) + ' BNB');
+                console.log('用户已确认铸造提示，准备执行交易...');
+                
+                console.log('=====================================');
+                console.log('铸造NFT详细信息：');
+                console.log('=====================================');
+                console.log('用户地址:', accounts[0]);
+                console.log('BlessingMinter合约地址:', blessingMinterAddress);
+                console.log('TokenBurner合约地址:', tokenBurnerAddress);
+                console.log('RewardManager合约地址:', rewardManagerAddress);
+                console.log('Gas价格:', adjustedGasPrice, 'wei');
+                console.log('Gas上限:', gasLimit);
+                console.log('=====================================');
                 
                 console.log('正在铸造NFT...');
                 
                 // 调用智能合约铸造NFT
                 console.log('开始调用mintBlessingCardAfterBurn()函数...');
+                console.log('执行前再次验证所有条件...');
                 
                 // 监听CardMinted事件，获取铸造的卡ID
                 let mintedCardId = null;
@@ -1062,25 +1120,88 @@
                 console.error('NFT铸造失败:', error);
                 
                 // 分析错误原因，提供更详细的错误信息
-                let errorMsg = '铸造NFT失败，请重试';
+                let errorMsg = '铸造NFT失败，请重试\n\n详细信息：';
+                
+                console.log('=====================================');
+                console.log('铸造失败详细分析：');
+                console.log('=====================================');
+                console.log('错误对象:', error);
+                console.log('错误类型:', typeof error);
+                console.log('错误构造函数:', error.constructor.name);
                 
                 if (error.message) {
+                    console.log('错误信息:', error.message);
                     if (error.message.includes('User rejected the request')) {
                         errorMsg = '您取消了交易，请重试';
                     } else if (error.message.includes('Insufficient funds')) {
-                        errorMsg = 'Gas费用不足，请确保您的钱包中有足够的BNB支付Gas费用';
+                        errorMsg = 'Gas费用不足，请确保您的钱包中有足够的BNB支付Gas费用\n\n建议：\n- 检查钱包中的BNB余额\n- 尝试降低Gas价格设置';
                     } else if (error.message.includes('execution reverted')) {
-                        errorMsg = '智能合约执行失败：可能是您的剩余铸造次数不足';
+                        errorMsg = '智能合约执行失败\n\n可能的原因：\n1. 您的剩余铸造次数不足\n2. TokenBurner合约地址未设置\n3. RewardManager合约地址未设置\n4. 智能合约执行异常';
+                    } else if (error.message.includes('nonce too low')) {
+                        errorMsg = '交易nonce过低，请尝试重置钱包或等待之前的交易完成';
+                    } else if (error.message.includes('replacement transaction underpriced')) {
+                        errorMsg = '替换交易价格过低，请增加Gas价格后重试';
                     } else {
                         errorMsg += '\n错误信息: ' + error.message;
                     }
-                } else if (error.reason) {
+                } 
+                
+                if (error.reason) {
+                    console.log('错误原因:', error.reason);
                     errorMsg += '\n错误原因: ' + error.reason;
-                } else if (error.data) {
-                    errorMsg += '\n错误数据: ' + JSON.stringify(error.data);
                 }
                 
-                console.log('错误分析:', errorMsg);
+                if (error.code) {
+                    console.log('错误代码:', error.code);
+                    errorMsg += '\n错误代码: ' + error.code;
+                }
+                
+                if (error.data) {
+                    console.log('错误数据:', error.data);
+                    try {
+                        if (typeof error.data === 'string' && error.data.includes('0x')) {
+                            // 尝试解析智能合约的错误信息
+                            const web3 = new Web3();
+                            const errorHex = error.data;
+                            const errorBytes = web3.utils.hexToBytes(errorHex);
+                            const errorStr = web3.utils.bytesToString(errorBytes.slice(4));
+                            console.log('解析的智能合约错误:', errorStr);
+                            errorMsg += '\n智能合约错误: ' + errorStr;
+                        } else if (error.data.message) {
+                            console.log('错误数据消息:', error.data.message);
+                            errorMsg += '\n错误数据: ' + error.data.message;
+                        } else {
+                            errorMsg += '\n错误数据: ' + JSON.stringify(error.data);
+                        }
+                    } catch (parseError) {
+                        console.error('解析错误数据失败:', parseError);
+                        errorMsg += '\n错误数据: ' + JSON.stringify(error.data);
+                    }
+                }
+                
+                if (error.receipt) {
+                    console.log('交易回执:', error.receipt);
+                    errorMsg += '\n交易状态: 失败 (receipt available)';
+                }
+                
+                // 添加智能合约地址信息
+                errorMsg += '\n\n合约地址信息：';
+                errorMsg += '\n- BlessingMinter: ' + blessingMinterAddress;
+                errorMsg += '\n- TokenBurner: ' + tokenBurnerAddress;
+                errorMsg += '\n- RewardManager: ' + rewardManagerAddress;
+                
+                // 添加排查建议
+                errorMsg += '\n\n排查建议：';
+                errorMsg += '\n1. 检查浏览器控制台获取完整错误信息';
+                errorMsg += '\n2. 确认所有合约地址设置正确';
+                errorMsg += '\n3. 确认您的剩余铸造次数大于0';
+                errorMsg += '\n4. 确认钱包中有足够的BNB支付Gas费用';
+                errorMsg += '\n5. 尝试刷新页面后重新操作';
+                
+                console.log('=====================================');
+                console.log('最终错误信息:', errorMsg);
+                console.log('=====================================');
+                
                 alert(errorMsg);
                 
                 // 恢复按钮状态
