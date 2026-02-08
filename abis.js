@@ -2060,4 +2060,4 @@ window.blessingMinterABI = [
     "outputs": [],
     "stateMutability": "nonpayable"
   }
-];
+]; 
