@@ -1176,6 +1176,11 @@ window.blessingMinterABI = [
     "stateMutability": "nonpayable"
   },
   {
+    "name": "ERC721EnumerableForbiddenBatchMint",
+    "type": "error",
+    "inputs": []
+  },
+  {
     "name": "ERC721IncorrectOwner",
     "type": "error",
     "inputs": [
@@ -1279,6 +1284,32 @@ window.blessingMinterABI = [
     ]
   },
   {
+    "name": "ERC721OutOfBoundsIndex",
+    "type": "error",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "name": "InvalidInitialization",
+    "type": "error",
+    "inputs": []
+  },
+  {
+    "name": "NotInitializing",
+    "type": "error",
+    "inputs": []
+  },
+  {
     "name": "OwnableInvalidOwner",
     "type": "error",
     "inputs": [
@@ -1371,6 +1402,19 @@ window.blessingMinterABI = [
         "type": "address",
         "indexed": true,
         "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "Initialized",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "version",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
       }
     ],
     "anonymous": false
@@ -1636,6 +1680,24 @@ window.blessingMinterABI = [
       }
     ],
     "stateMutability": "view"
+  },
+  {
+    "name": "initialize",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "_tokenBurnerAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "_rewardManagerAddress",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "name": "isApprovedForAll",
@@ -1905,6 +1967,49 @@ window.blessingMinterABI = [
     "stateMutability": "view"
   },
   {
+    "name": "tokenByIndex",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "tokenOfOwnerByIndex",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "index",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
     "name": "tokenURI",
     "type": "function",
     "inputs": [
@@ -1919,6 +2024,19 @@ window.blessingMinterABI = [
         "name": "",
         "type": "string",
         "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "totalSupply",
+    "type": "function",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
