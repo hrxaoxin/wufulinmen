@@ -864,7 +864,7 @@ window.tokenBurnerABI = [
     ]
   },
   {
-    "name": "BurnStatusReset",
+    "name": "BurnCountDecreased",
     "type": "event",
     "inputs": [
       {
@@ -872,6 +872,31 @@ window.tokenBurnerABI = [
         "type": "address",
         "indexed": true,
         "internalType": "address"
+      },
+      {
+        "name": "newCount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "BurnCountIncreased",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newCount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
       }
     ],
     "anonymous": false
@@ -928,7 +953,7 @@ window.tokenBurnerABI = [
     "anonymous": false
   },
   {
-    "name": "batchResetBurnStatus",
+    "name": "batchDecreaseBurnCount",
     "type": "function",
     "inputs": [
       {
@@ -949,6 +974,25 @@ window.tokenBurnerABI = [
         "name": "",
         "type": "address",
         "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "burnCount",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -990,11 +1034,24 @@ window.tokenBurnerABI = [
     "stateMutability": "view"
   },
   {
-    "name": "hasBurnedToken",
+    "name": "decreaseBurnCount",
     "type": "function",
     "inputs": [
       {
-        "name": "",
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "getBurnCount",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "user",
         "type": "address",
         "internalType": "address"
       }
@@ -1002,14 +1059,14 @@ window.tokenBurnerABI = [
     "outputs": [
       {
         "name": "",
-        "type": "bool",
-        "internalType": "bool"
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
   },
   {
-    "name": "hasUserBurnedToken",
+    "name": "hasBurnedToken",
     "type": "function",
     "inputs": [
       {
@@ -1075,19 +1132,6 @@ window.tokenBurnerABI = [
     "name": "renounceOwnership",
     "type": "function",
     "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "resetBurnStatus",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "user",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
