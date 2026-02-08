@@ -1240,20 +1240,6 @@
                     
                     // 先估算Gas
                     console.log('开始估算Gas...');
-                    const estimatedGas = await blessingMinterContract.methods.mintBlessingCardAfterBurn().estimateGas({ from: accounts[0] });
-                    console.log('估算的Gas需求:', estimatedGas);
-                    console.log('设置的Gas上限是否足够:', gasLimit > estimatedGas);
-                    
-                    // 再次检查用户的burnCount，确保有可铸造次数
-                    console.log('再次检查用户的burnCount...');
-                    const currentBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
-                    console.log('当前用户的burnCount:', currentBurnCount);
-                    console.log('用户是否有可铸造次数:', parseInt(currentBurnCount) > 0);
-                    
-                    if (parseInt(currentBurnCount) <= 0) {
-                        console.error('用户的burnCount为0，无法执行铸造操作');
-                        throw new Error('用户的铸造次数已耗尽，请先销毁代币获取铸造次数');
-                    }
                     
                     // 检查hasBurnedToken状态
                     console.log('检查hasBurnedToken状态...');
