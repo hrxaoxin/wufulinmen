@@ -1061,14 +1061,69 @@
                 });
                 
                 // 监听MintStep事件，获取铸造步骤信息
+                console.log('检查MintStep事件监听条件:');
+                console.log('   - blessingMinterContract:', !!blessingMinterContract);
+                console.log('   - blessingMinterContract.events:', !!blessingMinterContract.events);
+                console.log('   - blessingMinterContract.events.MintStep:', !!blessingMinterContract.events.MintStep);
+                
                 if (blessingMinterContract.events && blessingMinterContract.events.MintStep) {
-                    blessingMinterContract.events.MintStep({ fromBlock: 'latest' }, (error, event) => {
-                        if (!error && event && event.returnValues.user === accounts[0]) {
-                            console.log('合约执行步骤:', event.returnValues.step);
-                            console.log('用户地址:', event.returnValues.user);
-                            console.log('卡片ID:', event.returnValues.cardId);
+                    console.log('MintStep事件监听条件满足，开始监听');
+                    try {
+                        blessingMinterContract.events.MintStep({ fromBlock: 'latest' }, (error, event) => {
+                            console.log('MintStep事件回调被触发:');
+                            console.log('   - error:', error);
+                            console.log('   - event:', event);
+                            
+                            if (error) {
+                                console.error('MintStep事件监听错误:', error);
+                                return;
+                            }
+                            
+                            if (event) {
+                                console.log('MintStep事件数据:');
+                                console.log('   - event.returnValues:', event.returnValues);
+                                console.log('   - event.returnValues.user:', event.returnValues.user);
+                                console.log('   - accounts[0]:', accounts[0]);
+                                console.log('   - 用户地址匹配:', event.returnValues.user === accounts[0]);
+                                
+                                if (event.returnValues.user === accounts[0]) {
+                                    console.log('合约执行步骤:', event.returnValues.step);
+                                    console.log('用户地址:', event.returnValues.user);
+                                    console.log('卡片ID:', event.returnValues.cardId);
+                                }
+                            }
+                        });
+                    } catch (listenerError) {
+                        console.error('设置MintStep事件监听器失败:', listenerError);
+                    }
+                } else {
+                    console.log('MintStep事件监听条件不满足');
+                    console.log('blessingMinterContract.events:', blessingMinterContract.events);
+                    
+                    // 尝试直接使用ABI创建新的合约实例并监听
+                    try {
+                        console.log('尝试创建临时合约实例监听MintStep事件');
+                        const tempContract = new web3.eth.Contract(blessingMinterABI, blessingMinterAddress);
+                        console.log('临时合约实例创建成功');
+                        console.log('临时合约实例是否有MintStep事件:', !!tempContract.events.MintStep);
+                        
+                        if (tempContract.events.MintStep) {
+                            console.log('开始监听临时合约实例的MintStep事件');
+                            tempContract.events.MintStep({ fromBlock: 'latest' }, (error, event) => {
+                                console.log('临时合约MintStep事件回调被触发:');
+                                console.log('   - error:', error);
+                                console.log('   - event:', event);
+                                
+                                if (!error && event && event.returnValues.user === accounts[0]) {
+                                    console.log('临时合约执行步骤:', event.returnValues.step);
+                                    console.log('临时合约用户地址:', event.returnValues.user);
+                                    console.log('临时合约卡片ID:', event.returnValues.cardId);
+                                }
+                            });
                         }
-                    });
+                    } catch (tempError) {
+                        console.error('创建临时合约实例失败:', tempError);
+                    }
                 }
                 
                 // 查询并打印TokenBurner和RewardManager合约状态
