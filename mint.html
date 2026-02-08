@@ -370,17 +370,17 @@
                     // 尝试更新代币余额（这会测试代币合约连接）
                     await updateTokenBalance();
                     
-                    // 检查其他合约地址是否为占位符
-                    if (rewardManagerAddress !== '0xPLACEHOLDER' && tokenBurnerAddress !== '0xPLACEHOLDER' && blessingMinterAddress !== '0xPLACEHOLDER') {
+                    // 初始化所有合约
+                    try {
                         rewardManagerContract = new web3.eth.Contract(rewardManagerABI, rewardManagerAddress);
                         tokenBurnerContract = new web3.eth.Contract(tokenBurnerABI, tokenBurnerAddress);
                         blessingMinterContract = new web3.eth.Contract(blessingMinterABI, blessingMinterAddress);
                         console.log('所有合约初始化完成');
                         
                         await checkApprovalStatus();
-                    } else {
-                        console.log('部分合约地址为占位符，仅初始化代币合约');
-                        connectionStatus.textContent = '钱包已连接，但部分合约地址未配置';
+                    } catch (error) {
+                        console.error('部分合约初始化失败:', error);
+                        connectionStatus.textContent = '钱包已连接，但部分合约初始化失败';
                         connectionStatus.style.color = '#ff9800';
                     }
                     
