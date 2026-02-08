@@ -1286,16 +1286,16 @@
                         }
                         
                         // 先获取当前的burnCount
-                        const beforeBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
-                        console.log('执行前的burnCount:', beforeBurnCount);
+                        // const beforeBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
+                        // console.log('执行前的burnCount:', beforeBurnCount);
                         
                         // 执行decreaseBurnCount
-                        const decreaseTx = await tokenBurnerContract.methods.decreaseBurnCount(accounts[0]).send({ 
-                            from: accounts[0],
-                            gasPrice: adjustedGasPrice,
-                            gas: 100000
-                        });
-                        console.log('decreaseBurnCount执行成功，交易哈希:', decreaseTx.transactionHash);
+                        // const decreaseTx = await tokenBurnerContract.methods.decreaseBurnCount(accounts[0]).send({ 
+                        //     from: accounts[0],
+                        //     gasPrice: adjustedGasPrice,
+                        //     gas: 100000
+                        // });
+                        // console.log('decreaseBurnCount执行成功，交易哈希:', decreaseTx.transactionHash);
                         
                         // 再次检查合约实例是否存在（防止连接断开）
                         if (!web3 || !tokenBurnerContract || !tokenBurnerContract.methods) {
@@ -1304,9 +1304,9 @@
                         }
                         
                         // 获取执行后的burnCount
-                        const afterBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
-                        console.log('执行后的burnCount:', afterBurnCount);
-                        console.log('burnCount是否减少:', parseInt(afterBurnCount) === parseInt(beforeBurnCount) - 1);
+                        // const afterBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
+                        // console.log('执行后的burnCount:', afterBurnCount);
+                        // console.log('burnCount是否减少:', parseInt(afterBurnCount) === parseInt(beforeBurnCount) - 1);
                         
                         console.log('decreaseBurnCount操作执行成功，准备执行铸造操作');
                     } catch (decreaseError) {
