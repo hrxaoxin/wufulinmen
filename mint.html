@@ -767,12 +767,45 @@
                 // 调用智能合约销毁代币
                 console.log('开始调用burnTokenForMint()函数...');
                 try {
-                    await tokenBurnerContract.methods.burnTokenForMint().send({ 
+                    // 检查TokenBurner合约中的代币合约地址
+                    const contractTokenAddress = await tokenBurnerContract.methods.tokenContractAddress().call();
+                    console.log('TokenBurner合约中的代币合约地址:', contractTokenAddress);
+                    console.log('前端代码中的代币合约地址:', tokenContractAddress);
+                    
+                    if (contractTokenAddress !== tokenContractAddress) {
+                        alert('错误：TokenBurner合约中的代币合约地址与前端配置不一致');
+                        return;
+                    }
+                    
+                    // 检查铸造价格
+                    const contractMintPrice = await tokenBurnerContract.methods.mintPrice().call();
+                    console.log('TokenBurner合约中的铸造价格:', contractMintPrice);
+                    console.log('前端代码中的铸造价格:', web3.utils.toWei(MINT_PRICE.toString(), 'ether'));
+                    
+                    // 再次检查授权状态
+                    const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
+                    const allowance = await tokenContract.methods.allowance(accounts[0], tokenBurnerAddress).call();
+                    console.log('最终授权检查:', {
+                        allowance: allowance,
+                        required: amountInWei,
+                        isSufficient: allowance >= amountInWei
+                    });
+                    
+                    // 再次检查代币余额
+                    const balance = await tokenContract.methods.balanceOf(accounts[0]).call();
+                    console.log('最终余额检查:', {
+                        balance: balance,
+                        required: amountInWei,
+                        isSufficient: balance >= amountInWei
+                    });
+                    
+                    // 调用销毁代币函数
+                    const tx = await tokenBurnerContract.methods.burnTokenForMint().send({ 
                         from: accounts[0],
                         gasPrice: adjustedGasPrice,
                         gas: gasLimit
                     });
-                    console.log('代币销毁成功');
+                    console.log('代币销毁成功，交易哈希:', tx.transactionHash);
                 } catch (error) {
                     console.error('代币销毁失败:', error);
                     // 显示详细的错误信息给用户
@@ -781,6 +814,8 @@
                         errorMessage += ': ' + error.message;
                     } else if (error.reason) {
                         errorMessage += ': ' + error.reason;
+                    } else if (error.data) {
+                        errorMessage += ': ' + JSON.stringify(error.data);
                     }
                     alert(errorMessage);
                     return;
