@@ -240,1292 +240,25 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+    <script src="abis.js"></script>
     <script>
-        // 代币合约ABI (ERC20标准)
-        const tokenABI = [
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "balanceOf",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "decimals",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "approve",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "transferFrom",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "name": "spender",
-        "type": "address"
-      }
-    ],
-    "name": "allowance",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "name",
-    "outputs": [
-      {
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "symbol",
-    "outputs": [
-      {
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "totalSupply",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
+        // 使用abis.js中的ABIs
+        const tokenABI = window.tokenABI;
+        const rewardManagerABI = window.rewardManagerABI;
+        const tokenBurnerABI = window.tokenBurnerABI;
+        const blessingMinterABI = window.blessingMinterABI;
 
         // 智能合约地址
-        const contractAddress = '0x651277a5dd5962f239EE83aCA457DDE7a879D79a'; // 代理合约地址
+        const rewardManagerAddress = '0xPLACEHOLDER'; // RewardManager代理合约地址
+        const tokenBurnerAddress = '0xPLACEHOLDER'; // TokenBurner代理合约地址
+        const blessingMinterAddress = '0xPLACEHOLDER'; // BlessingMinter代理合约地址
         const tokenContractAddress = '0xbF63b623DA9bA4Fb4af24C7D9E5A373Fb127fffF'; // 代币合约地址
-
-        // 智能合约ABI
-        const contractABI = [
-  {
-    "type": "constructor",
-    "inputs": [
-      {
-        "name": "initialOwner",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "ERC721EnumerableForbiddenBatchMint",
-    "type": "error",
-    "inputs": []
-  },
-  {
-    "name": "ERC721IncorrectOwner",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "sender",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "owner",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "name": "ERC721InsufficientApproval",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "operator",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ]
-  },
-  {
-    "name": "ERC721InvalidApprover",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "approver",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "name": "ERC721InvalidOperator",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "operator",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "name": "ERC721InvalidOwner",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "name": "ERC721InvalidReceiver",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "receiver",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "name": "ERC721InvalidSender",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "sender",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "name": "ERC721NonexistentToken",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ]
-  },
-  {
-    "name": "ERC721OutOfBoundsIndex",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "index",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ]
-  },
-  {
-    "name": "InvalidInitialization",
-    "type": "error",
-    "inputs": []
-  },
-  {
-    "name": "NotInitializing",
-    "type": "error",
-    "inputs": []
-  },
-  {
-    "name": "OwnableInvalidOwner",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "name": "OwnableUnauthorizedAccount",
-    "type": "error",
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "name": "Approval",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "approved",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "ApprovalForAll",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "operator",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "approved",
-        "type": "bool",
-        "indexed": false,
-        "internalType": "bool"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "CardMinted",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "cardId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "cardType",
-        "type": "uint8",
-        "indexed": true,
-        "internalType": "enum FiveBlessings.BlessingType"
-      },
-      {
-        "name": "owner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "Initialized",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "version",
-        "type": "uint64",
-        "indexed": false,
-        "internalType": "uint64"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "OwnershipTransferred",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "previousOwner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "newOwner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "RoyaltyFeeUpdated",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "oldFee",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "newFee",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "RoyaltyWalletUpdated",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "oldWallet",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "newWallet",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "TokenBurnedForMint",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "user",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "Transfer",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "to",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "WuFuLinMenCreated",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "cardId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "owner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "name": "approve",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "to",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "balanceOf",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "burnAddress",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "burnTokenForMint",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "cardMetadata",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "enum FiveBlessings.BlessingType"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "image",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "cards",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "id",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "cardType",
-        "type": "uint8",
-        "internalType": "enum FiveBlessings.BlessingType"
-      },
-      {
-        "name": "owner",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "mintTime",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "getAddressBlessingTypes",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "_address",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool[7]",
-        "internalType": "bool[7]"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "getApproved",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "getCardInfo",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "_cardId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "id",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "cardType",
-        "type": "uint8",
-        "internalType": "enum FiveBlessings.BlessingType"
-      },
-      {
-        "name": "owner",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "mintTime",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "hasBlessingType",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "enum FiveBlessings.BlessingType"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "hasBurnedToken",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "holdersCount",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "initialize",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "_royaltyWallet",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "isApprovedForAll",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "operator",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "isWuFuHolder",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "mintBlessingCard",
-    "type": "function",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "mintBlessingCardAfterBurn",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint8",
-        "internalType": "enum FiveBlessings.BlessingType"
-      }
-    ],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "mintPrice",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "name",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "nextCardId",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "owner",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "ownerOf",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "renounceOwnership",
-    "type": "function",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "royaltyFee",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "royaltyInfo",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "salePrice",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "receiver",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "royaltyAmount",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "royaltyWallet",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "safeTransferFrom",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "to",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "safeTransferFrom",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "to",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "data",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "setApprovalForAll",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "operator",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "approved",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "setMintPrice",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "_mintPrice",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "setRoyaltyFee",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "_royaltyFee",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "setRoyaltyWallet",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "_royaltyWallet",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "setTokenContractAddress",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "_tokenContractAddress",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "supportsInterface",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "interfaceId",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "symbol",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "synthesizeWuFuLinMen",
-    "type": "function",
-    "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "tokenByIndex",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "index",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "tokenContractAddress",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "tokenOfOwnerByIndex",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "index",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "tokenURI",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "string",
-        "internalType": "string"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "totalSupply",
-    "type": "function",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "name": "transferFrom",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "to",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "transferOwnership",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "newOwner",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  }
-];
 
         // 全局变量
         let web3 = null;
-        let contract = null;
+        let rewardManagerContract = null;
+        let tokenBurnerContract = null;
+        let blessingMinterContract = null;
         let tokenContract = null;
         let accounts = [];
         const MINT_PRICE = 8888; // 铸造价格：8888枚代币
@@ -1560,7 +293,9 @@
                         console.log('钱包已断开连接');
                         // 重置状态
                         web3 = null;
-                        contract = null;
+                        rewardManagerContract = null;
+                        tokenBurnerContract = null;
+                        blessingMinterContract = null;
                         tokenContract = null;
                         accounts = [];
                         walletAddress.textContent = '未连接钱包';
@@ -1586,7 +321,9 @@
                     console.log('钱包已断开连接:', error);
                     // 重置状态
                     web3 = null;
-                    contract = null;
+                    rewardManagerContract = null;
+                    tokenBurnerContract = null;
+                    blessingMinterContract = null;
                     tokenContract = null;
                     accounts = [];
                     walletAddress.textContent = '未连接钱包';
@@ -1622,7 +359,9 @@
                     walletAddress.textContent = shortAddress;
                     
                     // 初始化合约
-                    contract = new web3.eth.Contract(contractABI, contractAddress);
+                    rewardManagerContract = new web3.eth.Contract(rewardManagerABI, rewardManagerAddress);
+                    tokenBurnerContract = new web3.eth.Contract(tokenBurnerABI, tokenBurnerAddress);
+                    blessingMinterContract = new web3.eth.Contract(blessingMinterABI, blessingMinterAddress);
                     tokenContract = new web3.eth.Contract(tokenABI, tokenContractAddress);
                     console.log('合约初始化完成');
                     
@@ -1641,7 +380,9 @@
                     console.error('连接钱包失败:', error);
                     // 重置状态
                     web3 = null;
-                    contract = null;
+                    rewardManagerContract = null;
+                    tokenBurnerContract = null;
+                    blessingMinterContract = null;
                     tokenContract = null;
                     accounts = [];
                     walletAddress.textContent = '未连接钱包';
@@ -1658,7 +399,9 @@
                 alert('请安装MetaMask等Web3钱包插件');
                 // 重置状态
                 web3 = null;
-                contract = null;
+                rewardManagerContract = null;
+                tokenBurnerContract = null;
+                blessingMinterContract = null;
                 tokenContract = null;
                 accounts = [];
                 walletAddress.textContent = '未连接钱包';
@@ -1739,7 +482,7 @@
             try {
                 if (web3 && tokenContract && accounts.length > 0) {
                     const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
-                    const allowance = await tokenContract.methods.allowance(accounts[0], contractAddress).call();
+                    const allowance = await tokenContract.methods.allowance(accounts[0], tokenBurnerAddress).call();
                     const isApproved = allowance >= amountInWei;
                     
                     if (isApproved) {
@@ -1832,7 +575,7 @@
                 // 显示授权提示
                 alert('即将授权智能合约使用8888枚代币\n\n这是正常的铸造流程，用于支付铸造费用\n\n请在MetaMask中确认授权交易');
                 
-                await tokenContract.methods.approve(contractAddress, amountInWei).send({ 
+                await tokenContract.methods.approve(tokenBurnerAddress, amountInWei).send({ 
                     from: accounts[0],
                     gasPrice: adjustedGasPrice,
                     gas: gasLimit
@@ -1871,8 +614,8 @@
         // 检查用户是否已销毁代币
         async function checkBurnStatus() {
             try {
-                if (web3 && contract && accounts.length > 0) {
-                    const hasBurned = await contract.methods.hasBurnedToken(accounts[0]).call();
+                if (web3 && tokenBurnerContract && accounts.length > 0) {
+                    const hasBurned = await tokenBurnerContract.methods.checkBurnTokenStatus(accounts[0]).call();
                     return hasBurned;
                 }
                 return false;
@@ -1898,24 +641,24 @@
         burnTokenBtn.addEventListener('click', async function() {
             console.log('点击了销毁代币按钮，当前状态:', {
                 web3: !!web3,
-                contract: !!contract,
+                tokenBurnerContract: !!tokenBurnerContract,
                 tokenContract: !!tokenContract,
                 accountsLength: accounts.length,
                 accounts: accounts
             });
             
-            if (!web3 || !contract || !tokenContract || accounts.length === 0) {
+            if (!web3 || !tokenBurnerContract || !tokenContract || accounts.length === 0) {
                 console.log('检测到钱包未连接，尝试重新连接...');
                 try {
                     await connectWallet();
                     console.log('重新连接后状态:', {
                         web3: !!web3,
-                        contract: !!contract,
+                        tokenBurnerContract: !!tokenBurnerContract,
                         tokenContract: !!tokenContract,
                         accountsLength: accounts.length,
                         accounts: accounts
                     });
-                    if (!web3 || !contract || !tokenContract || accounts.length === 0) {
+                    if (!web3 || !tokenBurnerContract || !tokenContract || accounts.length === 0) {
                         console.log('重新连接失败，提示用户连接钱包');
                         alert('请先连接钱包');
                         return;
@@ -1938,11 +681,11 @@
                 
                 // 检查授权状态
                 const amountInWei = web3.utils.toWei(MINT_PRICE.toString(), 'ether');
-                const allowance = await tokenContract.methods.allowance(accounts[0], contractAddress).call();
+                const allowance = await tokenContract.methods.allowance(accounts[0], tokenBurnerAddress).call();
                 
                 console.log('授权检查详情:', {
                     userAddress: accounts[0],
-                    contractAddress: contractAddress,
+                    tokenBurnerAddress: tokenBurnerAddress,
                     requiredAmount: MINT_PRICE,
                     requiredAmountInWei: amountInWei,
                     currentAllowance: allowance,
@@ -1993,7 +736,7 @@
                 // 调用智能合约销毁代币
                 console.log('开始调用burnTokenForMint()函数...');
                 try {
-                    await contract.methods.burnTokenForMint().send({ 
+                    await tokenBurnerContract.methods.burnTokenForMint().send({ 
                         from: accounts[0],
                         gasPrice: adjustedGasPrice,
                         gas: gasLimit
@@ -2057,22 +800,22 @@
         mintAfterBurnBtn.addEventListener('click', async function() {
             console.log('点击了铸造NFT按钮，当前状态:', {
                 web3: !!web3,
-                contract: !!contract,
+                blessingMinterContract: !!blessingMinterContract,
                 accountsLength: accounts.length,
                 accounts: accounts
             });
             
-            if (!web3 || !contract || accounts.length === 0) {
+            if (!web3 || !blessingMinterContract || accounts.length === 0) {
                 console.log('检测到钱包未连接，尝试重新连接...');
                 try {
                     await connectWallet();
                     console.log('重新连接后状态:', {
                         web3: !!web3,
-                        contract: !!contract,
+                        blessingMinterContract: !!blessingMinterContract,
                         accountsLength: accounts.length,
                         accounts: accounts
                     });
-                    if (!web3 || !contract || accounts.length === 0) {
+                    if (!web3 || !blessingMinterContract || accounts.length === 0) {
                         console.log('重新连接失败，提示用户连接钱包');
                         alert('请先连接钱包');
                         return;
@@ -2119,14 +862,14 @@
             try {
                 // 监听CardMinted事件，获取铸造的卡ID
                 let mintedCardId = null;
-                contract.events.CardMinted({ fromBlock: 'latest' }, (error, event) => {
+                blessingMinterContract.events.CardMinted({ fromBlock: 'latest' }, (error, event) => {
                     if (!error && event && event.returnValues.owner === accounts[0]) {
                         mintedCardId = event.returnValues.cardId;
                         console.log('捕获到CardMinted事件，卡ID:', mintedCardId);
                     }
                 });
                 
-                await contract.methods.mintBlessingCardAfterBurn().send({ 
+                await blessingMinterContract.methods.mintBlessingCardAfterBurn().send({ 
                     from: accounts[0],
                     gasPrice: adjustedGasPrice,
                     gas: gasLimit
@@ -2135,11 +878,11 @@
                 
                 // 获取铸造的卡信息
                 // 先获取当前的nextCardId，然后减1得到刚铸造的卡ID
-                const currentNextCardId = await contract.methods.nextCardId().call();
+                const currentNextCardId = await blessingMinterContract.methods.nextCardId().call();
                 const actualCardId = (parseInt(currentNextCardId) - 1).toString();
                 console.log('计算得到的实际卡ID:', actualCardId);
                 
-                const cardInfo = await contract.methods.getCardInfo(actualCardId).call();
+                const cardInfo = await blessingMinterContract.methods.getCardInfo(actualCardId).call();
                 
                 // 显示成功弹窗
                 mintSuccessModal.classList.remove('hidden');
