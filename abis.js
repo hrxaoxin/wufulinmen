@@ -864,19 +864,6 @@ window.tokenBurnerABI = [
     ]
   },
   {
-    "name": "BurnAddressUpdated",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "newAddress",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
     "name": "BurnStatusReset",
     "type": "event",
     "inputs": [
@@ -1097,19 +1084,6 @@ window.tokenBurnerABI = [
     "inputs": [
       {
         "name": "user",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "setBurnAddress",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "_burnAddress",
         "type": "address",
         "internalType": "address"
       }
