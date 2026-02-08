@@ -1053,20 +1053,103 @@
                 
                 // 监听CardMinted事件，获取铸造的卡ID
                 let mintedCardId = null;
-                if (blessingMinterContract.events && blessingMinterContract.events.CardMinted) {
-                    blessingMinterContract.events.CardMinted({ fromBlock: 'latest' }, (error, event) => {
-                        if (!error && event && event.returnValues.owner === accounts[0]) {
-                            mintedCardId = event.returnValues.cardId;
-                            console.log('捕获到CardMinted事件，卡ID:', mintedCardId);
+                blessingMinterContract.events.CardMinted({ fromBlock: 'latest' }, (error, event) => {
+                    if (!error && event && event.returnValues.owner === accounts[0]) {
+                        mintedCardId = event.returnValues.cardId;
+                        console.log('捕获到CardMinted事件，卡ID:', mintedCardId);
+                    }
+                });
+                
+                // 监听MintStep事件，获取铸造步骤信息
+                if (blessingMinterContract.events && blessingMinterContract.events.MintStep) {
+                    blessingMinterContract.events.MintStep({ fromBlock: 'latest' }, (error, event) => {
+                        if (!error && event && event.returnValues.user === accounts[0]) {
+                            console.log('合约执行步骤:', event.returnValues.step);
+                            console.log('用户地址:', event.returnValues.user);
+                            console.log('卡片ID:', event.returnValues.cardId);
                         }
                     });
                 }
                 
-                // 跳过MintStep事件监听，直接执行铸造操作
-                console.log('跳过MintStep事件监听，直接执行铸造操作');
-                console.log('blessingMinterABI中是否包含MintStep事件:', blessingMinterABI.some(item => item.name === 'MintStep'));
+                // 查询并打印TokenBurner和RewardManager合约状态
+                console.log('=====================================');
+                console.log('查询合约状态信息:');
+                console.log('=====================================');
                 
+                // 查询TokenBurner合约状态
+                try {
+                    console.log('\n1. TokenBurner合约状态:');
+                    console.log('   - 合约地址:', tokenBurnerAddress);
+                    
+                    // 查询代币合约地址
+                    const tokenContractAddr = await tokenBurnerContract.methods.tokenContractAddress().call();
+                    console.log('   - 代币合约地址:', tokenContractAddr);
+                    
+                    // 查询铸造价格
+                    const mintPrice = await tokenBurnerContract.methods.mintPrice().call();
+                    console.log('   - 铸造价格:', mintPrice, 'wei');
+                    console.log('   - 铸造价格(转换):', web3.utils.fromWei(mintPrice, 'ether'), '代币');
+                    
+                    // 查询销毁地址
+                    const burnAddr = await tokenBurnerContract.methods.burnAddress().call();
+                    console.log('   - 销毁地址:', burnAddr);
+                    
+                    // 查询用户的销毁次数
+                    const userBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
+                    console.log('   - 用户销毁次数:', userBurnCount);
+                    
+                    // 检查用户是否有可铸造次数
+                    const hasBurned = await tokenBurnerContract.methods.hasBurnedToken(accounts[0]).call();
+                    console.log('   - 用户是否有可铸造次数:', hasBurned);
+                    
+                } catch (error) {
+                    console.error('查询TokenBurner合约状态失败:', error);
+                }
+                
+                // 查询BlessingMinter中的合约地址设置
+                try {
+                    console.log('\n2. BlessingMinter合约设置:');
+                    console.log('   - 合约地址:', blessingMinterAddress);
+                    
+                    // 查询TokenBurner地址
+                    const bmTokenBurnerAddr = await blessingMinterContract.methods.tokenBurnerAddress().call();
+                    console.log('   - TokenBurner地址:', bmTokenBurnerAddr);
+                    console.log('   - TokenBurner地址是否正确:', bmTokenBurnerAddr === tokenBurnerAddress);
+                    console.log('   - TokenBurner地址是否为0x0:', bmTokenBurnerAddr === '0x0000000000000000000000000000000000000000');
+                    
+                    // 查询RewardManager地址
+                    const bmRewardManagerAddr = await blessingMinterContract.methods.rewardManagerAddress().call();
+                    console.log('   - RewardManager地址:', bmRewardManagerAddr);
+                    console.log('   - RewardManager地址是否为0x0:', bmRewardManagerAddr === '0x0000000000000000000000000000000000000000');
+                    
+                    // 查询下一个卡片ID
+                    const nextCardId = await blessingMinterContract.methods.nextCardId().call();
+                    console.log('   - 下一个卡片ID:', nextCardId);
+                    
+                } catch (error) {
+                    console.error('查询BlessingMinter合约设置失败:', error);
+                }
+                
+                // 查询RewardManager合约状态
+                try {
+                    console.log('\n3. RewardManager合约状态:');
+                    console.log('   - 合约地址:', rewardManagerAddress);
+                    
+                    // 检查用户是否有所有基础福卡
+                    const hasAllBasic = await rewardManagerContract.methods.hasAllBasicBlessings(accounts[0]).call();
+                    console.log('   - 用户是否有所有基础福卡:', hasAllBasic);
+                    
+                    // 检查用户是否是五福临门持有者
+                    const isWuFuHolder = await rewardManagerContract.methods.isWuFuHolder(accounts[0]).call();
+                    console.log('   - 用户是否是五福临门持有者:', isWuFuHolder);
+                    
+                } catch (error) {
+                    console.error('查询RewardManager合约状态失败:', error);
+                }
+                
+                console.log('=====================================');
                 console.log('执行铸造交易...');
+                console.log('=====================================');
                 console.log('用户地址:', accounts[0]);
                 console.log('Gas价格:', adjustedGasPrice, 'wei');
                 console.log('Gas上限:', gasLimit);
