@@ -1420,6 +1420,31 @@ window.blessingMinterABI = [
     "anonymous": false
   },
   {
+    "name": "MintStep",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "step",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "cardId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "name": "OwnershipTransferred",
     "type": "event",
     "inputs": [
