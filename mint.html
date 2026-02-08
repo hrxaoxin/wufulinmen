@@ -645,7 +645,8 @@
         async function checkBurnStatus() {
             try {
                 if (web3 && tokenBurnerContract && accounts.length > 0) {
-                    const hasBurned = await tokenBurnerContract.methods.checkBurnTokenStatus(accounts[0]).call();
+                    // 检查用户是否已销毁代币（使用hasUserBurnedToken函数）
+                    const hasBurned = await tokenBurnerContract.methods.hasUserBurnedToken(accounts[0]).call();
                     return hasBurned;
                 }
                 return false;
