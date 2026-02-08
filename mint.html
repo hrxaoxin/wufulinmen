@@ -1265,6 +1265,24 @@
                         throw new Error('用户的铸造次数已耗尽，请先销毁代币获取铸造次数');
                     }
                     
+                    // 检查BlessingMinter中设置的TokenBurner地址
+                    console.log('检查BlessingMinter中设置的TokenBurner地址...');
+                    const bmTokenBurnerAddr = await blessingMinterContract.methods.tokenBurnerAddress().call();
+                    console.log('BlessingMinter中的TokenBurner地址:', bmTokenBurnerAddr);
+                    console.log('前端使用的TokenBurner地址:', tokenBurnerAddress);
+                    console.log('地址是否匹配:', bmTokenBurnerAddr === tokenBurnerAddress);
+                    
+                    if (bmTokenBurnerAddr !== tokenBurnerAddress) {
+                        console.error('TokenBurner地址不匹配，可能导致铸造失败');
+                        throw new Error('TokenBurner地址不匹配，请检查合约设置');
+                    }
+                    
+                    // 检查BlessingMinter中的tokenBurnerAddress是否为0x0
+                    if (bmTokenBurnerAddr === '0x0000000000000000000000000000000000000000') {
+                        console.error('TokenBurner地址未设置，无法执行铸造操作');
+                        throw new Error('TokenBurner地址未设置，请先设置TokenBurner地址');
+                    }
+                    
                     console.log('发送铸造交易...');
                     console.time('铸造交易执行时间');
                     
