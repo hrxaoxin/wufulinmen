@@ -1272,6 +1272,19 @@
                     // 直接执行decreaseBurnCount操作，然后执行铸造操作
                     console.log('执行decreaseBurnCount操作...');
                     try {
+                        // 检查合约实例是否存在
+                        console.log('检查合约实例状态:');
+                        console.log('   - web3:', !!web3);
+                        console.log('   - tokenBurnerContract:', !!tokenBurnerContract);
+                        console.log('   - tokenBurnerContract.methods:', !!tokenBurnerContract.methods);
+                        console.log('   - accounts:', accounts);
+                        console.log('   - accounts.length:', accounts.length);
+                        
+                        if (!web3 || !tokenBurnerContract || !tokenBurnerContract.methods || accounts.length === 0) {
+                            console.error('合约实例未初始化或钱包未连接');
+                            throw new Error('合约实例未初始化或钱包未连接，无法执行操作');
+                        }
+                        
                         // 先获取当前的burnCount
                         const beforeBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
                         console.log('执行前的burnCount:', beforeBurnCount);
@@ -1284,6 +1297,12 @@
                         });
                         console.log('decreaseBurnCount执行成功，交易哈希:', decreaseTx.transactionHash);
                         
+                        // 再次检查合约实例是否存在（防止连接断开）
+                        if (!web3 || !tokenBurnerContract || !tokenBurnerContract.methods) {
+                            console.error('执行decreaseBurnCount后合约实例丢失');
+                            throw new Error('执行decreaseBurnCount后合约实例丢失，无法执行后续操作');
+                        }
+                        
                         // 获取执行后的burnCount
                         const afterBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
                         console.log('执行后的burnCount:', afterBurnCount);
@@ -1292,6 +1311,10 @@
                         console.log('decreaseBurnCount操作执行成功，准备执行铸造操作');
                     } catch (decreaseError) {
                         console.error('decreaseBurnCount操作执行失败:', decreaseError);
+                        console.error('错误详情:', {
+                            message: decreaseError.message,
+                            stack: decreaseError.stack
+                        });
                         throw new Error('decreaseBurnCount操作执行失败，无法执行铸造操作');
                     }
                     
