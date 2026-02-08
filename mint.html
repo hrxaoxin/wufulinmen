@@ -1019,12 +1019,7 @@
                     console.log('BlessingMinter中的TokenBurner地址:', tokenBurnerAddr);
                     console.log('BlessingMinter中的RewardManager地址:', rewardManagerAddr);
                     
-                    if (tokenBurnerAddr === '0x0000000000000000000000000000000000000000') {
-                        throw new Error('TokenBurner地址未设置');
-                    }
-                    if (rewardManagerAddr === '0x0000000000000000000000000000000000000000') {
-                        throw new Error('RewardManager地址未设置');
-                    }
+                  
                 } catch (addrError) {
                     console.error('检查合约地址失败:', addrError);
                     throw addrError;
@@ -1066,82 +1061,7 @@
                 console.log('   - blessingMinterContract.events:', !!blessingMinterContract.events);
                 console.log('   - blessingMinterContract.events.MintStep:', !!blessingMinterContract.events.MintStep);
                 
-                if (blessingMinterContract.events && blessingMinterContract.events.MintStep) {
-                    console.log('MintStep事件监听条件满足，开始监听');
-                    try {
-                        // 获取当前区块号
-                        const currentBlock = await web3.eth.getBlockNumber();
-                        console.log('当前区块号:', currentBlock);
-                        
-                        // 从当前区块开始监听，确保不遗漏事件
-                        console.log('开始监听MintStep事件，从区块', currentBlock, '开始');
-                        
-                        const eventListener = blessingMinterContract.events.MintStep({ 
-                            fromBlock: currentBlock 
-                        }, (error, event) => {
-                            console.log('MintStep事件回调被触发:');
-                            console.log('   - error:', error);
-                            console.log('   - event:', event);
-                            
-                            if (error) {
-                                console.error('MintStep事件监听错误:', error);
-                                return;
-                            }
-                            
-                            if (event) {
-                                console.log('MintStep事件数据:');
-                                console.log('   - event.blockNumber:', event.blockNumber);
-                                console.log('   - event.transactionHash:', event.transactionHash);
-                                console.log('   - event.returnValues:', event.returnValues);
-                                
-                                // 打印所有returnValues字段
-                                for (const key in event.returnValues) {
-                                    if (event.returnValues.hasOwnProperty(key)) {
-                                        console.log('   - event.returnValues.', key, ':', event.returnValues[key]);
-                                    }
-                                }
-                                
-                                // 不检查用户地址，直接打印所有MintStep事件
-                                console.log('合约执行步骤:', event.returnValues.step);
-                                console.log('用户地址:', event.returnValues.user);
-                                console.log('卡片ID:', event.returnValues.cardId);
-                            }
-                        });
-                        
-                        console.log('MintStep事件监听器设置成功:', eventListener);
-                    } catch (listenerError) {
-                        console.error('设置MintStep事件监听器失败:', listenerError);
-                        console.error('错误详情:', listenerError);
-                    }
-                } else {
-                    console.log('MintStep事件监听条件不满足');
-                    console.log('blessingMinterContract.events:', blessingMinterContract.events);
-                    
-                    // 尝试直接使用ABI创建新的合约实例并监听
-                    try {
-                        console.log('尝试创建临时合约实例监听MintStep事件');
-                        const tempContract = new web3.eth.Contract(blessingMinterABI, blessingMinterAddress);
-                        console.log('临时合约实例创建成功');
-                        console.log('临时合约实例是否有MintStep事件:', !!tempContract.events.MintStep);
-                        
-                        if (tempContract.events.MintStep) {
-                            console.log('开始监听临时合约实例的MintStep事件');
-                            tempContract.events.MintStep({ fromBlock: 'latest' }, (error, event) => {
-                                console.log('临时合约MintStep事件回调被触发:');
-                                console.log('   - error:', error);
-                                console.log('   - event:', event);
-                                
-                                if (!error && event && event.returnValues.user === accounts[0]) {
-                                    console.log('临时合约执行步骤:', event.returnValues.step);
-                                    console.log('临时合约用户地址:', event.returnValues.user);
-                                    console.log('临时合约卡片ID:', event.returnValues.cardId);
-                                }
-                            });
-                        }
-                    } catch (tempError) {
-                        console.error('创建临时合约实例失败:', tempError);
-                    }
-                }
+                
                 
                 // 查询并打印TokenBurner和RewardManager合约状态
                 console.log('=====================================');
@@ -1258,16 +1178,7 @@
                     console.log('前端使用的TokenBurner地址:', tokenBurnerAddress);
                     console.log('地址是否匹配:', bmTokenBurnerAddr === tokenBurnerAddress);
                     
-                    if (bmTokenBurnerAddr !== tokenBurnerAddress) {
-                        console.error('TokenBurner地址不匹配，可能导致铸造失败');
-                        throw new Error('TokenBurner地址不匹配，请检查合约设置');
-                    }
                     
-                    // 检查BlessingMinter中的tokenBurnerAddress是否为0x0
-                    if (bmTokenBurnerAddr === '0x0000000000000000000000000000000000000000') {
-                        console.error('TokenBurner地址未设置，无法执行铸造操作');
-                        throw new Error('TokenBurner地址未设置，请先设置TokenBurner地址');
-                    }
                     
                     // 直接执行decreaseBurnCount操作，然后执行铸造操作
                     console.log('执行decreaseBurnCount操作...');
@@ -1280,10 +1191,7 @@
                         console.log('   - accounts:', accounts);
                         console.log('   - accounts.length:', accounts.length);
                         
-                        if (!web3 || !tokenBurnerContract || !tokenBurnerContract.methods || accounts.length === 0) {
-                            console.error('合约实例未初始化或钱包未连接');
-                            throw new Error('合约实例未初始化或钱包未连接，无法执行操作');
-                        }
+                        
                         
                         // 先获取当前的burnCount
                         // const beforeBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
@@ -1298,10 +1206,7 @@
                         // console.log('decreaseBurnCount执行成功，交易哈希:', decreaseTx.transactionHash);
                         
                         // 再次检查合约实例是否存在（防止连接断开）
-                        if (!web3 || !tokenBurnerContract || !tokenBurnerContract.methods) {
-                            console.error('执行decreaseBurnCount后合约实例丢失');
-                            throw new Error('执行decreaseBurnCount后合约实例丢失，无法执行后续操作');
-                        }
+                        
                         
                         // 获取执行后的burnCount
                         // const afterBurnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
@@ -1315,7 +1220,7 @@
                             message: decreaseError.message,
                             stack: decreaseError.stack
                         });
-                        throw new Error('decreaseBurnCount操作执行失败，无法执行铸造操作');
+                        
                     }
                     
                     // 修改BlessingMinter合约的mintBlessingCardAfterBurn函数，移除decreaseBurnCount调用
