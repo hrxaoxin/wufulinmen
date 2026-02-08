@@ -1069,7 +1069,16 @@
                 if (blessingMinterContract.events && blessingMinterContract.events.MintStep) {
                     console.log('MintStep事件监听条件满足，开始监听');
                     try {
-                        blessingMinterContract.events.MintStep({ fromBlock: 'latest' }, (error, event) => {
+                        // 获取当前区块号
+                        const currentBlock = await web3.eth.getBlockNumber();
+                        console.log('当前区块号:', currentBlock);
+                        
+                        // 从当前区块开始监听，确保不遗漏事件
+                        console.log('开始监听MintStep事件，从区块', currentBlock, '开始');
+                        
+                        const eventListener = blessingMinterContract.events.MintStep({ 
+                            fromBlock: currentBlock 
+                        }, (error, event) => {
                             console.log('MintStep事件回调被触发:');
                             console.log('   - error:', error);
                             console.log('   - event:', event);
@@ -1081,20 +1090,28 @@
                             
                             if (event) {
                                 console.log('MintStep事件数据:');
+                                console.log('   - event.blockNumber:', event.blockNumber);
+                                console.log('   - event.transactionHash:', event.transactionHash);
                                 console.log('   - event.returnValues:', event.returnValues);
-                                console.log('   - event.returnValues.user:', event.returnValues.user);
-                                console.log('   - accounts[0]:', accounts[0]);
-                                console.log('   - 用户地址匹配:', event.returnValues.user === accounts[0]);
                                 
-                                if (event.returnValues.user === accounts[0]) {
-                                    console.log('合约执行步骤:', event.returnValues.step);
-                                    console.log('用户地址:', event.returnValues.user);
-                                    console.log('卡片ID:', event.returnValues.cardId);
+                                // 打印所有returnValues字段
+                                for (const key in event.returnValues) {
+                                    if (event.returnValues.hasOwnProperty(key)) {
+                                        console.log('   - event.returnValues.', key, ':', event.returnValues[key]);
+                                    }
                                 }
+                                
+                                // 不检查用户地址，直接打印所有MintStep事件
+                                console.log('合约执行步骤:', event.returnValues.step);
+                                console.log('用户地址:', event.returnValues.user);
+                                console.log('卡片ID:', event.returnValues.cardId);
                             }
                         });
+                        
+                        console.log('MintStep事件监听器设置成功:', eventListener);
                     } catch (listenerError) {
                         console.error('设置MintStep事件监听器失败:', listenerError);
+                        console.error('错误详情:', listenerError);
                     }
                 } else {
                     console.log('MintStep事件监听条件不满足');
