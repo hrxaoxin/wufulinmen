@@ -1062,42 +1062,9 @@
                     });
                 }
                 
-                // 检查合约实例和事件
-                console.log('blessingMinterContract:', blessingMinterContract);
-                console.log('blessingMinterContract.events:', blessingMinterContract.events);
+                // 跳过MintStep事件监听，直接执行铸造操作
+                console.log('跳过MintStep事件监听，直接执行铸造操作');
                 console.log('blessingMinterABI中是否包含MintStep事件:', blessingMinterABI.some(item => item.name === 'MintStep'));
-                
-                // 打印blessingMinterABI中的所有事件
-                console.log('blessingMinterABI中的事件:');
-                blessingMinterABI.forEach(item => {
-                    if (item.type === 'event') {
-                        console.log('-', item.name);
-                    }
-                });
-                
-                // 监听MintStep事件，获取铸造步骤信息
-                if (blessingMinterContract.events && blessingMinterContract.events.MintStep) {
-                    console.log('MintStep事件存在，开始监听');
-                    blessingMinterContract.events.MintStep({ fromBlock: 'latest' }, (error, event) => {
-                        if (!error && event && event.returnValues.user === accounts[0]) {
-                            console.log('合约执行步骤:', event.returnValues.step);
-                            console.log('用户地址:', event.returnValues.user);
-                            console.log('卡片ID:', event.returnValues.cardId);
-                        } else if (error) {
-                            console.error('MintStep事件监听错误:', error);
-                        }
-                    });
-                } else {
-                    console.log('MintStep事件不存在于合约实例中');
-                    // 尝试直接使用ABI创建新的合约实例
-                    try {
-                        const tempContract = new web3.eth.Contract(blessingMinterABI, blessingMinterAddress);
-                        console.log('临时合约实例events:', tempContract.events);
-                        console.log('临时合约实例是否有MintStep事件:', !!tempContract.events.MintStep);
-                    } catch (tempError) {
-                        console.error('创建临时合约实例失败:', tempError);
-                    }
-                }
                 
                 console.log('执行铸造交易...');
                 console.log('用户地址:', accounts[0]);
