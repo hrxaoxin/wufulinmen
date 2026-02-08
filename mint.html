@@ -773,8 +773,29 @@
                     console.log('前端代码中的代币合约地址:', tokenContractAddress);
                     
                     if (contractTokenAddress !== tokenContractAddress) {
-                        alert('错误：TokenBurner合约中的代币合约地址与前端配置不一致');
-                        return;
+                        console.log('代币合约地址不一致，尝试设置正确的地址...');
+                        try {
+                            // 尝试设置正确的代币合约地址
+                            await tokenBurnerContract.methods.setTokenContractAddress(tokenContractAddress).send({ 
+                                from: accounts[0],
+                                gasPrice: adjustedGasPrice,
+                                gas: gasLimit
+                            });
+                            console.log('代币合约地址设置成功');
+                            
+                            // 再次检查设置后的地址
+                            const updatedContractTokenAddress = await tokenBurnerContract.methods.tokenContractAddress().call();
+                            console.log('设置后的代币合约地址:', updatedContractTokenAddress);
+                            
+                            if (updatedContractTokenAddress !== tokenContractAddress) {
+                                alert('错误：无法设置TokenBurner合约中的代币合约地址');
+                                return;
+                            }
+                        } catch (error) {
+                            console.error('设置代币合约地址失败:', error);
+                            alert('错误：无法设置TokenBurner合约中的代币合约地址，请联系管理员');
+                            return;
+                        }
                     }
                     
                     // 检查铸造价格
