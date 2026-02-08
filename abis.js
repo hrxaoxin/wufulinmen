@@ -903,19 +903,6 @@ window.tokenBurnerABI = [
     "anonymous": false
   },
   {
-    "name": "MintPriceUpdated",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "newPrice",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
     "name": "OwnershipTransferred",
     "type": "event",
     "inputs": [
@@ -1063,7 +1050,7 @@ window.tokenBurnerABI = [
         "internalType": "address"
       },
       {
-        "name": "_mintPrice",
+        "name": "",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -1125,19 +1112,6 @@ window.tokenBurnerABI = [
         "name": "_burnAddress",
         "type": "address",
         "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "name": "setMintPrice",
-    "type": "function",
-    "inputs": [
-      {
-        "name": "_mintPrice",
-        "type": "uint256",
-        "internalType": "uint256"
       }
     ],
     "outputs": [],
