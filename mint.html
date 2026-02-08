@@ -1272,6 +1272,41 @@
                         try {
                             if (typeof txError.data === 'string' && txError.data.includes('0x')) {
                                 const errorHex = txError.data;
+                                console.error('错误数据(hex):', errorHex);
+                                
+                                // 尝试解析错误码
+                                if (errorHex.startsWith('0x7e273289')) {
+                                    console.error('错误码解析: 0x7e273289 - 可能是TokenBurner相关错误');
+                                    
+                                    // 提取错误码的后半部分
+                                    const errorCode = errorHex.substring(10);
+                                    console.error('错误码详情:', errorCode);
+                                    
+                                    // 尝试解析为十进制
+                                    const errorCodeDec = parseInt(errorCode, 16);
+                                    console.error('错误码(十进制):', errorCodeDec);
+                                    
+                                    // 根据错误码推断可能的错误
+                                    switch (errorCodeDec) {
+                                        case 0:
+                                            console.error('可能的错误: 通用错误');
+                                            break;
+                                        case 1:
+                                            console.error('可能的错误: 余额不足');
+                                            break;
+                                        case 2:
+                                            console.error('可能的错误: 授权不足');
+                                            break;
+                                        case 3:
+                                            console.error('可能的错误: 铸造次数不足');
+                                            break;
+                                        default:
+                                            console.error('可能的错误: 未知错误码');
+                                            break;
+                                    }
+                                }
+                                
+                                // 尝试解析为字符串
                                 const errorBytes = web3.utils.hexToBytes(errorHex);
                                 const errorStr = web3.utils.bytesToString(errorBytes.slice(4));
                                 console.error('解析的智能合约错误:', errorStr);
