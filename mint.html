@@ -1060,6 +1060,15 @@
                     }
                 });
                 
+                // 监听MintStep事件，获取铸造步骤信息
+                blessingMinterContract.events.MintStep({ fromBlock: 'latest' }, (error, event) => {
+                    if (!error && event && event.returnValues.user === accounts[0]) {
+                        console.log('合约执行步骤:', event.returnValues.step);
+                        console.log('用户地址:', event.returnValues.user);
+                        console.log('卡片ID:', event.returnValues.cardId);
+                    }
+                });
+                
                 console.log('执行铸造交易...');
                 console.log('用户地址:', accounts[0]);
                 console.log('Gas价格:', adjustedGasPrice, 'wei');
