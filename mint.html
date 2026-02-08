@@ -394,6 +394,9 @@
                     // 获取用户剩余铸造次数
                     await getRemainingBurnCount();
                     
+                    // 更新铸造状态
+                    await updateMintStatus();
+                    
                     // 更新连接状态显示
                     if (connectionStatus.textContent !== '钱包已连接，但部分合约地址未配置') {
                         connectionStatus.textContent = '钱包已连接';
@@ -672,8 +675,8 @@
         async function checkBurnStatus() {
             try {
                 if (web3 && tokenBurnerContract && accounts.length > 0) {
-                    // 检查用户是否已销毁代币（使用hasUserBurnedToken函数）
-                    const hasBurned = await tokenBurnerContract.methods.hasUserBurnedToken(accounts[0]).call();
+                    // 检查用户是否已销毁代币（使用hasBurnedToken函数）
+                    const hasBurned = await tokenBurnerContract.methods.hasBurnedToken(accounts[0]).call();
                     return hasBurned;
                 }
                 return false;
@@ -685,11 +688,25 @@
 
         // 更新铸造状态
         async function updateMintStatus() {
-            const hasBurned = await checkBurnStatus();
-            if (hasBurned) {
-                mintAfterBurnBtn.disabled = false;
-                mintStatus.innerHTML = '<p class="text-green-700">✓ 已完成代币销毁，可以开始铸造NFT</p>';
-            } else {
+            try {
+                if (web3 && tokenBurnerContract && accounts.length > 0) {
+                    // 直接检查用户的剩余铸造次数
+                    const burnCount = await tokenBurnerContract.methods.getBurnCount(accounts[0]).call();
+                    console.log('用户剩余铸造次数:', burnCount);
+                    
+                    if (burnCount > 0) {
+                        mintAfterBurnBtn.disabled = false;
+                        mintStatus.innerHTML = '<p class="text-green-700">✓ 已完成代币销毁，可以开始铸造NFT</p>';
+                    } else {
+                        mintAfterBurnBtn.disabled = true;
+                        mintStatus.innerHTML = '<p class="text-yellow-700">请先完成第一步：销毁代币</p>';
+                    }
+                } else {
+                    mintAfterBurnBtn.disabled = true;
+                    mintStatus.innerHTML = '<p class="text-yellow-700">请先完成第一步：销毁代币</p>';
+                }
+            } catch (error) {
+                console.error('更新铸造状态失败:', error);
                 mintAfterBurnBtn.disabled = true;
                 mintStatus.innerHTML = '<p class="text-yellow-700">请先完成第一步：销毁代币</p>';
             }
