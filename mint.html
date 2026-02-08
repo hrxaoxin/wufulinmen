@@ -1227,14 +1227,37 @@
                 console.log('Gas上限:', gasLimit);
                 console.log('BlessingMinter合约地址:', blessingMinterAddress);
                 
+                // 检查mintBlessingCardAfterBurn方法是否存在
+                console.log('检查mintBlessingCardAfterBurn方法是否存在:', !!blessingMinterContract.methods.mintBlessingCardAfterBurn);
+                
                 try {
+                    console.log('准备发送铸造交易...');
+                    console.log('交易参数:', {
+                        from: accounts[0],
+                        gasPrice: adjustedGasPrice,
+                        gas: gasLimit
+                    });
+                    
+                    // 先估算Gas
+                    console.log('开始估算Gas...');
+                    const estimatedGas = await blessingMinterContract.methods.mintBlessingCardAfterBurn().estimateGas({ from: accounts[0] });
+                    console.log('估算的Gas需求:', estimatedGas);
+                    console.log('设置的Gas上限是否足够:', gasLimit > estimatedGas);
+                    
+                    console.log('发送铸造交易...');
+                    console.time('铸造交易执行时间');
+                    
                     const tx = await blessingMinterContract.methods.mintBlessingCardAfterBurn().send({ 
                         from: accounts[0],
                         gasPrice: adjustedGasPrice,
                         gas: gasLimit
                     });
+                    
+                    console.timeEnd('铸造交易执行时间');
                     console.log('NFT铸造成功，交易哈希:', tx.transactionHash);
+                    console.log('交易详情:', tx);
                 } catch (txError) {
+                    console.timeEnd('铸造交易执行时间');
                     console.error('交易执行失败:', txError);
                     console.error('错误详情:', {
                         message: txError.message,
@@ -1243,6 +1266,21 @@
                         data: txError.data,
                         receipt: txError.receipt
                     });
+                    
+                    // 尝试解析错误数据
+                    if (txError.data) {
+                        try {
+                            if (typeof txError.data === 'string' && txError.data.includes('0x')) {
+                                const errorHex = txError.data;
+                                const errorBytes = web3.utils.hexToBytes(errorHex);
+                                const errorStr = web3.utils.bytesToString(errorBytes.slice(4));
+                                console.error('解析的智能合约错误:', errorStr);
+                            }
+                        } catch (parseError) {
+                            console.error('解析错误数据失败:', parseError);
+                        }
+                    }
+                    
                     throw txError;
                 }
                 
