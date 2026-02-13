@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>任务 - 集五福活动</title>
+    <link rel="icon" href="images/fu-cards/wufulinmen.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f5f5f5;
+            background-image: linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%);
+            overflow-x: hidden;
+        }
+        
+        /* 粒子背景容器 */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .task-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #ee5a6f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+        }
+        
+        .rewards-summary {
+            background: linear-gradient(135deg, #4ecdc4 0%, #45b7aa 100%);
+            border-radius: 16px;
+            color: white;
+        }
+        
+        .task-item {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .task-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .task-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div id="particles-js"></div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar fixed bottom-0 left-0 right-0 z-10">
+        <div class="flex justify-around items-center py-2 px-4">
+            <a href="index.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏠&nbsp;</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">首页</span>
+            </a>
+            <a href="mint.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🃏</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">铸造</span>
+            </a>
+            <a href="collection.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🎁</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">我的福卡</span>
+            </a>
+            <a href="rewards.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏆</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">奖励</span>
+            </a>
+            <a href="trading.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">💰</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">交易</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 pt-6 pb-24">
+        <!-- 页面标题 -->
+        <div class="flex items-center mb-4">
+            <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center mr-3">
+                <i class="text-white text-xl">👛</i>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">税收奖励</h1>
+        </div>
+
+        <!-- 领取说明 -->
+        <p class="text-lg text-gray-600 mb-8">领取你的福卡税收分红</p>
+
+        <!-- 钱包区域框 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <!-- 钱包信息 -->
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                    <i class="text-blue-500 text-xl">👛</i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">钱包信息</h3>
+                    <p class="text-sm text-gray-500" id="walletAddress">未连接钱包</p>
+                    <p class="text-xs text-gray-400" id="connectionStatus">请点击连接钱包按钮</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="btn-primary text-sm" id="connectWalletBtn">
+                        <i class="fas fa-plug mr-1"></i> 连接
+                    </button>
+                    <button class="btn-secondary text-sm" id="refreshWallet">
+                        <i class="fas fa-sync-alt mr-1"></i> 刷新
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 税收分配机制框 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <!-- 税收分配标题 -->
+            <div class="flex items-center mb-6">
+                <div class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center mr-3">
+                    <i class="text-white text-sm">💸</i>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-800">税收分配机制</h2>
+            </div>
+
+            <!-- 税收分配内容 -->
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">代币交易税率</span>
+                    <span class="text-gray-800 font-medium">3%</span>
+                </div>
+                <div class="border-t border-gray-200 pt-3">
+                    <p class="text-gray-600 mb-3">税收分配</p>
+                    <p class="text-gray-600 mb-2">2%->福卡持有者分红</p>
+                    <p class="text-gray-600 mb-2">每种福卡0.4%(爱国、富强、和谐、友善、敬业)</p>
+                    <p class="text-gray-600">1%->五福临门持有者独享</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 福卡奖励框 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <!-- 福卡奖励标题 -->
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center mr-3">
+                        <span class="text-white text-sm font-bold">福</span>
+                    </div>
+                    <h2 class="text-lg font-semibold text-gray-800">福卡奖励</h2>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="btn-primary" id="claimAllBtn">一键领取所有BNB</button>
+                    <button class="btn-secondary" id="refreshRewardBtn">
+                        <i class="fas fa-sync-alt mr-2"></i> 刷新分红
+                    </button>
+                </div>
+            </div>
+
+            <!-- BNB奖励 -->
+            <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                <span class="text-lg font-medium text-gray-800">BNB奖励</span>
+                <span class="text-lg font-bold text-gray-800" id="bnbReward">0.0000 BNB</span>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+    <script src="abis.js"></script>
+    <script>
+        // 粒子背景效果
+        particlesJS('particles-js', {
+            particles: {
+                number: {
+                    value: 80,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: '#ff6b6b'
+                },
+                shape: {
+                    type: 'circle',
+                    stroke: {
+                        width: 0,
+                        color: '#000000'
+                    }
+                },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#ff6b6b',
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 600,
+                        rotateY: 1200
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: 'grab'
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: 'push'
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: {
+                        distance: 140,
+                        line_linked: {
+                            opacity: 1
+                        }
+                    },
+                    push: {
+                        particles_nb: 4
+                    }
+                }
+            },
+            retina_detect: true
+        });
+
+        // 从abis.js中加载合约地址
+        const rewardManagerAddress = window.contractAddresses.rewardManager;
+
+        // 全局变量
+        let web3 = null;
+        let rewardManagerContract = null;
+        let accounts = [];
+
+        // DOM元素
+        let claimAllBtn;
+        let refreshRewardBtn;
+        let bnbReward;
+        let walletAddress;
+        let connectionStatus;
+        let connectWalletBtn;
+        let refreshWallet;
+
+        // 初始化
+        console.log('rewards.html: 开始执行JavaScript代码');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('rewards.html: DOMContentLoaded事件触发');
+            // 获取DOM元素
+            claimAllBtn = document.getElementById('claimAllBtn');
+            refreshRewardBtn = document.getElementById('refreshRewardBtn');
+            bnbReward = document.getElementById('bnbReward');
+            walletAddress = document.getElementById('walletAddress');
+            connectionStatus = document.getElementById('connectionStatus');
+            connectWalletBtn = document.getElementById('connectWalletBtn');
+            refreshWallet = document.getElementById('refreshWallet');
+            
+            console.log('rewards.html: DOM元素获取结果:', {
+                claimAllBtn: !!claimAllBtn,
+                refreshRewardBtn: !!refreshRewardBtn,
+                bnbReward: !!bnbReward,
+                walletAddress: !!walletAddress,
+                connectionStatus: !!connectionStatus,
+                connectWalletBtn: !!connectWalletBtn,
+                refreshWallet: !!refreshWallet
+            });
+            
+            // 初始连接钱包
+            connectWallet();
+
+            // 连接钱包按钮点击事件
+            connectWalletBtn.addEventListener('click', function() {
+                connectWallet();
+            });
+
+            // 刷新钱包按钮点击事件
+            refreshWallet.addEventListener('click', function() {
+                connectWallet();
+            });
+            
+            // 刷新分红按钮点击事件
+            refreshRewardBtn.addEventListener('click', function() {
+                loadBNBReward();
+            });
+
+            // 监听钱包账户变化
+            if (typeof window.ethereum !== 'undefined') {
+                window.ethereum.on('accountsChanged', function(accounts) {
+                    console.log('钱包账户变化:', accounts);
+                    if (accounts.length > 0) {
+                        // 钱包已连接，更新状态
+                        console.log('账户已更新，重新连接钱包...');
+                        connectWallet();
+                    } else {
+                        // 钱包已断开连接
+                        console.log('钱包已断开连接');
+                        // 重置状态
+                        web3 = null;
+                        rewardManagerContract = null;
+                        accounts = [];
+                        walletAddress.textContent = '未连接钱包';
+                        connectionStatus.textContent = '钱包已断开连接';
+                        connectionStatus.style.color = '#f44336';
+                        connectWalletBtn.textContent = '连接';
+                        connectWalletBtn.disabled = false;
+                    }
+                });
+
+                // 监听网络变化
+                window.ethereum.on('chainChanged', function(chainId) {
+                    console.log('网络已切换:', chainId);
+                    // 网络切换后重新连接钱包
+                    console.log('网络已切换，重新连接钱包...');
+                    connectWallet();
+                });
+            }
+        });
+
+        // 连接钱包
+        async function connectWallet() {
+            console.log('开始连接钱包...');
+            
+            // 更新连接状态显示
+            connectionStatus.textContent = '正在连接钱包...';
+            connectionStatus.style.color = '#ff9800';
+            connectWalletBtn.textContent = '连接中...';
+            connectWalletBtn.disabled = true;
+            
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                try {
+                    // 检测网络
+                    const chainId = await web3.eth.getChainId();
+                    console.log('当前网络:', chainId);
+                    
+                    // 检查账户
+                    accounts = await web3.eth.requestAccounts();
+                    console.log('获取到账户:', accounts);
+                    const address = accounts[0];
+                    const shortAddress = address.substring(0, 4) + '...' + address.substring(address.length - 4);
+                    walletAddress.textContent = shortAddress;
+                    
+                    // 检查合约地址是否为占位符
+                    if (rewardManagerAddress !== '0xPLACEHOLDER') {
+                        // 初始化合约
+                        rewardManagerContract = new web3.eth.Contract(window.rewardManagerABI, rewardManagerAddress);
+                        console.log('合约初始化完成');
+                    } else {
+                        console.log('合约地址未配置，仅连接钱包');
+                        connectionStatus.textContent = '钱包已连接，但合约地址未配置';
+                        connectionStatus.style.color = '#ff9800';
+                    }
+                    
+                    // 更新连接状态显示
+                    if (connectionStatus.textContent !== '钱包已连接，但合约地址未配置') {
+                        connectionStatus.textContent = '钱包已连接';
+                        connectionStatus.style.color = '#4CAF50';
+                    }
+                    connectWalletBtn.textContent = '已连接';
+                    connectWalletBtn.disabled = true;
+                    
+                    console.log('钱包连接成功，状态已更新');
+                    
+                    // 加载数据
+                    loadBNBReward();
+                } catch (error) {
+                    console.error('连接钱包失败:', error);
+                    // 重置状态
+                    web3 = null;
+                    rewardManagerContract = null;
+                    accounts = [];
+                    walletAddress.textContent = '未连接钱包';
+                    
+                    // 分析错误原因
+                    let errorMessage = '连接失败，请重试';
+                    if (error.code === 4001) {
+                        errorMessage = '用户拒绝了连接请求';
+                    } else if (error.message && error.message.includes('chainId')) {
+                        errorMessage = '网络连接失败，请检查网络设置';
+                    } else if (error.message && error.message.includes('contract')) {
+                        errorMessage = '合约连接失败，请检查合约地址';
+                    }
+                    
+                    connectionStatus.textContent = errorMessage;
+                    connectionStatus.style.color = '#f44336';
+                    connectWalletBtn.textContent = '连接';
+                    connectWalletBtn.disabled = false;
+                }
+            } else {
+                alert('请安装MetaMask等Web3钱包插件');
+                // 重置状态
+                web3 = null;
+                rewardManagerContract = null;
+                accounts = [];
+                walletAddress.textContent = '未连接钱包';
+                connectionStatus.textContent = '请安装Web3钱包插件';
+                connectionStatus.style.color = '#f44336';
+                connectWalletBtn.textContent = '连接';
+                connectWalletBtn.disabled = false;
+            }
+        }
+
+        // 加载BNB奖励
+        async function loadBNBReward() {
+            try {
+                if (!rewardManagerContract || !accounts || accounts.length === 0) {
+                    return;
+                }
+                
+                const account = accounts[0];
+                // 调用RewardManager合约的calcUserDividend函数获取分红金额
+                const dividendData = await rewardManagerContract.methods.calcUserDividend(account).call();
+                // dividendData[0] 是基础分红金额，dividendData[1] 是精度余数
+                const baseAmount = dividendData[0];
+                const bnbAmount = web3.utils.fromWei(baseAmount, 'ether');
+                
+                // 更新显示
+                bnbReward.textContent = bnbAmount.substring(0, 6) + ' BNB';
+            } catch (error) {
+                console.error('获取BNB奖励失败:', error);
+                bnbReward.textContent = '0.0000 BNB';
+            }
+        }
+
+        // 一键领取所有BNB
+        claimAllBtn.addEventListener('click', async function() {
+            // 检查钱包连接状态
+            if (!rewardManagerContract || !accounts || accounts.length === 0) {
+                alert('请先连接钱包后再尝试领取分红');
+                return;
+            }
+
+            const account = accounts[0];
+            // 检查合约是否初始化
+            if (!rewardManagerContract) {
+                alert('合约未初始化，请检查合约地址配置');
+                return;
+            }
+
+            try {
+                    // 显示领取中状态
+                    claimAllBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 领取中...';
+                    claimAllBtn.disabled = true;
+
+                    try {
+                        // 获取当前BNB奖励金额
+                        const currentReward = bnbReward.textContent;
+                        if (currentReward === '0.0000 BNB') {
+                            alert('📋 当前没有可领取的分红\n\n请耐心等待，当有新的代币交易产生税收时，您的分红会自动累积');
+                            return;
+                        }
+
+                        // 确认领取
+                        if (!confirm(`🎯 确认领取分红\n\n当前可领取金额：${currentReward}\n\n领取后，分红将直接发送到您的钱包地址\n\n确定要继续吗？`)) {
+                            return;
+                        }
+
+                        // 调用智能合约的领取分红方法
+                        await rewardManagerContract.methods.claimDividend().send({ from: account });
+
+                        // 领取成功
+                        alert(`🎉 领取成功！\n\n${currentReward} 已发送到您的钱包\n\n感谢您参与集五福活动！\n\n继续持有福卡，享受持续分红吧！`);
+
+                        // 重新加载数据
+                        await loadBNBReward();
+
+                        // 更新按钮状态
+                        claimAllBtn.innerHTML = '一键领取所有BNB';
+                } catch (error) {
+                    console.error('领取失败:', error);
+                    
+                    // 分析错误原因
+                    let errorMsg = '领取失败，请稍后再试';
+                    if (error.code === 4001) {
+                        errorMsg = '您取消了交易，请重试';
+                    } else if (error.message && error.message.includes('insufficient funds')) {
+                        errorMsg = 'Gas费用不足，请确保钱包中有足够的BNB支付Gas费用';
+                    } else if (error.message && error.message.includes('reverted')) {
+                        errorMsg = '合约执行失败：' + error.message;
+                    }
+                    
+                    alert(`❌ 领取失败\n\n${errorMsg}\n\n请检查以下事项：\n1. 钱包是否有足够的BNB支付Gas费用\n2. 网络连接是否稳定\n3. 合约地址是否正确配置\n4. 您是否确实持有福卡并具有分红资格`);
+                } finally {
+                    // 恢复按钮状态
+                    claimAllBtn.innerHTML = '一键领取所有BNB';
+                    claimAllBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('操作失败:', error);
+                alert('❌ 操作失败，请稍后再试\n\n错误信息：' + error.message);
+                claimAllBtn.innerHTML = '一键领取所有BNB';
+                claimAllBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

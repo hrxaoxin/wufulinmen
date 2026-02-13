@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NFT交易市场 - 五福临门</title>
+    <link rel="icon" href="images/fu-cards/wufulinmen.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+    <script src="abis.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f5f5f5;
+            background-image: linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%);
+            overflow-x: hidden;
+        }
+        /* 粒子背景容器 */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .mint-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .mint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #ee5a6f;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background-color: white;
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: 1px solid #dc3545;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.25);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div id="particles-js"></div>
+    <!-- 导航栏 -->
+    <nav class="navbar fixed bottom-0 left-0 right-0 z-10">
+        <div class="flex justify-around items-center py-2 px-4">
+            <a href="index.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏠&nbsp;</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">首页</span>
+            </a>
+            <a href="mint.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🃏</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">铸造</span>
+            </a>
+            <a href="collection.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🎁</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">福卡</span>
+            </a>
+            <a href="rewards.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 hover:bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">🏆</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">奖励</span>
+            </a>
+            <a href="trading.html" class="flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl transition-all duration-300 bg-gray-100">
+                <div class="text-2xl mb-1 transition-transform duration-300">💰</div>
+                <span class="text-xs font-bold transition-all duration-300 text-gray-700">交易</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 主要内容区 -->
+    <main class="container mx-auto px-4 pt-6 pb-24">
+        <!-- 页面标题 -->
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center mr-3">
+                <span class="text-white text-2xl font-bold">福</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">NFT交易市场</h1>
+        </div>
+        <!-- 铸造说明 -->
+        <p class="text-lg text-gray-600 mb-8">买卖五福临门NFT，支持所有祝福类型</p>
+        <!-- 钱包区域框 -->
+        <div class="bg-white rounded-xl p-6 shadow-md mb-8">
+            <!-- 钱包信息 -->
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                    <i class="text-blue-500 text-xl">👛</i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">钱包信息</h3>
+                    <p class="text-sm text-gray-500" id="walletAddress">未连接钱包</p>
+                    <p class="text-xs text-gray-400" id="connectionStatus">请点击连接钱包按钮</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="btn-primary text-sm" id="connectBtn">
+                        <i class="fas fa-plug mr-1"></i> 连接
+                    </button>
+                    <button class="btn-secondary text-sm" id="refreshWallet">
+                        <i class="fas fa-sync-alt mr-1"></i> 刷新
+                    </button>
+                </div>
+            </div>
+            <!-- 代币信息 -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">钱包地址</span>
+                    <span class="text-lg font-semibold text-gray-800" id="walletAddressDisplay">未连接</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">网络</span>
+                    <span class="text-lg font-semibold text-gray-800" id="networkName">未连接</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">BNB余额</span>
+                    <span class="text-lg font-semibold text-gray-800" id="balance">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能标签页 -->
+        <div class="bg-white rounded-xl p-4 shadow-md mb-8">
+            <div class="flex border-b border-gray-200">
+                <button id="browseTab" class="flex-1 py-3 font-medium text-center text-primary border-b-2 border-primary">浏览市场</button>
+                <button id="listTab" class="flex-1 py-3 font-medium text-center text-gray-500 hover:text-primary">上架NFT</button>
+                <button id="myListingsTab" class="flex-1 py-3 font-medium text-center text-gray-500 hover:text-primary">我的上架</button>
+            </div>
+        </div>
+
+        <!-- 浏览市场 -->
+        <div id="browseSection" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-dark">NFT市场</h2>
+                <div class="flex space-x-4">
+                    <select id="filterType" class="input-field w-48">
+                        <option value="all">全部类型</option>
+                        <option value="0">爱国</option>
+                        <option value="1">富强</option>
+                        <option value="2">和谐</option>
+                        <option value="3">友善</option>
+                        <option value="4">敬业</option>
+                        <option value="5">万能</option>
+                        <option value="6">五福临门</option>
+                    </select>
+                    <button id="refreshBtn" class="btn-secondary">
+                        <i class="fa fa-refresh mr-2"></i>刷新
+                    </button>
+                </div>
+            </div>
+            
+            <div id="marketplaceGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- NFT卡片将通过JavaScript动态生成 -->
+                <div class="col-span-full text-center py-12">
+                    <i class="fa fa-spinner fa-spin text-4xl text-primary mb-4"></i>
+                    <p class="text-gray-600">加载市场数据中...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 上架NFT -->
+        <div id="listSection" class="mb-12 hidden">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold text-dark mb-6">上架NFT</h2>
+                
+                <form id="listForm" class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">NFT ID</label>
+                        <input type="number" id="tokenId" class="input-field" placeholder="输入要上架的NFT ID" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">价格 (BNB)</label>
+                        <input type="number" id="listingPrice" step="0.0001" min="0.001" class="input-field" placeholder="输入上架价格 (最低0.001 BNB)" required>
+                    </div>
+                    
+                    <div class="bg-light p-4 rounded-lg">
+                        <p class="text-gray-700">
+                            <i class="fa fa-info-circle text-primary mr-2"></i>
+                            交易手续费：5%，将自动转入分红钱包
+                        </p>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" id="checkTokenBtn" class="btn-secondary">
+                            <i class="fa fa-search mr-2"></i>检查NFT
+                        </button>
+                        <button type="button" id="approveBtn" class="btn-secondary" disabled>
+                            <i class="fas fa-key mr-1"></i> 授权NFT系列
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fa fa-upload mr-2"></i>上架NFT
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 我的上架 -->
+        <div id="myListingsSection" class="mb-12 hidden">
+            <h2 class="text-2xl font-bold text-dark mb-6">我的上架NFT</h2>
+            
+            <div id="myListingsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <!-- 我的上架NFT将通过JavaScript动态生成 -->
+                <div class="col-span-full text-center py-12">
+                    <i class="fa fa-spinner fa-spin text-4xl text-primary mb-4"></i>
+                    <p class="text-gray-600">加载我的上架数据中...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 购买确认模态框 -->
+        <div id="buyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-dark">确认购买</h3>
+                    <button id="closeBuyModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <p class="text-gray-600">NFT ID: <span id="modalTokenId" class="font-bold"></span></p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">类型: <span id="modalTokenType" class="font-bold"></span></p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">卖家: <span id="modalSeller" class="font-mono text-sm"></span></p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">价格: <span id="modalPrice" class="font-bold text-primary"></span> BNB</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">手续费: <span id="modalFee" class="font-bold text-primary"></span> BNB</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">总价: <span id="modalTotal" class="font-bold text-dark"></span> BNB</p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button id="cancelBuy" class="btn-secondary">取消</button>
+                    <button id="confirmBuy" class="btn-primary">确认购买</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息提示 -->
+        <div id="message" class="fixed top-4 right-4 z-50 max-w-md p-4 rounded-lg shadow-lg hidden"></div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class="fa fa-diamond text-accent text-xl"></i>
+                        <span class="text-xl font-bold">五福临门 NFT</span>
+                    </div>
+                    <p class="text-gray-400">传统中国祝福文化与区块链技术的完美结合</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fa fa-telegram text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-6 pt-6 border-t border-gray-700 text-center text-gray-400">
+                <p>&copy; 2024 五福临门 NFT. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 粒子背景效果
+        particlesJS('particles-js', {
+            particles: {
+                number: {
+                    value: 80,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: '#ff6b6b'
+                },
+                shape: {
+                    type: 'circle',
+                    stroke: {
+                        width: 0,
+                        color: '#000000'
+                    }
+                },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 5,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#ff6b6b',
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                    attract: {
+                        enable: false,
+                        rotateX: 600,
+                        rotateY: 1200
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: 'grab'
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: 'push'
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: {
+                        distance: 140,
+                        line_linked: {
+                            opacity: 1
+                        }
+                    },
+                    push: {
+                        particles_nb: 4
+                    }
+                }
+            },
+            retina_detect: true
+        });
+
+        // 合约ABI和地址（从abis.js引入）
+        const NFTTradingABI = window.NFTTradingABI;
+        const NFTTradingAddress = window.NFTTradingAddress;
+        const FiveBlessingsNFTABI = window.fiveBlessingsNFTABI;
+        const FiveBlessingsNFTAddress = window.fiveBlessingsNFTAddress;
+
+        // 全局变量
+        let web3 = null;
+        let accounts = [];
+        let nftTradingContract = null;
+        let fiveBlessingsNFTContract = null;
+        let currentTokenIdToBuy;
+
+        // 祝福类型映射
+        const blessingTypes = {
+            0: '爱国',
+            1: '富强',
+            2: '和谐',
+            3: '友善',
+            4: '敬业',
+            5: '万能',
+            6: '五福临门'
+        };
+
+        // DOM元素
+        let walletAddress;
+        let connectionStatus;
+        let connectWalletBtn;
+        let refreshWallet;
+        let approveBtn;
+
+        // 初始化
+        console.log('trading.html: 开始执行JavaScript代码');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('trading.html: DOMContentLoaded事件触发');
+            // 获取DOM元素
+            walletAddress = document.getElementById('walletAddress');
+            connectionStatus = document.getElementById('connectionStatus');
+            connectWalletBtn = document.getElementById('connectBtn');
+            refreshWallet = document.getElementById('refreshWallet');
+            
+            approveBtn = document.getElementById('approveBtn');
+            
+            console.log('trading.html: DOM元素获取结果:', {
+                walletAddress: !!walletAddress,
+                connectionStatus: !!connectionStatus,
+                connectWalletBtn: !!connectWalletBtn,
+                refreshWallet: !!refreshWallet,
+                approveBtn: !!approveBtn
+            });
+            
+            // 初始连接钱包
+            connectWallet();
+
+            // 连接钱包按钮点击事件
+            connectWalletBtn.addEventListener('click', function() {
+                connectWallet();
+            });
+
+            // 刷新钱包按钮点击事件
+            refreshWallet.addEventListener('click', function() {
+                connectWallet();
+            });
+            
+            // 授权按钮点击事件
+            approveBtn.addEventListener('click', async function() {
+                if (!accounts || accounts.length === 0) {
+                    showMessage('请连接钱包', 'error');
+                    return;
+                }
+                
+                const isApproved = await checkApprovalForAll();
+                if (isApproved) {
+                    showMessage('NFT系列已授权', 'success');
+                    return;
+                }
+                
+                await approveForAll();
+                // 检查授权状态并更新按钮状态
+                await updateApprovalStatus();
+            });
+
+            // 标签页切换
+            document.getElementById('browseTab').addEventListener('click', () => {
+                document.getElementById('browseSection').classList.remove('hidden');
+                document.getElementById('listSection').classList.add('hidden');
+                document.getElementById('myListingsSection').classList.add('hidden');
+                
+                document.getElementById('browseTab').classList.add('text-primary', 'border-b-2', 'border-primary');
+                document.getElementById('browseTab').classList.remove('text-gray-500');
+                document.getElementById('listTab').classList.add('text-gray-500');
+                document.getElementById('listTab').classList.remove('text-primary', 'border-b-2', 'border-primary');
+                document.getElementById('myListingsTab').classList.add('text-gray-500');
+                document.getElementById('myListingsTab').classList.remove('text-primary', 'border-b-2', 'border-primary');
+            });
+
+            document.getElementById('listTab').addEventListener('click', () => {
+                document.getElementById('browseSection').classList.add('hidden');
+                document.getElementById('listSection').classList.remove('hidden');
+                document.getElementById('myListingsSection').classList.add('hidden');
+                
+                document.getElementById('listTab').classList.add('text-primary', 'border-b-2', 'border-primary');
+                document.getElementById('listTab').classList.remove('text-gray-500');
+                document.getElementById('browseTab').classList.add('text-gray-500');
+                document.getElementById('browseTab').classList.remove('text-primary', 'border-b-2', 'border-primary');
+                document.getElementById('myListingsTab').classList.add('text-gray-500');
+                document.getElementById('myListingsTab').classList.remove('text-primary', 'border-b-2', 'border-primary');
+            });
+
+            document.getElementById('myListingsTab').addEventListener('click', () => {
+                document.getElementById('browseSection').classList.add('hidden');
+                document.getElementById('listSection').classList.add('hidden');
+                document.getElementById('myListingsSection').classList.remove('hidden');
+                
+                document.getElementById('myListingsTab').classList.add('text-primary', 'border-b-2', 'border-primary');
+                document.getElementById('myListingsTab').classList.remove('text-gray-500');
+                document.getElementById('browseTab').classList.add('text-gray-500');
+                document.getElementById('browseTab').classList.remove('text-primary', 'border-b-2', 'border-primary');
+                document.getElementById('listTab').classList.add('text-gray-500');
+                document.getElementById('listTab').classList.remove('text-primary', 'border-b-2', 'border-primary');
+                
+                loadMyListings(1);
+            });
+
+            // 刷新市场按钮
+            document.getElementById('refreshBtn').addEventListener('click', () => loadMarketplace(1));
+
+            // 检查NFT按钮
+            document.getElementById('checkTokenBtn').addEventListener('click', async () => {
+                const tokenId = document.getElementById('tokenId').value;
+                if (!tokenId) {
+                    showMessage('请输入NFT ID', 'error');
+                    return;
+                }
+                await checkNFT(tokenId);
+            });
+
+            // 上架表单提交
+            document.getElementById('listForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const tokenId = document.getElementById('tokenId').value;
+                const price = document.getElementById('listingPrice').value;
+                
+                if (!tokenId || !price) {
+                    showMessage('请填写完整信息', 'error');
+                    return;
+                }
+                
+                const isValid = await checkNFT(parseInt(tokenId));
+                if (isValid) {
+                    await listNFT(parseInt(tokenId), price);
+                }
+            });
+
+            // 购买模态框
+            document.getElementById('closeBuyModal').addEventListener('click', () => {
+                document.getElementById('buyModal').classList.add('hidden');
+            });
+
+            document.getElementById('cancelBuy').addEventListener('click', () => {
+                document.getElementById('buyModal').classList.add('hidden');
+            });
+
+            document.getElementById('confirmBuy').addEventListener('click', () => {
+                const priceText = document.getElementById('modalPrice').textContent;
+                const price = priceText.replace(/[^\d.]/g, ''); // Remove non-numeric characters
+                buyNFT(currentTokenIdToBuy, price);
+            });
+
+            // 监听钱包账户变化
+            if (typeof window.ethereum !== 'undefined') {
+                window.ethereum.on('accountsChanged', function(accounts) {
+                    console.log('钱包账户变化:', accounts);
+                    if (accounts.length > 0) {
+                        // 钱包已连接，更新状态
+                        console.log('账户已更新，重新连接钱包...');
+                        connectWallet();
+                    } else {
+                        // 钱包已断开连接
+                        console.log('钱包已断开连接');
+                        // 重置状态
+                        web3 = null;
+                        nftTradingContract = null;
+                        fiveBlessingsNFTContract = null;
+                        accounts = [];
+                        walletAddress.textContent = '未连接钱包';
+                        connectionStatus.textContent = '钱包已断开连接';
+                        connectionStatus.style.color = '#f44336';
+                        connectWalletBtn.textContent = '连接';
+                        connectWalletBtn.disabled = false;
+                    }
+                });
+
+                // 监听网络变化
+                window.ethereum.on('chainChanged', function(chainId) {
+                    console.log('网络已切换:', chainId);
+                    // 网络切换后重新连接钱包
+                    console.log('网络已切换，重新连接钱包...');
+                    connectWallet();
+                });
+            }
+        });
+
+        // 连接钱包
+        async function connectWallet() {
+            console.log('开始连接钱包...');
+            
+            // 更新连接状态显示
+            connectionStatus.textContent = '正在连接钱包...';
+            connectionStatus.style.color = '#ff9800';
+            connectWalletBtn.textContent = '连接中...';
+            connectWalletBtn.disabled = true;
+            
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                try {
+                    // 检测网络
+                    const chainId = await web3.eth.getChainId();
+                    console.log('当前网络:', chainId);
+                    
+                    // 检查账户
+                    accounts = await web3.eth.requestAccounts();
+                    console.log('获取到账户:', accounts);
+                    const address = accounts[0];
+                    const shortAddress = address.substring(0, 4) + '...' + address.substring(address.length - 4);
+                    walletAddress.textContent = shortAddress;
+                    
+                    // 初始化合约
+                    try {
+                        nftTradingContract = new web3.eth.Contract(NFTTradingABI, NFTTradingAddress);
+                        fiveBlessingsNFTContract = new web3.eth.Contract(FiveBlessingsNFTABI, FiveBlessingsNFTAddress);
+                        console.log('合约初始化完成');
+                    } catch (error) {
+                        connectionStatus.textContent = '钱包已连接，但部分合约初始化失败';
+                        connectionStatus.style.color = '#ff9800';
+                    }
+                    
+                    // 更新钱包状态
+                    await updateWalletStatus();
+                    
+                    // 加载市场数据
+                    loadMarketplace(1);
+                    
+                    // 更新连接状态显示
+                    if (connectionStatus.textContent !== '钱包已连接，但部分合约初始化失败') {
+                        connectionStatus.textContent = '钱包已连接';
+                        connectionStatus.style.color = '#4CAF50';
+                    }
+                    connectWalletBtn.textContent = '已连接';
+                    connectWalletBtn.disabled = true;
+                    
+                    console.log('钱包连接成功，状态已更新');
+                } catch (error) {
+                    console.error('连接钱包失败:', error);
+                    // 重置状态
+                    web3 = null;
+                    nftTradingContract = null;
+                    fiveBlessingsNFTContract = null;
+                    accounts = [];
+                    walletAddress.textContent = '未连接钱包';
+                    
+                    // 分析错误原因
+                    let errorMessage = '连接失败，请重试';
+                    if (error.code === 4001) {
+                        errorMessage = '用户拒绝了连接请求';
+                    } else if (error.message && error.message.includes('chainId')) {
+                        errorMessage = '网络连接失败，请检查网络设置';
+                    } else if (error.message && error.message.includes('contract')) {
+                        errorMessage = '合约连接失败，请检查合约地址';
+                    }
+                    
+                    connectionStatus.textContent = errorMessage;
+                    connectionStatus.style.color = '#f44336';
+                    connectWalletBtn.textContent = '连接';
+                    connectWalletBtn.disabled = false;
+                }
+            } else {
+                alert('请安装MetaMask等Web3钱包插件');
+                // 重置状态
+                web3 = null;
+                nftTradingContract = null;
+                fiveBlessingsNFTContract = null;
+                accounts = [];
+                walletAddress.textContent = '未连接钱包';
+                connectionStatus.textContent = '请安装Web3钱包插件';
+                connectionStatus.style.color = '#f44336';
+                connectWalletBtn.textContent = '连接';
+                connectWalletBtn.disabled = false;
+            }
+        }
+
+        // 更新钱包状态
+        async function updateWalletStatus() {
+            if (accounts && accounts.length > 0) {
+                const address = accounts[0];
+                const balance = await web3.eth.getBalance(address);
+                const networkId = await web3.eth.getChainId();
+                
+                document.getElementById('walletAddress').textContent = address.substring(0, 4) + '...' + address.substring(address.length - 4);
+                document.getElementById('walletAddressDisplay').textContent = address.substring(0, 6) + '...' + address.substring(address.length - 4);
+                document.getElementById('balance').textContent = (web3.utils.fromWei(balance, 'ether')).substring(0, 10) + ' BNB';
+                
+                let networkName = '未知网络';
+                switch (networkId) {
+                    case 1: networkName = '以太坊主网'; break;
+                    case 5: networkName = 'Goerli测试网'; break;
+                    case 1337: networkName = '本地开发网'; break;
+                    case 56: networkName = 'BSC主网'; break;
+                    case 97: networkName = 'BSC测试网'; break;
+                }
+                document.getElementById('networkName').textContent = networkName;
+                
+                // 启用授权按钮
+                approveBtn.disabled = false;
+                // 更新授权状态
+                await updateApprovalStatus();
+            }
+        }
+        
+        // 更新授权状态
+        async function updateApprovalStatus() {
+            if (!accounts || accounts.length === 0 || !fiveBlessingsNFTContract) {
+                return;
+            }
+            
+            try {
+                const isApproved = await checkApprovalForAll();
+                if (isApproved) {
+                    approveBtn.innerHTML = '<i class="fas fa-check mr-1"></i> 已授权';
+                    approveBtn.classList.remove('btn-secondary');
+                    approveBtn.classList.add('btn-primary');
+                } else {
+                    approveBtn.innerHTML = '<i class="fas fa-key mr-1"></i> 授权NFT系列';
+                    approveBtn.classList.remove('btn-primary');
+                    approveBtn.classList.add('btn-secondary');
+                }
+            } catch (error) {
+                console.error('更新授权状态失败:', error);
+            }
+        }
+
+        // 分页状态
+        let marketplaceCurrentPage = 1;
+        const marketplacePageSize = 10;
+        let marketplaceTotalListings = [];
+        let marketplaceCache = null; // 缓存市场数据
+        let cacheTimestamp = 0; // 缓存时间戳
+        const CACHE_DURATION = 30000; // 缓存持续时间（30秒）
+
+        // 加载市场数据
+        async function loadMarketplace(page = 1) {
+            const marketplaceGrid = document.getElementById('marketplaceGrid');
+            marketplaceGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-spinner fa-spin text-4xl text-primary mb-4"></i><p class="text-gray-600">加载市场数据中...</p></div>';
+            
+            try {
+                if (!nftTradingContract || !fiveBlessingsNFTContract) {
+                    showMessage('请先连接钱包', 'error');
+                    marketplaceGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-wallet text-gray-400 mb-4"></i><p class="text-gray-600">请连接钱包</p></div>';
+                    return;
+                }
+                
+                // 检查缓存
+                const now = Date.now();
+                if (marketplaceCache && (now - cacheTimestamp) < CACHE_DURATION) {
+                    console.log('使用缓存的市场数据');
+                    const cachedListings = marketplaceCache;
+                    
+                    if (cachedListings.length === 0) {
+                        marketplaceGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-shopping-cart text-4xl text-gray-400 mb-4"></i><p class="text-gray-600">市场暂无NFT上架</p></div>';
+                        return;
+                    }
+                    
+                    // 计算分页
+                    const totalPages = Math.ceil(cachedListings.length / marketplacePageSize);
+                    marketplaceCurrentPage = page;
+                    
+                    // 获取当前页数据
+                    const startIndex = (page - 1) * marketplacePageSize;
+                    const endIndex = startIndex + marketplacePageSize;
+                    const currentPageListings = cachedListings.slice(startIndex, endIndex);
+                    
+                    // 生成HTML
+                    let html = '';
+                    for (const listing of currentPageListings) {
+                        html += `
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+                                <div class="p-6">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h3 class="text-xl font-bold text-dark">${blessingTypes[listing.type]}</h3>
+                                            <p class="text-gray-600">NFT #${listing.tokenId}</p>
+                                        </div>
+                                        <span class="bg-light text-primary px-3 py-1 rounded-full text-sm">${blessingTypes[listing.type]}</span>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <p class="text-gray-600">卖家: ${listing.seller.substring(0, 6)}...${listing.seller.substring(listing.seller.length - 4)}</p>
+                                    </div>
+                                    
+                                    <div class="flex justify-between items-center mb-4">
+                                        <p class="text-gray-600">价格</p>
+                                        <p class="text-2xl font-bold text-primary">${listing.price} BNB</p>
+                                    </div>
+                                    
+                                    <button class="buyBtn btn-primary w-full" data-tokenid="${listing.tokenId}" data-price="${listing.price}" data-seller="${listing.seller}" data-type="${listing.type}">
+                                        <i class="fa fa-shopping-bag mr-2"></i>立即购买
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // 添加分页控件
+                    html += `
+                        <div class="col-span-full flex justify-center mt-8">
+                            <nav class="flex items-center space-x-2">
+                                <button ${page === 1 ? 'disabled' : ''} onclick="loadMarketplace(${page - 1})" class="px-4 py-2 rounded-md ${page === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-primary hover:bg-gray-100'}">
+                                    <i class="fa fa-chevron-left"></i>
+                                </button>
+                                ${Array.from({length: totalPages}, (_, i) => i + 1).map(p => `
+                                    <button onclick="loadMarketplace(${p})" class="px-4 py-2 rounded-md ${p === page ? 'bg-primary text-white' : 'bg-white text-primary hover:bg-gray-100'}">
+                                        ${p}
+                                    </button>
+                                `).join('')}
+                                <button ${page === totalPages ? 'disabled' : ''} onclick="loadMarketplace(${page + 1})" class="px-4 py-2 rounded-md ${page === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-primary hover:bg-gray-100'}">
+                                    <i class="fa fa-chevron-right"></i>
+                                </button>
+                            </nav>
+                        </div>
+                    `;
+                    
+                    marketplaceGrid.innerHTML = html;
+                    
+                    // 添加购买按钮事件
+            document.querySelectorAll('.buyBtn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tokenId = this.getAttribute('data-tokenid');
+                    const price = this.getAttribute('data-price');
+                    const seller = this.getAttribute('data-seller');
+                    const type = this.getAttribute('data-type');
+                    
+                    // 检查是否是自己上架的NFT
+                    if (accounts && accounts.length > 0 && seller.toLowerCase() === accounts[0].toLowerCase()) {
+                        showMessage('不能购买自己上架的NFT', 'error');
+                        return;
+                    }
+                    
+                    showBuyModal(parseInt(tokenId), price, seller, parseInt(type));
+                });
+            });
+                    
+                    return;
+                }
+                
+                // 从合约中获取所有上架的NFT
+                const listings = [];
+                
+                // 优化的遍历逻辑：限制检查的tokenId范围，减少合约调用次数
+                const maxTokenIdToCheck = 50; // 最多检查50个tokenId，加快加载速度
+                
+                console.log('开始加载市场数据，最多检查', maxTokenIdToCheck, '个tokenId');
+                
+                // 显示加载进度
+                marketplaceGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-spinner fa-spin text-4xl text-primary mb-4"></i><p class="text-gray-600">加载市场数据中...</p></div>';
+                
+                // 使用并行调用优化加载速度
+                const promises = [];
+                for (let tokenId = 1; tokenId <= maxTokenIdToCheck; tokenId++) {
+                    promises.push(
+                        (async (id) => {
+                            try {
+                                // 确保合约实例存在
+                                if (!nftTradingContract || !fiveBlessingsNFTContract) {
+                                    return null;
+                                }
+                                
+                                const result = await nftTradingContract.methods.getListing(id).call();
+                                const listing = result[0];
+                                if (listing.isActive) {
+                                    // 获取NFT类型
+                                    const type = await fiveBlessingsNFTContract.methods.tokenType(id).call();
+                                    const price = web3.utils.fromWei(listing.price, 'ether');
+                                    
+                                    return {
+                                        tokenId: id,
+                                        price: price,
+                                        priceWei: listing.price, // 用于排序
+                                        seller: listing.seller,
+                                        type: type
+                                    };
+                                }
+                                return null;
+                            } catch (e) {
+                                // 忽略不存在的token
+                                return null;
+                            }
+                        })(tokenId)
+                    );
+                }
+                
+                // 并行执行所有检查
+                const results = await Promise.all(promises);
+                
+                // 处理结果
+                for (const result of results) {
+                    if (result) {
+                        listings.push(result);
+                        console.log('发现活跃上架:', result.tokenId);
+                    }
+                }
+                
+                console.log('市场数据加载完成，找到', listings.length, '个上架NFT');
+                
+                // 按价格从低到高排序
+                listings.sort((a, b) => parseFloat(a.priceWei) - parseFloat(b.priceWei));
+                marketplaceTotalListings = listings;
+                
+                // 更新缓存
+                marketplaceCache = listings;
+                cacheTimestamp = Date.now();
+                
+                // 显示结果
+                displayMarketplaceListings(listings, page);
+            } catch (error) {
+                console.error('加载市场数据失败:', error);
+                marketplaceGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-exclamation-circle text-red-500 mb-4"></i><p class="text-red-500">加载失败，请刷新页面</p></div>';
+            }
+        }
+
+        // 显示市场列表
+        function displayMarketplaceListings(listings, page) {
+            const marketplaceGrid = document.getElementById('marketplaceGrid');
+            console.log('开始显示市场列表，数据数量:', listings.length, '页码:', page);
+            
+            if (listings.length === 0) {
+                console.log('市场暂无NFT上架');
+                marketplaceGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-shopping-cart text-4xl text-gray-400 mb-4"></i><p class="text-gray-600">市场暂无NFT上架</p></div>';
+                return;
+            }
+            
+            // 计算分页
+            const totalPages = Math.ceil(listings.length / marketplacePageSize);
+            marketplaceCurrentPage = page;
+            console.log('计算分页，总页数:', totalPages);
+            
+            // 获取当前页数据
+            const startIndex = (page - 1) * marketplacePageSize;
+            const endIndex = startIndex + marketplacePageSize;
+            const currentPageListings = listings.slice(startIndex, endIndex);
+            console.log('当前页数据范围:', startIndex, '-', endIndex, '数据数量:', currentPageListings.length);
+            
+            // 生成HTML
+            let html = '';
+            for (const listing of currentPageListings) {
+                html += `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-xl font-bold text-dark">${blessingTypes[listing.type]}</h3>
+                                    <p class="text-gray-600">NFT #${listing.tokenId}</p>
+                                </div>
+                                <span class="bg-light text-primary px-3 py-1 rounded-full text-sm">${blessingTypes[listing.type]}</span>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <p class="text-gray-600">卖家: ${listing.seller.substring(0, 6)}...${listing.seller.substring(listing.seller.length - 4)}</p>
+                            </div>
+                            
+                            <div class="flex justify-between items-center mb-4">
+                                <p class="text-gray-600">价格</p>
+                                <p class="text-2xl font-bold text-primary">${listing.price} BNB</p>
+                            </div>
+                            
+                            <button class="buyBtn btn-primary w-full" data-tokenid="${listing.tokenId}" data-price="${listing.price}" data-seller="${listing.seller}" data-type="${listing.type}">
+                                <i class="fa fa-shopping-bag mr-2"></i>立即购买
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 添加分页控件
+            html += `
+                <div class="col-span-full flex justify-center mt-8">
+                    <nav class="flex items-center space-x-2">
+                        <button ${page === 1 ? 'disabled' : ''} onclick="loadMarketplace(${page - 1})" class="px-4 py-2 rounded-md ${page === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-primary hover:bg-gray-100'}">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+                        ${Array.from({length: totalPages}, (_, i) => i + 1).map(p => `
+                            <button onclick="loadMarketplace(${p})" class="px-4 py-2 rounded-md ${p === page ? 'bg-primary text-white' : 'bg-white text-primary hover:bg-gray-100'}">
+                                ${p}
+                            </button>
+                        `).join('')}
+                        <button ${page === totalPages ? 'disabled' : ''} onclick="loadMarketplace(${page + 1})" class="px-4 py-2 rounded-md ${page === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-primary hover:bg-gray-100'}">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </nav>
+                </div>
+            `;
+            
+            // 立即更新DOM
+            console.log('更新DOM，显示市场列表');
+            marketplaceGrid.innerHTML = html;
+            
+            // 添加购买按钮事件
+            document.querySelectorAll('.buyBtn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tokenId = this.getAttribute('data-tokenid');
+                    const price = this.getAttribute('data-price');
+                    const seller = this.getAttribute('data-seller');
+                    const type = this.getAttribute('data-type');
+                    
+                    // 检查是否是自己上架的NFT
+                    if (accounts && accounts.length > 0 && seller.toLowerCase() === accounts[0].toLowerCase()) {
+                        showMessage('不能购买自己上架的NFT', 'error');
+                        return;
+                    }
+                    
+                    showBuyModal(parseInt(tokenId), price, seller, parseInt(type));
+                });
+            });
+        }
+
+        // 加载市场数据 (修改后的版本)
+        async function loadMarketplace(page = 1) {
+            const marketplaceGrid = document.getElementById('marketplaceGrid');
+            
+            // 立即显示加载状态
+            marketplaceGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-spinner fa-spin text-4xl text-primary mb-4"></i><p class="text-gray-600">加载市场数据中...</p></div>';
+            
+            try {
+                console.log('开始加载市场数据，页码:', page);
+                
+                // 检查合约实例
+                if (!nftTradingContract || !fiveBlessingsNFTContract) {
+                    console.log('合约实例不存在');
+                    showMessage('请先连接钱包', 'error');
+                    marketplaceGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-wallet text-gray-400 mb-4"></i><p class="text-gray-600">请连接钱包</p></div>';
+                    return;
+                }
+                
+                // 检查缓存
+                const now = Date.now();
+                if (marketplaceCache && (now - cacheTimestamp) < CACHE_DURATION) {
+                    console.log('使用缓存的市场数据，缓存时间:', cacheTimestamp);
+                    displayMarketplaceListings(marketplaceCache, page);
+                    return;
+                }
+                
+                console.log('缓存未命中，开始从合约加载数据');
+                
+                // 从合约中获取所有上架的NFT
+                const listings = [];
+                
+                // 进一步减少检查的tokenId范围，加快加载速度
+                const maxTokenIdToCheck = 30; // 减少到30个tokenId，更快加载
+                
+                console.log('开始检查tokenId，最多检查:', maxTokenIdToCheck);
+                
+                // 使用并行调用优化加载速度
+                const promises = [];
+                for (let tokenId = 1; tokenId <= maxTokenIdToCheck; tokenId++) {
+                    promises.push(
+                        (async (id) => {
+                            try {
+                                // 确保合约实例存在
+                                if (!nftTradingContract || !fiveBlessingsNFTContract) {
+                                    return null;
+                                }
+                                
+                                const result = await nftTradingContract.methods.getListing(id).call();
+                                const listing = result[0];
+                                if (listing.isActive) {
+                                    // 获取NFT类型
+                                    const type = await fiveBlessingsNFTContract.methods.tokenType(id).call();
+                                    const price = web3.utils.fromWei(listing.price, 'ether');
+                                    
+                                    return {
+                                        tokenId: id,
+                                        price: price,
+                                        priceWei: listing.price, // 用于排序
+                                        seller: listing.seller,
+                                        type: type
+                                    };
+                                }
+                                return null;
+                            } catch (e) {
+                                // 忽略不存在的token
+                                return null;
+                            }
+                        })(tokenId)
+                    );
+                }
+                
+                // 并行执行所有检查
+                const results = await Promise.all(promises);
+                console.log('并行调用完成，结果数量:', results.length);
+                
+                // 处理结果
+                for (const result of results) {
+                    if (result) {
+                        listings.push(result);
+                        console.log('发现活跃上架:', result.tokenId);
+                    }
+                }
+                
+                console.log('市场数据加载完成，找到', listings.length, '个上架NFT');
+                
+                // 按价格从低到高排序
+                listings.sort((a, b) => parseFloat(a.priceWei) - parseFloat(b.priceWei));
+                marketplaceTotalListings = listings;
+                
+                // 更新缓存
+                marketplaceCache = listings;
+                cacheTimestamp = now;
+                console.log('缓存已更新，时间戳:', cacheTimestamp);
+                
+                // 显示结果
+                displayMarketplaceListings(listings, page);
+            } catch (error) {
+                console.error('加载市场数据失败:', error);
+                marketplaceGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-exclamation-circle text-red-500 mb-4"></i><p class="text-red-500">加载失败，请刷新页面</p></div>';
+            }
+        }
+
+        // 我的上架分页状态
+        let myListingsCurrentPage = 1;
+        const myListingsPageSize = 10;
+        let myListingsTotalListings = [];
+
+        // 加载我的上架
+        async function loadMyListings(page = 1) {
+            const myListingsGrid = document.getElementById('myListingsGrid');
+            myListingsGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-spinner fa-spin text-4xl text-primary mb-4"></i><p class="text-gray-600">加载我的上架数据中...</p></div>';
+            
+            try {
+                if (!accounts || accounts.length === 0) {
+                    myListingsGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-wallet text-gray-400 mb-4"></i><p class="text-gray-600">请连接钱包</p></div>';
+                    return;
+                }
+                
+                if (!nftTradingContract || !fiveBlessingsNFTContract) {
+                    showMessage('请先连接钱包', 'error');
+                    myListingsGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-wallet text-gray-400 mb-4"></i><p class="text-gray-600">请连接钱包</p></div>';
+                    return;
+                }
+                
+                // 从合约中获取用户上架的NFT
+                const userTokens = await nftTradingContract.methods.getUserListedTokens(accounts[0]).call();
+                const activeListings = [];
+                
+                for (const tokenId of userTokens) {
+                    try {
+                        // 直接调用，不使用解构赋值
+                        const result = await nftTradingContract.methods.getListing(tokenId).call();
+                        const listing = result[0];
+                        if (listing.isActive) {
+                            const type = await fiveBlessingsNFTContract.methods.tokenType(tokenId).call();
+                            const price = web3.utils.fromWei(listing.price, 'ether');
+                            
+                            activeListings.push({
+                                tokenId: tokenId,
+                                price: price,
+                                type: type
+                            });
+                        }
+                    } catch (e) {
+                        // 忽略错误
+                        console.log('忽略tokenId', tokenId, '错误:', e.message);
+                    }
+                }
+                
+                console.log('我的上架数据加载完成，找到', activeListings.length, '个上架NFT');
+                myListingsTotalListings = activeListings;
+                
+                if (activeListings.length === 0) {
+                    myListingsGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-upload text-gray-400 mb-4"></i><p class="text-gray-600">你还没有上架任何NFT</p></div>';
+                    return;
+                }
+                
+                // 计算分页
+                const totalPages = Math.ceil(activeListings.length / myListingsPageSize);
+                myListingsCurrentPage = page;
+                
+                // 获取当前页数据
+                const startIndex = (page - 1) * myListingsPageSize;
+                const endIndex = startIndex + myListingsPageSize;
+                const currentPageListings = activeListings.slice(startIndex, endIndex);
+                
+                let html = '';
+                for (const listing of currentPageListings) {
+                    html += `
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-dark">${blessingTypes[listing.type]}</h3>
+                                        <p class="text-gray-600">NFT #${listing.tokenId}</p>
+                                    </div>
+                                    <span class="bg-light text-primary px-3 py-1 rounded-full text-sm">${blessingTypes[listing.type]}</span>
+                                </div>
+                                
+                                <div class="flex justify-between items-center mb-4">
+                                    <p class="text-gray-600">价格</p>
+                                    <p class="text-2xl font-bold text-primary">${listing.price} BNB</p>
+                                </div>
+                                
+                                <button class="unlistBtn btn-danger w-full" data-tokenid="${listing.tokenId}">
+                                    <i class="fa fa-times mr-2"></i>下架NFT
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // 添加分页控件
+                // 即使只有一页也显示分页控件，让用户知道当前的分页状态
+                html += `
+                    <div class="col-span-full flex justify-center mt-8">
+                        <nav class="flex items-center space-x-2">
+                            <button ${page === 1 ? 'disabled' : ''} onclick="loadMyListings(${page - 1})" class="px-4 py-2 rounded-md ${page === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-primary hover:bg-gray-100'}">
+                                <i class="fa fa-chevron-left"></i>
+                            </button>
+                            ${Array.from({length: totalPages}, (_, i) => i + 1).map(p => `
+                                <button onclick="loadMyListings(${p})" class="px-4 py-2 rounded-md ${p === page ? 'bg-primary text-white' : 'bg-white text-primary hover:bg-gray-100'}">
+                                    ${p}
+                                </button>
+                            `).join('')}
+                            <button ${page === totalPages ? 'disabled' : ''} onclick="loadMyListings(${page + 1})" class="px-4 py-2 rounded-md ${page === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-primary hover:bg-gray-100'}">
+                                <i class="fa fa-chevron-right"></i>
+                            </button>
+                        </nav>
+                    </div>
+                `;
+                
+                myListingsGrid.innerHTML = html;
+                
+                // 添加下架按钮事件
+                document.querySelectorAll('.unlistBtn').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const tokenId = this.getAttribute('data-tokenid');
+                        await unlistNFT(parseInt(tokenId));
+                    });
+                });
+            } catch (error) {
+                console.error('加载我的上架数据失败:', error);
+                myListingsGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fa fa-exclamation-circle text-red-500 mb-4"></i><p class="text-red-500">加载失败，请刷新页面</p></div>';
+            }
+        }
+
+        // 显示购买模态框
+        function showBuyModal(tokenId, price, seller, type) {
+            currentTokenIdToBuy = tokenId;
+            const fee = (parseFloat(price) * 0.05).toFixed(4);
+            const total = (parseFloat(price) + parseFloat(fee)).toFixed(4);
+            
+            document.getElementById('modalTokenId').textContent = tokenId;
+            document.getElementById('modalTokenType').textContent = blessingTypes[type];
+            document.getElementById('modalSeller').textContent = seller.substring(0, 6) + '...' + seller.substring(seller.length - 4);
+            document.getElementById('modalPrice').textContent = price;
+            document.getElementById('modalFee').textContent = fee;
+            document.getElementById('modalTotal').textContent = total;
+            
+            // 确保货币单位为BNB
+            document.getElementById('balance').textContent = document.getElementById('balance').textContent.replace('ETH', 'BNB');
+            
+            document.getElementById('buyModal').classList.remove('hidden');
+        }
+
+        // 上架NFT
+        async function listNFT(tokenId, price) {
+            try {
+                if (!accounts || accounts.length === 0) {
+                    showMessage('请连接钱包', 'error');
+                    return;
+                }
+                
+                // 检查是否已授权整个系列
+                const isApproved = await checkApprovalForAll();
+                if (!isApproved) {
+                    // 未授权，先授权整个系列
+                    showMessage('正在授权整个NFT系列给交易合约...', 'info');
+                    await approveForAll();
+                }
+                
+                const priceWei = web3.utils.toWei(price.toString(), 'ether');
+                
+                const tx = await nftTradingContract.methods.listNFT(tokenId, priceWei).send({
+                    from: accounts[0]
+                });
+                
+                showMessage('NFT上架成功！', 'success');
+                document.getElementById('listForm').reset();
+            } catch (error) {
+                console.error('上架NFT失败:', error);
+                showMessage('上架失败: ' + error.message, 'error');
+            }
+        }
+
+        // 检查是否已授权整个NFT系列给交易合约
+        async function checkApprovalForAll() {
+            try {
+                const isApproved = await fiveBlessingsNFTContract.methods.isApprovedForAll(accounts[0], NFTTradingAddress).call();
+                return isApproved;
+            } catch (error) {
+                console.error('检查授权失败:', error);
+                return false;
+            }
+        }
+
+        // 授权整个NFT系列给交易合约
+        async function approveForAll() {
+            try {
+                const tx = await fiveBlessingsNFTContract.methods.setApprovalForAll(NFTTradingAddress, true).send({
+                    from: accounts[0]
+                });
+                showMessage('NFT系列授权成功！', 'success');
+                return true;
+            } catch (error) {
+                console.error('授权NFT系列失败:', error);
+                showMessage('授权失败: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // 下架NFT
+        async function unlistNFT(tokenId) {
+            try {
+                if (!accounts || accounts.length === 0) {
+                    showMessage('请连接钱包', 'error');
+                    return;
+                }
+                
+                const tx = await nftTradingContract.methods.unlistNFT(tokenId).send({
+                    from: accounts[0]
+                });
+                
+                showMessage('NFT下架成功！', 'success');
+                loadMyListings(myListingsCurrentPage); // 刷新我的上架列表
+                loadMarketplace(1); // 刷新市场列表
+            } catch (error) {
+                console.error('下架NFT失败:', error);
+                showMessage('下架失败: ' + error.message, 'error');
+            }
+        }
+
+        // 购买NFT
+        async function buyNFT(tokenId, price) {
+            try {
+                if (!accounts || accounts.length === 0) {
+                    showMessage('请连接钱包', 'error');
+                    return;
+                }
+                
+                if (!nftTradingContract) {
+                    showMessage('请先连接钱包', 'error');
+                    return;
+                }
+                
+                // 验证价格
+                if (!price || parseFloat(price) <= 0) {
+                    showMessage('价格必须大于0', 'error');
+                    return;
+                }
+                
+                // 将BNB价格转换为wei
+                const priceWei = web3.utils.toWei(price.toString(), 'ether');
+                console.log('购买NFT:', tokenId, '价格:', price, 'wei:', priceWei);
+                
+                showMessage('正在处理购买交易...', 'info');
+                
+                const tx = await nftTradingContract.methods.buyNFT(tokenId).send({
+                    from: accounts[0],
+                    value: priceWei
+                });
+                
+                showMessage('NFT购买成功！', 'success');
+                document.getElementById('buyModal').classList.add('hidden');
+                loadMarketplace(1); // 刷新市场列表
+                loadMyListings(1); // 刷新我的上架列表
+            } catch (error) {
+                console.error('购买NFT失败:', error);
+                showMessage('购买失败: ' + error.message, 'error');
+            }
+        }
+
+        // 检查NFT
+        async function checkNFT(tokenId) {
+            try {
+                const owner = await fiveBlessingsNFTContract.methods.ownerOf(tokenId).call();
+                const type = await fiveBlessingsNFTContract.methods.tokenType(tokenId).call();
+                
+                if (owner.toLowerCase() !== accounts[0].toLowerCase()) {
+                    showMessage('你不是该NFT的所有者', 'error');
+                    return false;
+                }
+                
+                showMessage(`NFT检查成功！类型：${blessingTypes[type]}`, 'success');
+                return true;
+            } catch (error) {
+                console.error('检查NFT失败:', error);
+                showMessage('NFT不存在或检查失败', 'error');
+                return false;
+            }
+        }
+
+        // 显示消息
+        function showMessage(text, type = 'info') {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            
+            // 设置样式
+            message.className = 'fixed top-4 right-4 z-50 max-w-md p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-y-0 opacity-100';
+            
+            if (type === 'success') {
+                message.classList.add('bg-green-500', 'text-white');
+            } else if (type === 'error') {
+                message.classList.add('bg-red-500', 'text-white');
+            } else {
+                message.classList.add('bg-blue-500', 'text-white');
+            }
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                message.classList.add('translate-y-[-100px]', 'opacity-0');
+                setTimeout(() => {
+                    message.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
