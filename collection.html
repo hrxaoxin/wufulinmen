@@ -595,11 +595,19 @@
         // 加载福卡数量
         async function loadFukaCounts() {
             try {
+                console.log('开始加载福卡数量:', {
+                    rewardManagerContract: !!rewardManagerContract,
+                    accounts: accounts,
+                    accountsLength: accounts ? accounts.length : 0
+                });
+                
                 if (!rewardManagerContract || !accounts || accounts.length === 0) {
+                    console.log('rewardManagerContract不存在或accounts为空，直接返回');
                     return;
                 }
                 
                 const account = accounts[0];
+                console.log('使用账户:', account, '加载福卡数量');
                 
                 // 使用RewardManager的cardCount函数获取每种福卡的数量
                 const aiGuoCount = await rewardManagerContract.methods.cardCount(account, 0).call();
@@ -658,11 +666,19 @@
         // 加载福卡列表
         async function loadFukaList() {
             try {
+                console.log('开始加载福卡列表:', {
+                    rewardManagerContract: !!rewardManagerContract,
+                    accounts: accounts,
+                    accountsLength: accounts ? accounts.length : 0
+                });
+                
                 if (!rewardManagerContract || !accounts || accounts.length === 0) {
+                    console.log('rewardManagerContract不存在或accounts为空，直接返回');
                     return;
                 }
                 
                 const account = accounts[0];
+                console.log('使用账户:', account, '加载福卡列表');
                 
                 // 清空列表
                 fukaList.innerHTML = '';
@@ -721,6 +737,7 @@
 
                 // 如果没有福卡，显示提示信息
                 if (!hasFuka) {
+                    console.log('用户没有福卡，显示提示信息');
                     const emptyCard = document.createElement('div');
                     emptyCard.className = 'border-2 border-gray-300 bg-gray-50 rounded-lg p-4 text-center';
                     emptyCard.innerHTML = `
