@@ -2,8 +2,8 @@
   
 // 合约地址
 window.contractAddresses = {
-    tokenContract: '0xbb7376fd7eedbdb7e4ee86482b28c8368ddfffff', // 代币合约地址
-    rewardManager: '0x47f8D6eDe42f2350cf7eec943f9D700Ec527Ee5d', // RewardManager代理合约地址
+    tokenContract: '0xbF63b623DA9bA4Fb4af24C7D9E5A373Fb127fffF', // 代币合约地址
+    rewardManager: '0xE5CBdBD0c3b04A4BB140b61BEE76A47fd499635a', // RewardManager代理合约地址
     tokenBurner: '0xe5dB34957cf5A976b05Ba53440E69D0179949B12', // TokenBurner代理合约地址
     fiveBlessingsNFT: '0xfF81E21711483A06230e509592c9bD058D585692', // FiveBlessingsNFT代理合约地址
     nftTrading: '0xdfFD87538a45c934Db30295E0b992c66d3cF6163' // NFTTrading代理合约地址
