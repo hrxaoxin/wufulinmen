@@ -595,54 +595,40 @@
         // 加载福卡数量
         async function loadFukaCounts() {
             try {
-                if (!fiveBlessingsNFTContract || !accounts || accounts.length === 0) {
+                if (!rewardManagerContract || !accounts || accounts.length === 0) {
                     return;
                 }
                 
                 const account = accounts[0];
-                // 获取用户持有的总福卡数量
-                const totalBalance = await fiveBlessingsNFTContract.methods.balanceOf(account).call();
-                console.log('NFT合约显示的总福卡数量:', totalBalance);
                 
-                // 由于NFT合约没有实现ERC721Enumerable接口，我们无法直接获取每个token的类型
-                // 所以仍然使用RewardManager的cardCount函数获取每种福卡的数量
-                if (rewardManagerContract) {
-                    const aiGuoCount = await rewardManagerContract.methods.cardCount(account, 0).call();
-                    const fuQiangCount = await rewardManagerContract.methods.cardCount(account, 1).call();
-                    const heXieCount = await rewardManagerContract.methods.cardCount(account, 2).call();
-                    const youShanCount = await rewardManagerContract.methods.cardCount(account, 3).call();
-                    const jingYeCount = await rewardManagerContract.methods.cardCount(account, 4).call();
-                    const wanNengCount = await rewardManagerContract.methods.cardCount(account, 5).call();
-                    
-                    console.log('RewardManager显示的各种福卡数量:', {
-                        aiGuoCount,
-                        fuQiangCount,
-                        heXieCount,
-                        youShanCount,
-                        jingYeCount,
-                        wanNengCount
-                    });
-                    
-                    // 计算RewardManager中的总福卡数量
-                    const totalFromRewardManager = parseInt(aiGuoCount) + parseInt(fuQiangCount) + parseInt(heXieCount) + parseInt(youShanCount) + parseInt(jingYeCount) + parseInt(wanNengCount);
-                    console.log('RewardManager计算的总福卡数量:', totalFromRewardManager);
-                    console.log('NFT合约计算的总福卡数量:', totalBalance);
-                    
-                    // 检查数据一致性
-                    if (parseInt(totalBalance) !== totalFromRewardManager) {
-                        console.warn('数据不一致：NFT合约显示', totalBalance, '张，RewardManager显示', totalFromRewardManager, '张');
-                    } else {
-                        console.log('数据一致：NFT合约和RewardManager都显示', totalBalance, '张福卡');
-                    }
-                    
-                    // 更新福卡数量
-                    updateFukaCount('爱国福', aiGuoCount);
-                    updateFukaCount('富强福', fuQiangCount);
-                    updateFukaCount('和谐福', heXieCount);
-                    updateFukaCount('友善福', youShanCount);
-                    updateFukaCount('敬业福', jingYeCount);
-                    updateFukaCount('万能福', wanNengCount);
-                }
+                // 使用RewardManager的cardCount函数获取每种福卡的数量
+                const aiGuoCount = await rewardManagerContract.methods.cardCount(account, 0).call();
+                const fuQiangCount = await rewardManagerContract.methods.cardCount(account, 1).call();
+                const heXieCount = await rewardManagerContract.methods.cardCount(account, 2).call();
+                const youShanCount = await rewardManagerContract.methods.cardCount(account, 3).call();
+                const jingYeCount = await rewardManagerContract.methods.cardCount(account, 4).call();
+                const wanNengCount = await rewardManagerContract.methods.cardCount(account, 5).call();
+                
+                console.log('RewardManager显示的各种福卡数量:', {
+                    aiGuoCount,
+                    fuQiangCount,
+                    heXieCount,
+                    youShanCount,
+                    jingYeCount,
+                    wanNengCount
+                });
+                
+                // 计算RewardManager中的总福卡数量
+                const totalFromRewardManager = parseInt(aiGuoCount) + parseInt(fuQiangCount) + parseInt(heXieCount) + parseInt(youShanCount) + parseInt(jingYeCount) + parseInt(wanNengCount);
+                console.log('RewardManager计算的总福卡数量:', totalFromRewardManager);
+                
+                // 更新福卡数量
+                updateFukaCount('爱国福', aiGuoCount);
+                updateFukaCount('富强福', fuQiangCount);
+                updateFukaCount('和谐福', heXieCount);
+                updateFukaCount('友善福', youShanCount);
+                updateFukaCount('敬业福', jingYeCount);
+                updateFukaCount('万能福', wanNengCount);
             } catch (error) {
                 console.error('获取福卡数量失败:', error);
                 // 默认显示0
@@ -672,133 +658,92 @@
         // 加载福卡列表
         async function loadFukaList() {
             try {
-                if (!fiveBlessingsNFTContract || !accounts || accounts.length === 0) {
+                if (!rewardManagerContract || !accounts || accounts.length === 0) {
                     return;
                 }
                 
                 const account = accounts[0];
-                // 获取用户持有的福卡数量
-                const balance = await fiveBlessingsNFTContract.methods.balanceOf(account).call();
-                console.log('NFT合约显示的福卡数量:', balance);
                 
                 // 清空列表
                 fukaList.innerHTML = '';
 
-                // 由于合约未实现tokenOfOwnerByIndex，我们使用RewardManager的cardCount来显示福卡数量
-                // 直接显示每种福卡的数量，而不是单独的卡片
-                if (rewardManagerContract) {
-                    const aiGuoCount = await rewardManagerContract.methods.cardCount(account, 0).call();
-                    const fuQiangCount = await rewardManagerContract.methods.cardCount(account, 1).call();
-                    const heXieCount = await rewardManagerContract.methods.cardCount(account, 2).call();
-                    const youShanCount = await rewardManagerContract.methods.cardCount(account, 3).call();
-                    const jingYeCount = await rewardManagerContract.methods.cardCount(account, 4).call();
-                    const wanNengCount = await rewardManagerContract.methods.cardCount(account, 5).call();
-                    
-                    console.log('RewardManager显示的福卡数量:', {
-                        aiGuoCount,
-                        fuQiangCount,
-                        heXieCount,
-                        youShanCount,
-                        jingYeCount,
-                        wanNengCount
-                    });
-                    
-                    // 创建福卡数据数组
-                    const fukaData = [
-                        { type: 0, name: '爱国福', image: 'aiguo.png', count: aiGuoCount },
-                        { type: 1, name: '富强福', image: 'fuqiang.png', count: fuQiangCount },
-                        { type: 2, name: '和谐福', image: 'hexie.png', count: heXieCount },
-                        { type: 3, name: '友善福', image: 'youshan.png', count: youShanCount },
-                        { type: 4, name: '敬业福', image: 'jingye.png', count: jingYeCount },
-                        { type: 5, name: '万能福', image: 'wanneng.png', count: wanNengCount }
-                    ];
-                    
-                    // 计算总福卡数量
-                    let totalCount = 0;
-                    let hasFuka = false;
-                    fukaData.forEach(fuka => {
-                        const count = parseInt(fuka.count);
-                        totalCount += count;
-                        console.log('处理福卡类型:', fuka.name, '数量:', count, '累计总数:', totalCount);
-                        if (count > 0) {
-                            hasFuka = true;
-                            for (let i = 0; i < count; i++) {
-                                const fukaCard = document.createElement('div');
-                                fukaCard.className = 'border-2 border-orange-400 bg-orange-50 rounded-lg p-4 text-center';
-                                fukaCard.innerHTML = `
-                                    <div class="w-24 h-24 mb-3 mx-auto">
-                                        <img src="images/fu-cards/${fuka.image}" alt="${fuka.name}" class="w-full h-full object-contain">
-                                    </div>
-                                    <h3 class="text-lg font-semibold text-gray-800 mb-2">${fuka.name}</h3>
-                                    <p class="text-gray-600">${FUKA_DESCRIPTIONS[fuka.name]}</p>
-                                `;
-                                fukaList.appendChild(fukaCard);
-                            }
+                // 使用RewardManager的cardCount来显示福卡数量
+                const aiGuoCount = await rewardManagerContract.methods.cardCount(account, 0).call();
+                const fuQiangCount = await rewardManagerContract.methods.cardCount(account, 1).call();
+                const heXieCount = await rewardManagerContract.methods.cardCount(account, 2).call();
+                const youShanCount = await rewardManagerContract.methods.cardCount(account, 3).call();
+                const jingYeCount = await rewardManagerContract.methods.cardCount(account, 4).call();
+                const wanNengCount = await rewardManagerContract.methods.cardCount(account, 5).call();
+                
+                console.log('RewardManager显示的福卡数量:', {
+                    aiGuoCount,
+                    fuQiangCount,
+                    heXieCount,
+                    youShanCount,
+                    jingYeCount,
+                    wanNengCount
+                });
+                
+                // 创建福卡数据数组
+                const fukaData = [
+                    { type: 0, name: '爱国福', image: 'aiguo.png', count: aiGuoCount },
+                    { type: 1, name: '富强福', image: 'fuqiang.png', count: fuQiangCount },
+                    { type: 2, name: '和谐福', image: 'hexie.png', count: heXieCount },
+                    { type: 3, name: '友善福', image: 'youshan.png', count: youShanCount },
+                    { type: 4, name: '敬业福', image: 'jingye.png', count: jingYeCount },
+                    { type: 5, name: '万能福', image: 'wanneng.png', count: wanNengCount }
+                ];
+                
+                // 计算总福卡数量
+                let totalCount = 0;
+                let hasFuka = false;
+                fukaData.forEach(fuka => {
+                    const count = parseInt(fuka.count);
+                    totalCount += count;
+                    console.log('处理福卡类型:', fuka.name, '数量:', count, '累计总数:', totalCount);
+                    if (count > 0) {
+                        hasFuka = true;
+                        for (let i = 0; i < count; i++) {
+                            const fukaCard = document.createElement('div');
+                            fukaCard.className = 'border-2 border-orange-400 bg-orange-50 rounded-lg p-4 text-center';
+                            fukaCard.innerHTML = `
+                                <div class="w-24 h-24 mb-3 mx-auto">
+                                    <img src="images/fu-cards/${fuka.image}" alt="${fuka.name}" class="w-full h-full object-contain">
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">${fuka.name}</h3>
+                                <p class="text-gray-600">${FUKA_DESCRIPTIONS[fuka.name]}</p>
+                            `;
+                            fukaList.appendChild(fukaCard);
                         }
-                    });
-                    console.log('RewardManager计算的总福卡数量:', totalCount);
-
-                    // 如果没有福卡，显示提示信息
-                    if (!hasFuka) {
-                        const emptyCard = document.createElement('div');
-                        emptyCard.className = 'border-2 border-gray-300 bg-gray-50 rounded-lg p-4 text-center';
-                        emptyCard.innerHTML = `
-                            <div class="w-16 h-16 mb-3 mx-auto">
-                                <i class="fas fa-gift text-gray-400 text-4xl"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">暂无福卡</h3>
-                            <p class="text-gray-600">您当前没有持有任何福卡</p>
-                            <p class="text-gray-500 text-sm mt-2">前往铸造页面获取福卡吧！</p>
-                            <div class="mt-4">
-                                <a href="mint.html" class="btn-primary inline-block">
-                                    去铸造
-                                </a>
-                            </div>
-                        `;
-                        fukaList.appendChild(emptyCard);
                     }
+                });
+                console.log('RewardManager计算的总福卡数量:', totalCount);
 
-                    // 检查数据一致性（已注释）
-                    /*
-                    if (parseInt(balance) !== totalCount) {
-                        console.warn('数据不一致：NFT合约显示', balance, '张，RewardManager显示', totalCount, '张');
-                        // 如果数据不一致，清空列表并显示警告信息
-                        fukaList.innerHTML = '';
-                        const warningCard = document.createElement('div');
-                        warningCard.className = 'border-2 border-yellow-400 bg-yellow-50 rounded-lg p-4 text-center';
-                        warningCard.innerHTML = `
-                            <div class="w-16 h-16 mb-3 mx-auto">
-                                <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">数据不一致</h3>
-                            <p class="text-gray-600">NFT合约显示 ${balance} 张，RewardManager显示 ${totalCount} 张</p>
-                            <p class="text-gray-500 text-sm mt-2">请刷新页面或联系管理员</p>
-                        `;
-                        fukaList.appendChild(warningCard);
-                    } else {
-                        console.log('数据一致：NFT合约和RewardManager都显示', balance, '张福卡');
-                    }
-                    */
-                } else {
-                    // 如果RewardManager不可用，只显示总数量
-                    const infoCard = document.createElement('div');
-                    infoCard.className = 'border-2 border-blue-400 bg-blue-50 rounded-lg p-4 text-center';
-                    infoCard.innerHTML = `
+                // 如果没有福卡，显示提示信息
+                if (!hasFuka) {
+                    const emptyCard = document.createElement('div');
+                    emptyCard.className = 'border-2 border-gray-300 bg-gray-50 rounded-lg p-4 text-center';
+                    emptyCard.innerHTML = `
                         <div class="w-16 h-16 mb-3 mx-auto">
-                            <i class="fas fa-info-circle text-blue-500 text-4xl"></i>
+                            <i class="fas fa-gift text-gray-400 text-4xl"></i>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">福卡信息</h3>
-                        <p class="text-gray-600">您当前持有 ${balance} 张福卡</p>
-                        <p class="text-gray-500 text-sm mt-2">请连接钱包以查看详细信息</p>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">暂无福卡</h3>
+                        <p class="text-gray-600">您当前没有持有任何福卡</p>
+                        <p class="text-gray-500 text-sm mt-2">前往铸造页面获取福卡吧！</p>
+                        <div class="mt-4">
+                            <a href="mint.html" class="btn-primary inline-block">
+                                去铸造
+                            </a>
+                        </div>
                     `;
-                    fukaList.appendChild(infoCard);
+                    fukaList.appendChild(emptyCard);
                 }
 
-                // 更新标题中的数量，使用NFT合约的balanceOf函数获取的实际数量
+                // 更新标题中的数量，使用RewardManager计算的总数量
                 const title = document.getElementById('fukaCountTitle');
                 if (title) {
-                    title.textContent = `我的福卡 (${balance})`;
-                    console.log('更新标题中的福卡数量:', balance);
+                    title.textContent = `我的福卡 (${totalCount})`;
+                    console.log('更新标题中的福卡数量:', totalCount);
                 }
             } catch (error) {
                 console.error('获取福卡列表失败:', error);
