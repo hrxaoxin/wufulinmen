@@ -527,9 +527,9 @@
                     // 检查合约地址是否为占位符
                     if (rewardManagerAddress !== '0xPLACEHOLDER' && tokenBurnerAddress !== '0xPLACEHOLDER' && fiveBlessingsNFTAddress !== '0xPLACEHOLDER') {
                         // 初始化合约
-                    rewardManagerContract = new web3.eth.Contract(window.rewardManagerABI, rewardManagerAddress);
-                    tokenBurnerContract = new web3.eth.Contract(window.tokenBurnerABI, tokenBurnerAddress);
-                    fiveBlessingsNFTContract = new web3.eth.Contract(window.fiveBlessingsNFTABI, fiveBlessingsNFTAddress);
+                        rewardManagerContract = new web3.eth.Contract(window.rewardManagerABI, rewardManagerAddress);
+                        tokenBurnerContract = new web3.eth.Contract(window.tokenBurnerABI, tokenBurnerAddress);
+                        fiveBlessingsNFTContract = new web3.eth.Contract(window.fiveBlessingsNFTABI, fiveBlessingsNFTAddress);
                         console.log('所有合约初始化完成');
                     } else {
                         console.log('部分合约地址为占位符，仅连接钱包');
@@ -715,11 +715,14 @@
                     
                     // 计算总福卡数量
                     let totalCount = 0;
+                    let hasFuka = false;
                     fukaData.forEach(fuka => {
-                        totalCount += parseInt(fuka.count);
-                        console.log('处理福卡类型:', fuka.name, '数量:', fuka.count, '累计总数:', totalCount);
-                        if (parseInt(fuka.count) > 0) {
-                            for (let i = 0; i < parseInt(fuka.count); i++) {
+                        const count = parseInt(fuka.count);
+                        totalCount += count;
+                        console.log('处理福卡类型:', fuka.name, '数量:', count, '累计总数:', totalCount);
+                        if (count > 0) {
+                            hasFuka = true;
+                            for (let i = 0; i < count; i++) {
                                 const fukaCard = document.createElement('div');
                                 fukaCard.className = 'border-2 border-orange-400 bg-orange-50 rounded-lg p-4 text-center';
                                 fukaCard.innerHTML = `
@@ -734,6 +737,26 @@
                         }
                     });
                     console.log('RewardManager计算的总福卡数量:', totalCount);
+
+                    // 如果没有福卡，显示提示信息
+                    if (!hasFuka) {
+                        const emptyCard = document.createElement('div');
+                        emptyCard.className = 'border-2 border-gray-300 bg-gray-50 rounded-lg p-4 text-center';
+                        emptyCard.innerHTML = `
+                            <div class="w-16 h-16 mb-3 mx-auto">
+                                <i class="fas fa-gift text-gray-400 text-4xl"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">暂无福卡</h3>
+                            <p class="text-gray-600">您当前没有持有任何福卡</p>
+                            <p class="text-gray-500 text-sm mt-2">前往铸造页面获取福卡吧！</p>
+                            <div class="mt-4">
+                                <a href="mint.html" class="btn-primary inline-block">
+                                    去铸造
+                                </a>
+                            </div>
+                        `;
+                        fukaList.appendChild(emptyCard);
+                    }
 
                     // 检查数据一致性（已注释）
                     /*
@@ -781,6 +804,18 @@
                 console.error('获取福卡列表失败:', error);
                 // 清空列表
                 fukaList.innerHTML = '';
+                // 显示错误信息
+                const errorCard = document.createElement('div');
+                errorCard.className = 'border-2 border-red-300 bg-red-50 rounded-lg p-4 text-center';
+                errorCard.innerHTML = `
+                    <div class="w-16 h-16 mb-3 mx-auto">
+                        <i class="fas fa-exclamation-circle text-red-500 text-4xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">加载失败</h3>
+                    <p class="text-gray-600">获取福卡列表时发生错误</p>
+                    <p class="text-gray-500 text-sm mt-2">请刷新页面重试</p>
+                `;
+                fukaList.appendChild(errorCard);
                 // 更新标题
                 const title = document.getElementById('fukaCountTitle');
                 if (title) {
